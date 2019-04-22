@@ -5,12 +5,22 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Business\Interfaces\" />
+    <Folder Include="Entidades\DBEntities\" />
+    <Folder Include="Entidades\NovaPasta\" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Data\Data.csproj" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.2.4" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\SystemHelper\SystemHelper.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.ComponentModel.Annotations">
+      <HintPath>..\..\..\..\..\..\Program Files\dotnet\sdk\NuGetFallbackFolder\microsoft.netcore.app\2.2.0\ref\netcoreapp2.2\System.ComponentModel.Annotations.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

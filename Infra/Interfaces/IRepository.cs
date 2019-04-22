@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Data.Interfaces
+namespace Infra.Interfaces
 {
     public interface IRepository<TEntity> where TEntity : class
     {

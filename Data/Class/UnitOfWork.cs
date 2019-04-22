@@ -1,10 +1,8 @@
-﻿using Data.Class;
-using Nest;
+﻿using Nest;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using SystemHelper;
-using Data.Interfaces;
+using Infra.Class;
 
 namespace Data.Class
 {
@@ -28,7 +26,7 @@ namespace Data.Class
             return client.IndexExists(request).Exists;
         }
 
-        public Interfaces.IRepository<TEntity> StartClient<TEntity>(string nameInstance, string _index) where TEntity : class
+        public Infra.Interfaces.IRepository<TEntity> StartClient<TEntity>(string nameInstance, string _index) where TEntity : class
         {
             if (this.ClientFactory.ContainsKey(nameInstance))
                 return this.GetClient<TEntity>(nameInstance);
@@ -41,7 +39,7 @@ namespace Data.Class
             return repository;
         }
 
-        public Repository<TEntity> GetClient<TEntity>(string nameInstance) where TEntity:class
+        public Infra.Interfaces.IRepository<TEntity> GetClient<TEntity>(string nameInstance) where TEntity:class
         {
             this.ClientFactory.TryGetValue(nameInstance, out object repository);
 

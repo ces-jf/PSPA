@@ -1,4 +1,4 @@
-﻿using Data.Class;
+﻿using Infra.Class;
 
 namespace Infra.Business
 {

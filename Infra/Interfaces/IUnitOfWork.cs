@@ -1,10 +1,10 @@
-﻿using Data.Interfaces;
+﻿using Infra.Interfaces;
 
-namespace Data.Class
+namespace Infra.Class
 {
     public interface IUnitOfWork
     {
-        Repository<TEntity> GetClient<TEntity>(string nameInstance) where TEntity : class;
+        IRepository<TEntity> GetClient<TEntity>(string nameInstance) where TEntity : class;
         bool IndexExists(string _indexName);
         IRepository<TEntity> StartClient<TEntity>(string nameInstance, string _index) where TEntity : class;
     }

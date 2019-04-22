@@ -1,17 +1,35 @@
-﻿using Data.Class;
+﻿using Infra.Class;
+using Infra.Interfaces;
 using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Security.Principal;
 
 namespace Infra.Business
 {
     public class BusinessBase : IDisposable, IBusinessBase
     {
         public IUnitOfWork _unitOfWork { get; set; }
+        public ISystemContext _systemContext { get; set; }
+        public IPrincipal User { get; set; }
 
-        public BusinessBase(IUnitOfWork unitOfWork)
+        public BusinessBase(IPrincipal User)
+        {
+            this.User = User;
+        }
+
+        public BusinessBase(IUnitOfWork unitOfWork, IPrincipal User) : this(User)
         {
             this._unitOfWork = unitOfWork;
+        }
+
+        public BusinessBase(ISystemContext systemContext, IPrincipal User) : this(User)
+        {
+            this._systemContext = systemContext;
+        }
+
+        public BusinessBase(IUnitOfWork unitOfWork, ISystemContext systemContext, IPrincipal User) : this(User)
+        {
+            this._unitOfWork = unitOfWork;
+            this._systemContext = systemContext;
         }
 
         #region IDisposable Support
