@@ -111,37 +111,55 @@ namespace WebApi.Migrations
 
                     b.Property<DateTime>("DataTermino");
 
-                    b.Property<long?>("UsuarioMatricula");
+                    b.Property<string>("UsuarioId");
 
                     b.HasKey("ID");
 
-                    b.HasIndex("UsuarioMatricula");
+                    b.HasIndex("UsuarioId");
 
                     b.ToTable("PedidoImportacao");
                 });
 
             modelBuilder.Entity("Infra.Entidades.Usuario", b =>
                 {
-                    b.Property<long>("Matricula")
+                    b.Property<string>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("Email")
-                        .IsRequired();
+                    b.Property<int>("AccessFailedCount");
 
-                    b.Property<string>("Nome")
-                        .IsRequired();
+                    b.Property<string>("ConcurrencyStamp");
 
-                    b.Property<string>("Senha")
-                        .IsRequired();
+                    b.Property<string>("Email");
 
-                    b.Property<string>("SobreNome")
-                        .IsRequired();
+                    b.Property<bool>("EmailConfirmed");
 
-                    b.Property<long?>("UsuarioMatricula");
+                    b.Property<string>("FirstName");
 
-                    b.HasKey("Matricula");
+                    b.Property<bool>("LockoutEnabled");
 
-                    b.HasIndex("UsuarioMatricula");
+                    b.Property<DateTimeOffset?>("LockoutEnd");
+
+                    b.Property<string>("NormalizedEmail");
+
+                    b.Property<string>("NormalizedUserName");
+
+                    b.Property<string>("Password");
+
+                    b.Property<string>("PasswordHash");
+
+                    b.Property<string>("PhoneNumber");
+
+                    b.Property<bool>("PhoneNumberConfirmed");
+
+                    b.Property<string>("SecondName");
+
+                    b.Property<string>("SecurityStamp");
+
+                    b.Property<bool>("TwoFactorEnabled");
+
+                    b.Property<string>("UserName");
+
+                    b.HasKey("Id");
 
                     b.ToTable("Usuario");
                 });
@@ -184,14 +202,7 @@ namespace WebApi.Migrations
                 {
                     b.HasOne("Infra.Entidades.Usuario", "Usuario")
                         .WithMany()
-                        .HasForeignKey("UsuarioMatricula");
-                });
-
-            modelBuilder.Entity("Infra.Entidades.Usuario", b =>
-                {
-                    b.HasOne("Infra.Entidades.Usuario")
-                        .WithMany("Usuarios")
-                        .HasForeignKey("UsuarioMatricula");
+                        .HasForeignKey("UsuarioId");
                 });
 #pragma warning restore 612, 618
         }

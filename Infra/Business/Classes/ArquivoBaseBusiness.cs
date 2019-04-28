@@ -1,4 +1,5 @@
-﻿using Infra.Class;
+﻿using Infra.Business.Interfaces;
+using Infra.Class;
 using Infra.Entidades;
 using Infra.Interfaces;
 using System;
@@ -13,19 +14,19 @@ using SystemHelper;
 
 namespace Infra.Business.Classes
 {
-    public class ArquivoBaseBusiness : BusinessBase
+    public class ArquivoBaseBusiness : BusinessBase, IArquivoBaseBusiness
     {
         public ArquivoBaseBusiness(IUnitOfWork _unitOfWork, IPrincipal User) : base(_unitOfWork, User) { }
-        public ArquivoBaseBusiness(IUnitOfWork _unitOfWork, ISystemContext _systemContext, IPrincipal User):base(_unitOfWork, _systemContext, User) { }
+        public ArquivoBaseBusiness(IUnitOfWork _unitOfWork, ISystemContext _systemContext, IPrincipal User) : base(_unitOfWork, _systemContext, User) { }
 
         public async Task CadastrarBaseAsync(string _url, string _index)
-       {
+        {
             var newPedido = new PedidoImportacao()
             {
                 Usuario = User as Usuario
             };
 
-             var newPedidoEntity = await _systemContext.PedidoImportacao.AddAsync(newPedido);
+            var newPedidoEntity = await _systemContext.PedidoImportacao.AddAsync(newPedido);
 
             var logFile = new LogPedidoImportacao()
             {
@@ -51,7 +52,7 @@ namespace Infra.Business.Classes
             var linkListFiles = files.Where(a => a.Contains("link.txt")).FirstOrDefault();
 
             if (!string.IsNullOrEmpty(linkListFiles))
-               files = this.DownloadListLink(linkListFiles, _index, ref logFileEntity);
+                files = this.DownloadListLink(linkListFiles, _index, ref logFileEntity);
 
             logFileEntity.Entity.Descricao = $"Iniciando leitura dos arquivos...";
             logFileEntity = _systemContext.LogPedidoImportacao.Update(logFileEntity.Entity);
@@ -59,7 +60,8 @@ namespace Infra.Business.Classes
 
             foreach (var _file in files)
             {
-                var logSingleFile = new LogPedidoImportacao {
+                var logSingleFile = new LogPedidoImportacao
+                {
                     Descricao = $"Iniciando leitura do arquivo {_file}...",
                     IndicadorStatus = "I",
                     PedidoImportacao = newPedidoEntity.Entity
@@ -134,7 +136,7 @@ namespace Infra.Business.Classes
             int skip = 1;
 
             var ramErrors = new Dictionary<int[], string>(); //skip, contador
-            
+
 
             do
             {
@@ -145,7 +147,7 @@ namespace Infra.Business.Classes
                     loadObjects.AddRange(file.Skip(skip).Take(contador).Select(a => a.Split(';').Zip(cabecalho, (value, key) => new { key, value }).ToDictionary(z => z.key, b => b.value)));
 
                     valorTotal += loadObjects.Count;
-                    
+
                     this.WorkWithObjMemory(ref loadObjects, ref repository, ref isMemoryFull, cabecalho);
 
                     skip += contador;
@@ -160,14 +162,14 @@ namespace Infra.Business.Classes
             return ramErrors;
         }
 
-        private void WorkWithObjMemory(ref List<Dictionary<string,string>> linha, ref IRepository<Dictionary<string, string>> repository, ref bool isMemoryFull, string[] cabecalho)
+        private void WorkWithObjMemory(ref List<Dictionary<string, string>> linha, ref IRepository<Dictionary<string, string>> repository, ref bool isMemoryFull, string[] cabecalho)
         {
             try
             {
                 repository.BulkInsert(linha);
                 linha.RemoveRange(0, linha.Count);
             }
-            catch(Exception erro)
+            catch (Exception erro)
             {
                 throw erro;
             }
@@ -206,7 +208,7 @@ namespace Infra.Business.Classes
             ZipFile.ExtractToDirectory(destineBase, destineExtract);
         }
 
-    
+
         private void WebClient_DownloadFileCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
         {
             Console.Clear();

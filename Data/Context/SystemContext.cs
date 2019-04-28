@@ -13,7 +13,6 @@ namespace Data.Context
         public DbSet<Cabecalho> Cabecalho { get; set; }
         public DbSet<LinhaPedidoImportacao> LinhaPedidoImportacao { get; set; }
         public DbSet<PedidoImportacao> PedidoImportacao { get; set; }
-        public DbSet<Usuario> Usuario { get; set; }
         public DbSet<LogPedidoImportacao> LogPedidoImportacao { get; set; }
     }
 }

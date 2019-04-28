@@ -1,25 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Text;
+﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Identity;
 
 namespace Infra.Entidades
 {
-    public class Usuario
+    // Add profile data for application users by adding properties to the Usuario class
+    public class Usuario : IdentityUser
     {
-        [Key]
-        public long Matricula { get; set; }
-        [Required]
-        public string Nome { get; set; }
-        [Required]
-        public string SobreNome { get; set; }
-        [Required]
-        public string Email { get; set; }
-        [Required]
-        public string Senha { get; set; }
-
-
-        //Relationship
-        public ICollection<Usuario> Usuarios { get; set; }
+        public string FirstName { get; set; }
+        public string SecondName { get; set; }
+        public string Password { get; set; }
     }
 }

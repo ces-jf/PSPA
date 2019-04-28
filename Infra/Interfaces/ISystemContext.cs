@@ -14,7 +14,6 @@ namespace Infra.Interfaces
         DbSet<LinhaPedidoImportacao> LinhaPedidoImportacao { get; set; }
         DbSet<LogPedidoImportacao> LogPedidoImportacao { get; set; }
         DbSet<PedidoImportacao> PedidoImportacao { get; set; }
-        DbSet<Usuario> Usuario { get; set; }
         int SaveChanges(bool acceptAllChangesOnSuccess);
         //
         // Resumo:

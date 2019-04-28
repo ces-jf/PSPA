@@ -3,3 +3,13 @@ LeituraArquivoCSVGrande/bin/Debug/netcoreapp2.1/wwwroot/TempBases/bolsaFamilia.z
 LeituraArquivoCSVGrande/bin/Debug/netcoreapp2.1/wwwroot/TempBases/201901_BolsaFamilia_Pagamentos.csv
 LeituraArquivoCSVGrande/bin/Debug/netcoreapp2.1/wwwroot/TempBases/bolsaTeste/201901_BolsaFamilia_Pagamentos.csv
 /.vs/LeituraArquivoCSVGrande/v16
+/Data/bin/Debug/netstandard2.0
+/Data/obj/Release/netstandard2.0
+/Infra/bin/Debug/netstandard2.0
+/IoC/bin/Debug/netstandard2.0
+/LeituraArquivoCSVGrande/obj/Debug/netcoreapp2.1
+/LeituraArquivoCSVGrande/obj/Release/netcoreapp2.1
+/SystemHelper/bin/Debug/netstandard2.0
+/WebApi/Areas/Identity/Pages
+/WebApi/bin/Debug/netcoreapp2.2
+/WebApi/Pages

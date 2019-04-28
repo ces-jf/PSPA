@@ -1,5 +1,7 @@
 ﻿using Data.Class;
 using Data.Context;
+using Infra.Business.Classes;
+using Infra.Business.Interfaces;
 using Infra.Class;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -31,7 +33,8 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-            //services.AddTransient<IConsultaService, ConsultaService>();
+            services.AddTransient<IArquivoBaseBusiness, ArquivoBaseBusiness>();
+
             return services;
         }
     }

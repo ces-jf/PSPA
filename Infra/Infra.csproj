@@ -6,10 +6,11 @@
 
   <ItemGroup>
     <Folder Include="Entidades\DBEntities\" />
-    <Folder Include="Entidades\NovaPasta\" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="2.2.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.2.4" />
   </ItemGroup>
 
