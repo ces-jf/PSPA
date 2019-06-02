@@ -20,7 +20,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             var connectionString = $"Server={server};Database={databaseName};User={user};Password={password}";
 
-            services.AddDbContext<SystemContext>(options => options.UseMySql(connectionString, mysqlOptions =>
+            services.AddDbContext<IdentityContext>(options => options.UseMySql(connectionString, mysqlOptions =>
             {
                 mysqlOptions.ServerVersion(SystemHelper.Configuration.DatabaseVersion, ServerType.MariaDb);
                 mysqlOptions.MigrationsAssembly("WebApi");

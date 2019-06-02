@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using SystemHelper;
 using Infra.Class;
+using Microsoft.Extensions.Options;
 
 namespace Data.Class
 {
@@ -11,10 +12,12 @@ namespace Data.Class
         private Uri ElasticSearchURL { get; set; }
         private readonly ConnectionSettings ConnectionSettings;
         private readonly Dictionary<string, object> ClientFactory;
+        private readonly Configuration _configuration;
 
-        public UnitOfWork()
+        public UnitOfWork(IOptions<Configuration> configuration)
         {
-            this.ElasticSearchURL = new Uri(Configuration.ElasticSearchURL);
+            _configuration = configuration.Value;
+            this.ElasticSearchURL = new Uri(_configuration.ElasticSearchURL);
             this.ConnectionSettings = new ConnectionSettings(ElasticSearchURL);
             ClientFactory = new Dictionary<string, object>();
         }

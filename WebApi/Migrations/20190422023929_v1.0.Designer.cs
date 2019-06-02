@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace WebApi.Migrations
 {
-    [DbContext(typeof(SystemContext))]
+    [DbContext(typeof(IdentityContext))]
     [Migration("20190422023929_v1.0")]
     partial class v10
     {

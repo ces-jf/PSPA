@@ -14,4 +14,3 @@ namespace Infra.Entidades.Identity
 
     }
 }
-}

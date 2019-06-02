@@ -5329,7 +5329,7 @@
       ]
     },
     "System.Collections.Specialized/4.3.0": {
-      "sha512": "Epx8PoVZR0iuOnJJDzp7pWvdfMMOAvpUo95pC4ScH2mJuXkKA2Y4aR3cG9qt2klHgSons1WFh4kcGW7cSXvrxg==",
+      "sha512": "NoPBj0ykejqAWW4p4gGtrrL+3c84ZLSvGnHgq422ew1Rj4WKj1FA8/BCybqC111EtgcqUl6ZJNFYYS22HLgbjA==",
       "type": "package",
       "path": "system.collections.specialized/4.3.0",
       "files": [
@@ -7783,7 +7783,7 @@
       ]
     },
     "System.Runtime.Serialization.Primitives/4.3.0": {
-      "sha512": "Wz+0KOukJGAlXjtKr+5Xpuxf8+c8739RI1C+A2BoQZT+wMCCoMDDdO8/4IRHfaVINqL78GO8dW8G2lW/e45Mcw==",
+      "sha512": "2Z5t70a2SwMsfQDp9KOclaZNyQhfIga2gppq9lIUDM1A4ohTshn4JqT7ir8bvIhXgorWKYDAr6rPzEbi/nTGKg==",
       "type": "package",
       "path": "system.runtime.serialization.primitives/4.3.0",
       "files": [
@@ -9419,11 +9419,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\T-Gamer\\Documents\\GitHub\\PSPA\\IoC\\IoC.csproj",
+      "projectUniqueName": "C:\\Users\\T-Gamer\\source\\repos\\PSPA\\IoC\\IoC.csproj",
       "projectName": "IoC",
-      "projectPath": "C:\\Users\\T-Gamer\\Documents\\GitHub\\PSPA\\IoC\\IoC.csproj",
+      "projectPath": "C:\\Users\\T-Gamer\\source\\repos\\PSPA\\IoC\\IoC.csproj",
       "packagesPath": "C:\\Users\\T-Gamer\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\T-Gamer\\Documents\\GitHub\\PSPA\\IoC\\obj\\",
+      "outputPath": "C:\\Users\\T-Gamer\\source\\repos\\PSPA\\IoC\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\ProgramData\\Xamarin\\NuGet\\",
@@ -9444,11 +9444,11 @@
       "frameworks": {
         "netstandard2.0": {
           "projectReferences": {
-            "C:\\Users\\T-Gamer\\Documents\\GitHub\\PSPA\\Data\\Data.csproj": {
-              "projectPath": "C:\\Users\\T-Gamer\\Documents\\GitHub\\PSPA\\Data\\Data.csproj"
+            "C:\\Users\\T-Gamer\\source\\repos\\PSPA\\Data\\Data.csproj": {
+              "projectPath": "C:\\Users\\T-Gamer\\source\\repos\\PSPA\\Data\\Data.csproj"
             },
-            "C:\\Users\\T-Gamer\\Documents\\GitHub\\PSPA\\Infra\\Infra.csproj": {
-              "projectPath": "C:\\Users\\T-Gamer\\Documents\\GitHub\\PSPA\\Infra\\Infra.csproj"
+            "C:\\Users\\T-Gamer\\source\\repos\\PSPA\\Infra\\Infra.csproj": {
+              "projectPath": "C:\\Users\\T-Gamer\\source\\repos\\PSPA\\Infra\\Infra.csproj"
             }
           }
         }

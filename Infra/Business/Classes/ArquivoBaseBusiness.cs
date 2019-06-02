@@ -124,7 +124,6 @@ namespace Infra.Business.Classes
         {
             var repository = this._unitOfWork.StartClient<Dictionary<string, string>>($"{_nameBase}Repository", _nameBase);
 
-            var maxMemoryUsing = Configuration.MaxMemoryUsing;
             bool isMemoryFull = false;
 
             var cabecalho = file.FirstOrDefault().Split(';');

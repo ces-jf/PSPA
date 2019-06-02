@@ -7,3 +7,12 @@ C:\Users\T-Gamer\Documents\GitHub\PSPA\SystemHelper\obj\Debug\netstandard2.0\Sys
 C:\Users\T-Gamer\Documents\GitHub\PSPA\SystemHelper\obj\Debug\netstandard2.0\SystemHelper.dll
 C:\Users\T-Gamer\Documents\GitHub\PSPA\SystemHelper\obj\Debug\netstandard2.0\SystemHelper.pdb
 C:\Users\T-Gamer\Documents\GitHub\PSPA\SystemHelper\obj\Debug\netstandard2.0\SystemHelper.csprojAssemblyReference.cache
+C:\Users\T-Gamer\Source\Repos\PSPA\SystemHelper\bin\Debug\netstandard2.0\SystemHelper.deps.json
+C:\Users\T-Gamer\Source\Repos\PSPA\SystemHelper\bin\Debug\netstandard2.0\SystemHelper.dll
+C:\Users\T-Gamer\Source\Repos\PSPA\SystemHelper\bin\Debug\netstandard2.0\SystemHelper.pdb
+C:\Users\T-Gamer\Source\Repos\PSPA\SystemHelper\obj\Debug\netstandard2.0\SystemHelper.csproj.CoreCompileInputs.cache
+C:\Users\T-Gamer\Source\Repos\PSPA\SystemHelper\obj\Debug\netstandard2.0\SystemHelper.AssemblyInfoInputs.cache
+C:\Users\T-Gamer\Source\Repos\PSPA\SystemHelper\obj\Debug\netstandard2.0\SystemHelper.AssemblyInfo.cs
+C:\Users\T-Gamer\Source\Repos\PSPA\SystemHelper\obj\Debug\netstandard2.0\SystemHelper.dll
+C:\Users\T-Gamer\Source\Repos\PSPA\SystemHelper\obj\Debug\netstandard2.0\SystemHelper.pdb
+C:\Users\T-Gamer\source\repos\PSPA\SystemHelper\obj\Debug\netstandard2.0\SystemHelper.csprojAssemblyReference.cache
