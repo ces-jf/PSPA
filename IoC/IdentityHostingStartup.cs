@@ -1,6 +1,7 @@
 ﻿using Data.Context;
 using Infra.Entidades;
 using Infra.Entidades.Identity;
+using Infra.Interfaces;
 using IoC.Configurations;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -29,7 +30,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
                 options.UseMySql(connectionString, mysqlOptions =>
                 {
-                    mysqlOptions.ServerVersion(SystemHelper.Configuration.DatabaseVersion, ServerType.MariaDb);
+                    mysqlOptions.ServerVersion(SystemHelper.Configuration.DatabaseVersion, ServerType.MySql);
                     mysqlOptions.MigrationsAssembly("WebApi");
                 }));
 

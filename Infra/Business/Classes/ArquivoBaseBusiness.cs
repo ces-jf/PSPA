@@ -1,13 +1,17 @@
-﻿using Infra.Business.Interfaces;
+﻿using Infra.Business.Classes.Identity;
+using Infra.Business.Interfaces;
 using Infra.Class;
 using Infra.Entidades;
 using Infra.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net;
+using System.Security.Claims;
 using System.Security.Principal;
 using System.Threading.Tasks;
 using SystemHelper;
@@ -16,35 +20,51 @@ namespace Infra.Business.Classes
 {
     public class ArquivoBaseBusiness : BusinessBase, IArquivoBaseBusiness
     {
-        public ArquivoBaseBusiness(IUnitOfWork _unitOfWork, IPrincipal User) : base(_unitOfWork, User) { }
-        public ArquivoBaseBusiness(IUnitOfWork _unitOfWork, ISystemContext _systemContext, IPrincipal User) : base(_unitOfWork, _systemContext, User) { }
+        public readonly IdentityBusiness identityBusiness;
+        private PedidoImportacao _importacaoWebClient { get; set; }
 
-        public async Task CadastrarBaseAsync(string _url, string _index)
+        public ArquivoBaseBusiness(IUnitOfWork _unitOfWork, IIdentityContext _systemContext, IdentityBusiness _identityBusiness) : base(_unitOfWork, _systemContext) { this.identityBusiness = _identityBusiness; }
+
+        public async Task CadastrarBaseAsync(string _url, string _index, IPrincipal User)
         {
-            var newPedido = new PedidoImportacao()
+            Usuario usuario;
+
+            using (var identityContext = identityBusiness)
             {
-                Usuario = User as Usuario
+                usuario = await identityContext.GetUsuarioAsync(User as ClaimsPrincipal);
+                usuario = _systemContext.Usuario.Include(a => a.PedidosImportacao).FirstOrDefault(a => a.Id == usuario.Id);
+            }
+
+            if (usuario == null)
+                throw new Exception("Usuario não encontrado.");
+
+            var newPedidoEntity = new PedidoImportacao
+            {
+                LogPedidoImportacao = new List<LogPedidoImportacao>()
             };
 
-            var newPedidoEntity = await _systemContext.PedidoImportacao.AddAsync(newPedido);
-
-            var logFile = new LogPedidoImportacao()
+            newPedidoEntity.LogPedidoImportacao.Add(new LogPedidoImportacao()
             {
                 Descricao = "Baixando Arquivos do Disco...",
-                IndicadorStatus = "I",
-                PedidoImportacao = newPedidoEntity.Entity
-            };
+                IndicadorStatus = "I"
+            });
 
-            var logFileEntity = await _systemContext.LogPedidoImportacao.AddAsync(logFile);
+            usuario.PedidosImportacao.Add(newPedidoEntity);
 
-            this.DownloadOnDisk(_url, _index, ref logFileEntity);
+            _systemContext.SaveChanges();
+            _systemContext.PedidoImportacao.Attach(newPedidoEntity);
+
+            this.DownloadOnDisk(_url, _index, ref newPedidoEntity, _systemContext);
 
             var errors = new List<Dictionary<int[], string>>();
 
             string path = Path.Combine(Configuration.DefaultTempBaseFiles, _index);
 
-            logFileEntity.Entity.Descricao = "Listando arquivos baixados no disco...";
-            logFileEntity = _systemContext.LogPedidoImportacao.Update(logFileEntity.Entity);
+            newPedidoEntity.LogPedidoImportacao.Add(new LogPedidoImportacao()
+            {
+                Descricao = "Listando arquivos baixados no disco...",
+                IndicadorStatus = "I"
+            });
             _systemContext.SaveChanges();
 
             var files = Directory.GetFiles(path);
@@ -52,27 +72,33 @@ namespace Infra.Business.Classes
             var linkListFiles = files.Where(a => a.Contains("link.txt")).FirstOrDefault();
 
             if (!string.IsNullOrEmpty(linkListFiles))
-                files = this.DownloadListLink(linkListFiles, _index, ref logFileEntity);
+                files = this.DownloadListLink(linkListFiles, _index, ref newPedidoEntity, _systemContext);
 
-            logFileEntity.Entity.Descricao = $"Iniciando leitura dos arquivos...";
-            logFileEntity = _systemContext.LogPedidoImportacao.Update(logFileEntity.Entity);
+            newPedidoEntity.LogPedidoImportacao.Add(new LogPedidoImportacao()
+            {
+                Descricao = $"Iniciando leitura dos arquivos...",
+                IndicadorStatus = "I"
+            });
             _systemContext.SaveChanges();
 
             foreach (var _file in files)
             {
-                var logSingleFile = new LogPedidoImportacao
+                newPedidoEntity.LogPedidoImportacao.Add(new LogPedidoImportacao()
                 {
                     Descricao = $"Iniciando leitura do arquivo {_file}...",
-                    IndicadorStatus = "I",
-                    PedidoImportacao = newPedidoEntity.Entity
-                };
+                    IndicadorStatus = "I"
+                });
 
-                _systemContext.LogPedidoImportacao.Add(logSingleFile);
+                _systemContext.SaveChanges();
 
                 var file = File.ReadLines(_file);
 
-                logSingleFile.Descricao = $"Gravando no banco ElasticSearch os dados do arquivo {_file}...";
-                _systemContext.LogPedidoImportacao.Add(logSingleFile);
+                newPedidoEntity.LogPedidoImportacao.Add(new LogPedidoImportacao()
+                {
+                    Descricao = $"Gravando no banco ElasticSearch os dados do arquivo {_file}...",
+                    IndicadorStatus = "I"
+                });
+                _systemContext.SaveChanges();
 
                 var result = this.InserirArquivo(file, _index);
 
@@ -90,26 +116,44 @@ namespace Infra.Business.Classes
             Directory.Delete(path);
         }
 
-        private string[] DownloadListLink(string _filepath, string _index, ref Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<LogPedidoImportacao> logFileEntity)
+        private string[] DownloadListLink(string _filepath, string _index, ref PedidoImportacao newPedidoEntity, IIdentityContext _systemContext)
         {
-            var context = logFileEntity.Context;
-            logFileEntity.Entity.Descricao = "Encontrado arquivo de listagem de links...";
-            logFileEntity = context.Update(logFileEntity.Entity);
+            var context = _systemContext;
 
-            logFileEntity.Entity.Descricao = "Lendo Links para download...";
-            logFileEntity = context.Update(logFileEntity.Entity);
+            newPedidoEntity.LogPedidoImportacao.Add(new LogPedidoImportacao()
+            {
+                Descricao = "Encontrado arquivo de listagem de links...",
+                IndicadorStatus = "I"
+            });
+            _systemContext.SaveChanges();
+
+            newPedidoEntity.LogPedidoImportacao.Add(new LogPedidoImportacao()
+            {
+                Descricao = "Lendo Links para download...",
+                IndicadorStatus = "I"
+            });
+            _systemContext.SaveChanges();
 
             var links = File.ReadAllLines(_filepath);
             List<string> files = new List<string>() { };
 
-            logFileEntity.Entity.Descricao = "Realizando Download dos arquivos listados na lista de links...";
-            logFileEntity = context.Update(logFileEntity.Entity);
+            newPedidoEntity.LogPedidoImportacao.Add(new LogPedidoImportacao()
+            {
+                Descricao = "Realizando Download dos arquivos listados na lista de links...",
+                IndicadorStatus = "I"
+            });
+            _systemContext.SaveChanges();
+
             for (var i = 0; i < links.Count(); i++)
             {
-                logFileEntity.Entity.Descricao = $"Realizando download do link {links[i]} da lista de links...";
-                logFileEntity = context.Update(logFileEntity.Entity);
+                newPedidoEntity.LogPedidoImportacao.Add(new LogPedidoImportacao()
+                {
+                    Descricao = $"Realizando download do link {links[i]} da lista de links...",
+                    IndicadorStatus = "I"
+                });
+                _systemContext.SaveChanges();
 
-                this.DownloadOnDisk(links[i], _index, ref logFileEntity);
+                //this.DownloadOnDisk(links[i], _index, ref logFileEntity);
                 string path = Path.Combine(Path.GetDirectoryName(links[i]), _index);
 
                 var newFiles = Directory.GetFiles(path);
@@ -178,31 +222,48 @@ namespace Infra.Business.Classes
             }
         }
 
-        public void DownloadOnDisk(string _url, string _nameBase, ref Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<LogPedidoImportacao> logFileEntity)
+        public void DownloadOnDisk(string _url, string _nameBase, ref PedidoImportacao newPedidoEntity, IIdentityContext _systemContext)
         {
             var destineBase = Path.Combine(Configuration.DefaultTempBaseFiles, _nameBase);
-            var destineExtract = Path.Combine(Configuration.DefaultTempBaseFiles, _nameBase.Substring(0, _nameBase.Length - 4));
-            var context = logFileEntity.Context;
+            var destineExtract = Path.Combine(Configuration.DefaultTempBaseFiles, $"{_nameBase}Temp");
+            var context = _systemContext;
 
-            logFileEntity.Entity.Descricao = "Criando diretorio de extração...";
-            logFileEntity = context.Update(logFileEntity.Entity);
+            newPedidoEntity.LogPedidoImportacao.Add(new LogPedidoImportacao
+            {
+                Descricao = "Criando diretorio de extração...",
+                IndicadorStatus = "I"
+            });
+
             _systemContext.SaveChanges();
 
             Directory.CreateDirectory(destineExtract);
+            Directory.CreateDirectory(destineBase);
 
             var uri = new Uri(_url);
 
-            logFileEntity.Entity.Descricao = $"Realizando download do arquivo {_nameBase}...";
-            logFileEntity = context.Update(logFileEntity.Entity);
+            newPedidoEntity.LogPedidoImportacao.Add(new LogPedidoImportacao
+            {
+                Descricao = $"Realizando download do arquivo {_nameBase}...",
+                IndicadorStatus = "I"
+            });
+
             _systemContext.SaveChanges();
 
             var webClient = new WebClient();
+
+            Debug.WriteLine("--------------------------------------------------");
+            Debug.WriteLine("Iniciando Download");
+            this._importacaoWebClient = newPedidoEntity;
+
             webClient.DownloadProgressChanged += WebClient_DownloadProgressChanged;
             webClient.DownloadFileCompleted += WebClient_DownloadFileCompleted;
             webClient.DownloadFile(uri, destineBase);
 
-            logFileEntity.Entity.Descricao = $"Extraindo arquivo {_nameBase}...";
-            logFileEntity = context.Update(logFileEntity.Entity);
+            newPedidoEntity.LogPedidoImportacao.Add(new LogPedidoImportacao
+            {
+                Descricao = $"Extraindo arquivo {_nameBase}...",
+                IndicadorStatus = "I"
+            });
             _systemContext.SaveChanges();
             ZipFile.ExtractToDirectory(destineBase, destineExtract);
         }
@@ -210,15 +271,27 @@ namespace Infra.Business.Classes
 
         private void WebClient_DownloadFileCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
         {
-            Console.Clear();
-            Console.WriteLine($"Download Concluido.");
+            this._importacaoWebClient.LogPedidoImportacao.Add(new LogPedidoImportacao
+            {
+                Descricao = $"Donwload Finalizado",
+                IndicadorStatus = "I"
+            });
+
+            _systemContext.SaveChanges();
         }
 
         private void WebClient_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
-            Console.Clear();
-            Console.WriteLine($"Progresso do Download: {e.ProgressPercentage}");
-            Console.WriteLine($"Progresso em Byes: {e.BytesReceived} / {e.TotalBytesToReceive}");
+            if (e.ProgressPercentage.ToString().Contains("5"))
+            {
+                this._importacaoWebClient.LogPedidoImportacao.Add(new LogPedidoImportacao
+                {
+                    Descricao = $"Progresso do Download: {e.ProgressPercentage}",
+                    IndicadorStatus = "I"
+                });
+            }
+
+            _systemContext.SaveChanges();
         }
     }
 }

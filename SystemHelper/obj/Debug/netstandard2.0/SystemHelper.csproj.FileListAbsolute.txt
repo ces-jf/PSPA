@@ -15,4 +15,3 @@ C:\Users\T-Gamer\Source\Repos\PSPA\SystemHelper\obj\Debug\netstandard2.0\SystemH
 C:\Users\T-Gamer\Source\Repos\PSPA\SystemHelper\obj\Debug\netstandard2.0\SystemHelper.AssemblyInfo.cs
 C:\Users\T-Gamer\Source\Repos\PSPA\SystemHelper\obj\Debug\netstandard2.0\SystemHelper.dll
 C:\Users\T-Gamer\Source\Repos\PSPA\SystemHelper\obj\Debug\netstandard2.0\SystemHelper.pdb
-C:\Users\T-Gamer\source\repos\PSPA\SystemHelper\obj\Debug\netstandard2.0\SystemHelper.csprojAssemblyReference.cache

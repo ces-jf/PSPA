@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\T-Gamer\\source\\repos\\PSPA\\SystemHelper\\SystemHelper.csproj": {}
+    "C:\\Users\\T-Gamer\\Source\\Repos\\PSPA\\SystemHelper\\SystemHelper.csproj": {}
   },
   "projects": {
-    "C:\\Users\\T-Gamer\\source\\repos\\PSPA\\SystemHelper\\SystemHelper.csproj": {
+    "C:\\Users\\T-Gamer\\Source\\Repos\\PSPA\\SystemHelper\\SystemHelper.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\T-Gamer\\source\\repos\\PSPA\\SystemHelper\\SystemHelper.csproj",
+        "projectUniqueName": "C:\\Users\\T-Gamer\\Source\\Repos\\PSPA\\SystemHelper\\SystemHelper.csproj",
         "projectName": "SystemHelper",
-        "projectPath": "C:\\Users\\T-Gamer\\source\\repos\\PSPA\\SystemHelper\\SystemHelper.csproj",
+        "projectPath": "C:\\Users\\T-Gamer\\Source\\Repos\\PSPA\\SystemHelper\\SystemHelper.csproj",
         "packagesPath": "C:\\Users\\T-Gamer\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\T-Gamer\\source\\repos\\PSPA\\SystemHelper\\obj\\",
+        "outputPath": "C:\\Users\\T-Gamer\\Source\\Repos\\PSPA\\SystemHelper\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\ProgramData\\Xamarin\\NuGet\\",

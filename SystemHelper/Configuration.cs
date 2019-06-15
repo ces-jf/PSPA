@@ -9,7 +9,7 @@ namespace SystemHelper
         public string ElasticSearchURL { get; set; }
         public static string DefaultTempBaseFiles { get { return Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "TempBases"); } }
         public double MaxMemoryUsing { get; set; }
-        public static Version DatabaseVersion { get { return new Version(10, 1, 38); } }
+        public static Version DatabaseVersion { get { return new Version(5, 5, 62); } }
         public int TokenMinutesValidation { get; set; }
     }
 }

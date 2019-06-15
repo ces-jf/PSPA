@@ -8,25 +8,19 @@ namespace Infra.Business
     public class BusinessBase : IDisposable, IBusinessBase
     {
         public IUnitOfWork _unitOfWork { get; set; }
-        public ISystemContext _systemContext { get; set; }
-        public IPrincipal User { get; set; }
+        public IIdentityContext _systemContext { get; set; }
 
-        public BusinessBase(IPrincipal User)
-        {
-            this.User = User;
-        }
-
-        public BusinessBase(IUnitOfWork unitOfWork, IPrincipal User) : this(User)
+        public BusinessBase(IUnitOfWork unitOfWork)
         {
             this._unitOfWork = unitOfWork;
         }
 
-        public BusinessBase(ISystemContext systemContext, IPrincipal User) : this(User)
+        public BusinessBase(IIdentityContext systemContext)
         {
             this._systemContext = systemContext;
         }
 
-        public BusinessBase(IUnitOfWork unitOfWork, ISystemContext systemContext, IPrincipal User) : this(User)
+        public BusinessBase(IUnitOfWork unitOfWork, IIdentityContext systemContext)
         {
             this._unitOfWork = unitOfWork;
             this._systemContext = systemContext;

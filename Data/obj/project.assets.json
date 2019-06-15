@@ -4053,11 +4053,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\T-Gamer\\source\\repos\\PSPA\\Data\\Data.csproj",
+      "projectUniqueName": "C:\\Users\\T-Gamer\\Source\\Repos\\PSPA\\Data\\Data.csproj",
       "projectName": "Data",
-      "projectPath": "C:\\Users\\T-Gamer\\source\\repos\\PSPA\\Data\\Data.csproj",
+      "projectPath": "C:\\Users\\T-Gamer\\Source\\Repos\\PSPA\\Data\\Data.csproj",
       "packagesPath": "C:\\Users\\T-Gamer\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\T-Gamer\\source\\repos\\PSPA\\Data\\obj\\",
+      "outputPath": "C:\\Users\\T-Gamer\\Source\\Repos\\PSPA\\Data\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\ProgramData\\Xamarin\\NuGet\\",
@@ -4078,11 +4078,11 @@
       "frameworks": {
         "netstandard2.0": {
           "projectReferences": {
-            "C:\\Users\\T-Gamer\\source\\repos\\PSPA\\Infra\\Infra.csproj": {
-              "projectPath": "C:\\Users\\T-Gamer\\source\\repos\\PSPA\\Infra\\Infra.csproj"
+            "C:\\Users\\T-Gamer\\Source\\Repos\\PSPA\\Infra\\Infra.csproj": {
+              "projectPath": "C:\\Users\\T-Gamer\\Source\\Repos\\PSPA\\Infra\\Infra.csproj"
             },
-            "C:\\Users\\T-Gamer\\source\\repos\\PSPA\\SystemHelper\\SystemHelper.csproj": {
-              "projectPath": "C:\\Users\\T-Gamer\\source\\repos\\PSPA\\SystemHelper\\SystemHelper.csproj"
+            "C:\\Users\\T-Gamer\\Source\\Repos\\PSPA\\SystemHelper\\SystemHelper.csproj": {
+              "projectPath": "C:\\Users\\T-Gamer\\Source\\Repos\\PSPA\\SystemHelper\\SystemHelper.csproj"
             }
           }
         }

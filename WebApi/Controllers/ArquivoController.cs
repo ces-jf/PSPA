@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace WebApi.Controllers
 {
     [Route("api/[controller]")]
+    [Authorize("Bearer")]
     [ApiController]
     public class ArquivoController : ControllerBase
     {
@@ -33,14 +34,14 @@ namespace WebApi.Controllers
         {
             return "value";
         }
-
-        // POST: api/Arquivo
+        
+         // POST: api/Arquivo
         [HttpPost]
-        public async Task<IActionResult> PostAsync([FromBody] string url, string indexName)
+        public async Task<IActionResult> Post(string url, string indexName)
         {
             try
             {
-                await this.ArquivoBaseBusiness.CadastrarBaseAsync(url, indexName);
+                await this.ArquivoBaseBusiness.CadastrarBaseAsync(url, indexName, User);
                 return new CreatedResult("",new { message = $"Base de dados {indexName} cadastrada com sucesso!" });
             }
             catch(Exception erro)
@@ -50,7 +51,7 @@ namespace WebApi.Controllers
         }
 
         // PUT: api/Arquivo/5
-        [HttpPut("{id}")]
+        [HttpPut("{id}") ]
         public void Put(int id, [FromBody] string value)
         {
         }

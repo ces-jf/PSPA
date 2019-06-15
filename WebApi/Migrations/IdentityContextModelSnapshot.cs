@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace WebApi.Migrations
 {
     [DbContext(typeof(IdentityContext))]
-    partial class SystemContextModelSnapshot : ModelSnapshot
+    partial class IdentityContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
@@ -88,6 +88,8 @@ namespace WebApi.Migrations
                     b.Property<long>("ID")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<DateTime>("DataCriacao");
+
                     b.Property<string>("Descricao")
                         .IsRequired();
 
@@ -109,34 +111,33 @@ namespace WebApi.Migrations
                     b.Property<long>("ID")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<DateTime>("DataTermino");
+                    b.Property<DateTime?>("DataTermino");
 
-                    b.Property<string>("UsuarioEmail");
+                    b.Property<string>("UsuarioId");
 
                     b.HasKey("ID");
 
-                    b.HasIndex("UsuarioEmail");
+                    b.HasIndex("UsuarioId");
 
                     b.ToTable("PedidoImportacao");
                 });
 
             modelBuilder.Entity("Infra.Entidades.Usuario", b =>
                 {
-                    b.Property<string>("Email")
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(256);
+                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd();
 
                     b.Property<int>("AccessFailedCount");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken();
 
+                    b.Property<string>("Email")
+                        .HasMaxLength(256);
+
                     b.Property<bool>("EmailConfirmed");
 
                     b.Property<string>("FirstName");
-
-                    b.Property<string>("Id")
-                        .IsRequired();
 
                     b.Property<bool>("LockoutEnabled");
 
@@ -147,8 +148,6 @@ namespace WebApi.Migrations
 
                     b.Property<string>("NormalizedUserName")
                         .HasMaxLength(256);
-
-                    b.Property<string>("Password");
 
                     b.Property<string>("PasswordHash");
 
@@ -165,9 +164,10 @@ namespace WebApi.Migrations
                     b.Property<string>("UserName")
                         .HasMaxLength(256);
 
-                    b.HasKey("Email");
+                    b.HasKey("Id");
 
-                    b.HasAlternateKey("Id");
+                    b.HasIndex("Email")
+                        .IsUnique();
 
                     b.HasIndex("NormalizedEmail")
                         .HasName("EmailIndex");
@@ -323,8 +323,8 @@ namespace WebApi.Migrations
             modelBuilder.Entity("Infra.Entidades.PedidoImportacao", b =>
                 {
                     b.HasOne("Infra.Entidades.Usuario", "Usuario")
-                        .WithMany()
-                        .HasForeignKey("UsuarioEmail");
+                        .WithMany("PedidosImportacao")
+                        .HasForeignKey("UsuarioId");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

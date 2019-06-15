@@ -93,12 +93,20 @@ namespace WebApi.Controllers
         [AllowAnonymous]
         [Route("/Create")]
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] Usuario usuario, [FromServices]UserManager<Usuario> _userManager, [FromServices] SignInManager<Usuario> _signInManager, [FromServices] SigningConfigurations signingConfigurations, [FromServices] TokenConfigurations tokenConfigurations)
+        public async Task<IActionResult> Create([FromBody] RegisterModel.InputModel usuario, [FromServices]UserManager<Usuario> _userManager, [FromServices] SignInManager<Usuario> _signInManager, [FromServices] SigningConfigurations signingConfigurations, [FromServices] TokenConfigurations tokenConfigurations)
         {
             if(ModelState.IsValid)
             {
                 var user = usuario;
-                var result = await _userManager.CreateAsync(usuario, usuario.Password);
+
+                var usuarioEntity = new Usuario
+                {
+                    Email = usuario.Email,
+                    PasswordHash = usuario.Password,
+                    UserName = "Teste"
+                };
+
+                var result = await _userManager.CreateAsync(usuarioEntity, usuario.Password);
 
                 if(result.Succeeded)
                 {

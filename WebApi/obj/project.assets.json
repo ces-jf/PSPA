@@ -13452,11 +13452,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\T-Gamer\\source\\repos\\PSPA\\WebApi\\WebApi.csproj",
+      "projectUniqueName": "C:\\Users\\T-Gamer\\Source\\Repos\\PSPA\\WebApi\\WebApi.csproj",
       "projectName": "WebApi",
-      "projectPath": "C:\\Users\\T-Gamer\\source\\repos\\PSPA\\WebApi\\WebApi.csproj",
+      "projectPath": "C:\\Users\\T-Gamer\\Source\\Repos\\PSPA\\WebApi\\WebApi.csproj",
       "packagesPath": "C:\\Users\\T-Gamer\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\T-Gamer\\source\\repos\\PSPA\\WebApi\\obj\\",
+      "outputPath": "C:\\Users\\T-Gamer\\Source\\Repos\\PSPA\\WebApi\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\ProgramData\\Xamarin\\NuGet\\",
@@ -13477,8 +13477,8 @@
       "frameworks": {
         "netcoreapp2.2": {
           "projectReferences": {
-            "C:\\Users\\T-Gamer\\source\\repos\\PSPA\\IoC\\IoC.csproj": {
-              "projectPath": "C:\\Users\\T-Gamer\\source\\repos\\PSPA\\IoC\\IoC.csproj"
+            "C:\\Users\\T-Gamer\\Source\\Repos\\PSPA\\IoC\\IoC.csproj": {
+              "projectPath": "C:\\Users\\T-Gamer\\Source\\Repos\\PSPA\\IoC\\IoC.csproj"
             }
           }
         }

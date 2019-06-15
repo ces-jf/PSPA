@@ -1,0 +1,15 @@
+C:\Users\T-Gamer\Source\Repos\PSPA\bin\Debug\WebApi.dll
+C:\Users\T-Gamer\Source\Repos\PSPA\bin\Debug\Data.dll
+C:\Users\T-Gamer\Source\Repos\PSPA\bin\Debug\Infra.dll
+C:\Users\T-Gamer\Source\Repos\PSPA\bin\Debug\SystemHelper.dll
+C:\Users\T-Gamer\Source\Repos\PSPA\bin\Debug\IoC.dll
+C:\Users\T-Gamer\Source\Repos\PSPA\bin\Debug\WebApi.pdb
+C:\Users\T-Gamer\Source\Repos\PSPA\bin\Debug\Data.pdb
+C:\Users\T-Gamer\Source\Repos\PSPA\bin\Debug\Data.dll.config
+C:\Users\T-Gamer\Source\Repos\PSPA\bin\Debug\Infra.pdb
+C:\Users\T-Gamer\Source\Repos\PSPA\bin\Debug\SystemHelper.pdb
+C:\Users\T-Gamer\Source\Repos\PSPA\bin\Debug\IoC.pdb
+C:\Users\T-Gamer\Source\Repos\PSPA\bin\Debug\IoC.dll.config
+C:\Users\T-Gamer\Source\Repos\PSPA\obj\Debug\docker-compose.dcprojAssemblyReference.cache
+C:\Users\T-Gamer\Source\Repos\PSPA\obj\Debug\docker-compose.dcproj.CoreCompileInputs.cache
+C:\Users\T-Gamer\Source\Repos\PSPA\obj\Debug\docker-compose.dcproj.CopyComplete

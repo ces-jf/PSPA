@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Identity;
 
 namespace Infra.Entidades
@@ -10,7 +10,9 @@ namespace Infra.Entidades
         public string FirstName { get; set; }
         [PersonalData]
         public string SecondName { get; set; }
-        [PersonalData]
-        public string Password { get; set; }
+
+
+        //Relationships
+        public ICollection<PedidoImportacao> PedidosImportacao { get; set; }
     }
 }

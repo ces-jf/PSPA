@@ -1,11 +1,15 @@
-FROM microsoft/dotnet:2.1-aspnetcore-runtime AS base
+FROM mcr.microsoft.com/dotnet/core/aspnet:2.2-stretch-slim AS base
 WORKDIR /app
-EXPOSE 64199
-EXPOSE 44391
+EXPOSE 80
+EXPOSE 443
 
-FROM microsoft/dotnet:2.1-sdk AS build
+FROM mcr.microsoft.com/dotnet/core/sdk:2.2-stretch AS build
 WORKDIR /src
 COPY ["WebApi/WebApi.csproj", "WebApi/"]
+COPY ["IoC/IoC.csproj", "IoC/"]
+COPY ["Infra/Infra.csproj", "Infra/"]
+COPY ["SystemHelper/SystemHelper.csproj", "SystemHelper/"]
+COPY ["Data/Data.csproj", "Data/"]
 RUN dotnet restore "WebApi/WebApi.csproj"
 COPY . .
 WORKDIR "/src/WebApi"
