@@ -1,15 +1,11 @@
 ﻿using Nest;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Data.Interfaces;
-using Elasticsearch.Net;
 
 namespace Data.Class
 {
-    public class Repository<TEntity> : Interfaces.IRepository<TEntity> where TEntity: class
+    public class Repository<TEntity> : Infra.Interfaces.IRepository<TEntity> where TEntity: class
     {
         private ElasticClient Client { get; set; }
 

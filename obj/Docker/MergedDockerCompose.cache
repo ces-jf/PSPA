@@ -1,0 +1,27 @@
+services:
+  db:
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    image: mysql:5.5.62
+    restart: always
+  webapi:
+    build:
+      context: C:\Users\T-Gamer\Source\Repos\PSPA
+      dockerfile: WebApi/Dockerfile
+    depends_on:
+    - db
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_HTTPS_PORT: '44391'
+      ASPNETCORE_URLS: https://+:443;http://+:80
+      'DBHOST ': ' db'
+    image: webapi
+    ports:
+    - published: 64199
+      target: 80
+    - published: 44391
+      target: 443
+    volumes:
+    - C:\Users\T-Gamer\AppData\Roaming\ASP.NET\Https:/root/.aspnet/https:ro
+    - C:\Users\T-Gamer\AppData\Roaming\Microsoft\UserSecrets:/root/.microsoft/usersecrets:ro
+version: '3.4'

@@ -1,0 +1,18 @@
+version: '3.4'
+
+services:
+  db:
+    image: mysql:5.5.62
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+
+  webapi:
+    image: ${DOCKER_REGISTRY-}webapi
+    build:
+      context: .
+      dockerfile: WebApi/Dockerfile
+    depends_on:
+       - db
+    environment:
+      - DBHOST = db
