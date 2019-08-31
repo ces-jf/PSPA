@@ -1,6 +1,7 @@
 ﻿using Infra.Entidades;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using System;
 
 namespace Infra.Interfaces
 {
@@ -17,5 +18,6 @@ namespace Infra.Interfaces
         DatabaseFacade Database { get; }
         int SaveChanges(bool acceptAllChangesOnSuccess);
         int SaveChanges();
+        void Dispose();
     }
 }

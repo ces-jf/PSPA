@@ -3,12 +3,12 @@ using Infra.Business.Interfaces;
 using Infra.Class;
 using Infra.Entidades;
 using Infra.Interfaces;
+using Ionic.Zip;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Security.Claims;
@@ -22,10 +22,19 @@ namespace Infra.Business.Classes
     {
         public readonly IdentityBusiness identityBusiness;
         private PedidoImportacao _importacaoWebClient { get; set; }
+        private IIdentityContext _identityWebClient { get; set; }
+        private IList<int> _valorPercentual { get; set; }
 
-        public ArquivoBaseBusiness(IUnitOfWork _unitOfWork, IIdentityContext _systemContext, IdentityBusiness _identityBusiness) : base(_unitOfWork, _systemContext) { this.identityBusiness = _identityBusiness; }
+        private IServiceProvider ServiceProvider { get; set; }
 
-        public async Task CadastrarBaseAsync(string _url, string _index, IPrincipal User)
+        public ArquivoBaseBusiness(IUnitOfWork _unitOfWork, IIdentityContext _systemContext, IdentityBusiness _identityBusiness, IServiceProvider serviceProvider) : base(_unitOfWork, _systemContext)
+        {
+            this.identityBusiness = _identityBusiness;
+            this.ServiceProvider = serviceProvider;
+            this._valorPercentual = new List<int>();
+        }
+
+        public async Task<PedidoImportacao> CreateImportRequestAsync(string _url, string _index, IPrincipal User)
         {
             Usuario usuario;
 
@@ -40,40 +49,39 @@ namespace Infra.Business.Classes
 
             var newPedidoEntity = new PedidoImportacao
             {
-                LogPedidoImportacao = new List<LogPedidoImportacao>()
+                LogPedidoImportacao = new List<LogPedidoImportacao>(),
+                Estado = "A",
+                Arquivos = new List<ArquivoBase>()
+                {
+                    new ArquivoBase
+                    {
+                        Index = new Index
+                        {
+                            Name = _index
+                        },
+                        Nome = "inicial.zip",
+                        UrlOrigem = _url
+                    }
+                },
+                Usuario = usuario,
+                PastaTemp = $"{_index}Temp"
             };
 
             newPedidoEntity.LogPedidoImportacao.Add(new LogPedidoImportacao()
             {
-                Descricao = "Baixando Arquivos do Disco...",
+                Descricao = "Aguardando processo de download iniciar...",
                 IndicadorStatus = "I"
             });
 
             usuario.PedidosImportacao.Add(newPedidoEntity);
 
             _systemContext.SaveChanges();
-            _systemContext.PedidoImportacao.Attach(newPedidoEntity);
 
-            this.DownloadOnDisk(_url, _index, ref newPedidoEntity, _systemContext);
+            return newPedidoEntity;
+        }
 
-            var errors = new List<Dictionary<int[], string>>();
-
-            string path = Path.Combine(Configuration.DefaultTempBaseFiles, _index);
-
-            newPedidoEntity.LogPedidoImportacao.Add(new LogPedidoImportacao()
-            {
-                Descricao = "Listando arquivos baixados no disco...",
-                IndicadorStatus = "I"
-            });
-            _systemContext.SaveChanges();
-
-            var files = Directory.GetFiles(path);
-
-            var linkListFiles = files.Where(a => a.Contains("link.txt")).FirstOrDefault();
-
-            if (!string.IsNullOrEmpty(linkListFiles))
-                files = this.DownloadListLink(linkListFiles, _index, ref newPedidoEntity, _systemContext);
-
+        private void NewMethod(string _index, PedidoImportacao newPedidoEntity, List<Dictionary<int[], string>> errors, string[] files)
+        {
             newPedidoEntity.LogPedidoImportacao.Add(new LogPedidoImportacao()
             {
                 Descricao = $"Iniciando leitura dos arquivos...",
@@ -100,26 +108,86 @@ namespace Infra.Business.Classes
                 });
                 _systemContext.SaveChanges();
 
-                var result = this.InserirArquivo(file, _index);
+                //var result = this.InserirArquivo(file, _index);
 
-                if (result.Count > 0)
-                    errors.Add(result);
-                else
-                    this.DeleteTempFiles(_file);
+                //if (result.Count > 0)
+                //    errors.Add(result);
+                //else
+                //    this.DeleteTempFiles(_file);
+            }
+        }
+
+        public string[] CheckFileList(string fileName, PedidoImportacao newPedidoEntity, IIdentityContext _systemContext)
+        {
+            try
+            {
+                string path = Path.Combine(Configuration.DefaultTempBaseFiles, newPedidoEntity.PastaTemp);
+                var index = newPedidoEntity.Arquivos.FirstOrDefault().Index;
+
+                newPedidoEntity.LogPedidoImportacao.Add(new LogPedidoImportacao()
+                {
+                    Descricao = "Listando arquivos baixados no disco...",
+                    IndicadorStatus = "I"
+                });
+                _systemContext.SaveChanges();
+
+                var files = Directory.GetFiles(path);
+
+                var linkListFiles = files.Where(a => a.Contains("link.txt")).FirstOrDefault();
+
+                if (!string.IsNullOrEmpty(linkListFiles))
+                    files = this.DownloadListLink(linkListFiles, ref newPedidoEntity, _systemContext);
+
+                foreach (var file in files)
+                {
+                    newPedidoEntity.Arquivos.Add(new ArquivoBase
+                    {
+                        Index = index,
+                        Nome = Path.GetFileName(file),
+                        UrlOrigem = "."
+                    });
+                }
+
+                newPedidoEntity.LogPedidoImportacao.Add(new LogPedidoImportacao()
+                {
+                    Descricao = "Registrando novos arquivos para leitura...",
+                    IndicadorStatus = "I"
+                });
+                _systemContext.SaveChanges();
+
+                return files;
+            }
+            catch (Exception erro)
+            {
+                newPedidoEntity.LogPedidoImportacao.Add(new LogPedidoImportacao
+                {
+                    Descricao = $"Erro ocorrido ao checar arquivos: {erro.Message}",
+                    IndicadorStatus = "E"
+                });
+
+                newPedidoEntity.Estado = "E";
+                _systemContext.SaveChanges();
+
+                throw erro;
             }
         }
 
         private void DeleteTempFiles(string _filePath)
         {
-            File.Delete(_filePath);
             var path = Path.GetDirectoryName(_filePath);
+            var filesIn = Directory.GetFiles(path);
+
+            foreach (var file in filesIn)
+            {
+                File.Delete(file);
+            }
+
             Directory.Delete(path);
         }
 
-        private string[] DownloadListLink(string _filepath, string _index, ref PedidoImportacao newPedidoEntity, IIdentityContext _systemContext)
+        private string[] DownloadListLink(string _filepath, ref PedidoImportacao newPedidoEntity, IIdentityContext _systemContext)
         {
-            var context = _systemContext;
-
+            var index = newPedidoEntity.Arquivos.FirstOrDefault().Index;
             newPedidoEntity.LogPedidoImportacao.Add(new LogPedidoImportacao()
             {
                 Descricao = "Encontrado arquivo de listagem de links...",
@@ -146,31 +214,64 @@ namespace Infra.Business.Classes
 
             for (var i = 0; i < links.Count(); i++)
             {
+                var arquivo = new ArquivoBase
+                {
+                    Index = index,
+                    Nome = $"Arquivo{i}",
+                    UrlOrigem = links[i]
+                };
+
                 newPedidoEntity.LogPedidoImportacao.Add(new LogPedidoImportacao()
                 {
                     Descricao = $"Realizando download do link {links[i]} da lista de links...",
                     IndicadorStatus = "I"
                 });
+                newPedidoEntity.Arquivos.Add(arquivo);
                 _systemContext.SaveChanges();
 
-                //this.DownloadOnDisk(links[i], _index, ref logFileEntity);
-                string path = Path.Combine(Path.GetDirectoryName(links[i]), _index);
-
-                var newFiles = Directory.GetFiles(path);
-
-                files.AddRange(newFiles);
+                this.DownloadOnDisk(arquivo, newPedidoEntity, _systemContext);
             }
+
+            var path = Path.Combine(Configuration.DefaultTempBaseFiles, newPedidoEntity.PastaTemp);
+            var filesList = Directory.GetFiles(path);
+            files.AddRange(filesList);
 
             return files.ToArray();
         }
 
-        private Dictionary<int[], string> InserirArquivo(IEnumerable<string> file, string _nameBase)
+        public void InserirArquivo(PedidoImportacao pedido, IIdentityContext context)
         {
-            var repository = this._unitOfWork.StartClient<Dictionary<string, string>>($"{_nameBase}Repository", _nameBase);
+            pedido.LogPedidoImportacao.Add(new LogPedidoImportacao()
+            {
+                Descricao = "Iniciando conexão com ElasticSearch...",
+                IndicadorStatus = "I"
+            });
+
+            var arquivo = pedido.Arquivos.FirstOrDefault();
+            var index = arquivo.Index;
+
+            context.SaveChanges();
+
+            var repository = this._unitOfWork.StartClient<Dictionary<string, string>>($"{index.Name}Repository", index.Name);
 
             bool isMemoryFull = false;
 
-            var cabecalho = file.FirstOrDefault().Split(';');
+            var _file = pedido.Arquivos.Where(a => a.Nome != arquivo.Nome).FirstOrDefault();
+
+            pedido.LogPedidoImportacao.Add(new LogPedidoImportacao()
+            {
+                Descricao = $"Iniciando leitura do arquivo {_file.Nome}...",
+                IndicadorStatus = "I"
+            });
+
+            context.SaveChanges();
+
+            var filePath = Path.Combine(Configuration.DefaultTempBaseFiles, pedido.PastaTemp, _file.Nome);
+
+            var encoding = Functions.GetEncoding(filePath);
+            var file = File.ReadLines(filePath, encoding);
+
+            var cabecalho = file.FirstOrDefault().Split(';').Select(a => a.Replace("\"", "").Replace("\"", "")).ToArray();
             var loadObjects = new List<Dictionary<string, string>>();
             int valorTotal = 0;
             int fileSize = file.Count();
@@ -180,6 +281,13 @@ namespace Infra.Business.Classes
 
             var ramErrors = new Dictionary<int[], string>(); //skip, contador
 
+            pedido.LogPedidoImportacao.Add(new LogPedidoImportacao()
+            {
+                Descricao = $"Iniciando gravação do arquivo {_file.Nome}...",
+                IndicadorStatus = "I"
+            });
+
+            context.SaveChanges();
 
             do
             {
@@ -187,7 +295,7 @@ namespace Infra.Business.Classes
                 {
                     var listObject = new List<Dictionary<string, string>>();
 
-                    loadObjects.AddRange(file.Skip(skip).Take(contador).Select(a => a.Split(';').Zip(cabecalho, (value, key) => new { key, value }).ToDictionary(z => z.key, b => b.value)));
+                    loadObjects.AddRange(file.Skip(skip).Take(contador).Select(a => a.Split(';').Select(t => t.Replace("\"", "").Replace("\"", "")).ToArray().Zip(cabecalho, (value, key) => new { key, value }).ToDictionary(z => z.key, b => b.value)));
 
                     valorTotal += loadObjects.Count;
 
@@ -202,7 +310,34 @@ namespace Infra.Business.Classes
             }
             while (valorTotal < fileSize - 1);
 
-            return ramErrors;
+            this.DeleteTempFiles(filePath);
+
+            if (ramErrors.Count > 0)
+            {
+                foreach (var error in ramErrors)
+                {
+                    pedido.LogPedidoImportacao.Add(new LogPedidoImportacao()
+                    {
+                        Descricao = $"Erro ao gravar o arquivo {_file.Nome} - {error.Value}...",
+                        IndicadorStatus = "E"
+                    });
+                }
+
+                pedido.Estado = "E";
+
+                context.SaveChanges();
+                return;
+            }
+
+            pedido.LogPedidoImportacao.Add(new LogPedidoImportacao()
+            {
+                Descricao = $"Processo de leitura do arquivo finalizado sem erros",
+                IndicadorStatus = "C"
+            });
+
+            pedido.Estado = "C";
+
+            context.SaveChanges();
         }
 
         private void WorkWithObjMemory(ref List<Dictionary<string, string>> linha, ref IRepository<Dictionary<string, string>> repository, ref bool isMemoryFull, string[] cabecalho)
@@ -222,11 +357,12 @@ namespace Infra.Business.Classes
             }
         }
 
-        public void DownloadOnDisk(string _url, string _nameBase, ref PedidoImportacao newPedidoEntity, IIdentityContext _systemContext)
+        public void DownloadOnDisk(ArquivoBase arquivo, PedidoImportacao newPedidoEntity, IIdentityContext _context)
         {
-            var destineBase = Path.Combine(Configuration.DefaultTempBaseFiles, _nameBase);
-            var destineExtract = Path.Combine(Configuration.DefaultTempBaseFiles, $"{_nameBase}Temp");
-            var context = _systemContext;
+            var index = arquivo.Index;
+
+            var destineBase = Path.Combine(Configuration.DefaultTempBaseFiles, index.Name);
+            var destineExtract = Path.Combine(Configuration.DefaultTempBaseFiles, newPedidoEntity.PastaTemp);
 
             newPedidoEntity.LogPedidoImportacao.Add(new LogPedidoImportacao
             {
@@ -234,38 +370,93 @@ namespace Infra.Business.Classes
                 IndicadorStatus = "I"
             });
 
-            _systemContext.SaveChanges();
+            try
+            {
+                _context.SaveChanges();
+            }
+            catch (Exception erro)
+            {
+                throw erro;
+            }
 
+            //LinuxHelpers.Exec($"chmod 777 {Path.Combine(Directory.GetCurrentDirectory(), "wwwroot")}");
             Directory.CreateDirectory(destineExtract);
             Directory.CreateDirectory(destineBase);
+            var fileBaseName = Path.Combine(destineBase, arquivo.Nome);
 
-            var uri = new Uri(_url);
+            var uri = new Uri(arquivo.UrlOrigem);
 
             newPedidoEntity.LogPedidoImportacao.Add(new LogPedidoImportacao
             {
-                Descricao = $"Realizando download do arquivo {_nameBase}...",
+                Descricao = $"Realizando download do arquivo {arquivo.Nome}...",
                 IndicadorStatus = "I"
             });
 
-            _systemContext.SaveChanges();
+            try
+            {
+                _context.SaveChanges();
+            }
+            catch (Exception erro)
+            {
+                throw erro;
+            }
 
             var webClient = new WebClient();
 
             Debug.WriteLine("--------------------------------------------------");
             Debug.WriteLine("Iniciando Download");
             this._importacaoWebClient = newPedidoEntity;
+            this._identityWebClient = _context;
 
             webClient.DownloadProgressChanged += WebClient_DownloadProgressChanged;
             webClient.DownloadFileCompleted += WebClient_DownloadFileCompleted;
-            webClient.DownloadFile(uri, destineBase);
+            try
+            {
+                webClient.DownloadFileTaskAsync(uri, $"{fileBaseName}").GetAwaiter().GetResult();
+                newPedidoEntity = this._importacaoWebClient;
+                _context = this._identityWebClient;
+            }
+            catch (Exception erro)
+            {
+                newPedidoEntity.LogPedidoImportacao.Add(new LogPedidoImportacao
+                {
+                    Descricao = $"Erro ao registrar a importação: {erro.Message}...",
+                    IndicadorStatus = "E"
+                });
+                newPedidoEntity.Estado = "E";
+                _context.SaveChanges();
+
+                throw erro;
+            }
 
             newPedidoEntity.LogPedidoImportacao.Add(new LogPedidoImportacao
             {
-                Descricao = $"Extraindo arquivo {_nameBase}...",
+                Descricao = $"Extraindo arquivo {arquivo.Nome}...",
                 IndicadorStatus = "I"
             });
-            _systemContext.SaveChanges();
-            ZipFile.ExtractToDirectory(destineBase, destineExtract);
+            _context.SaveChanges();
+
+            //if(Directory.Exists(destineExtract))
+            //{
+            //    Directory.Delete()
+            //}
+
+            using (ZipFile zip1 = ZipFile.Read(fileBaseName))
+            {
+                foreach (ZipEntry zip in zip1)
+                {
+                    zip.Extract(destineExtract, ExtractExistingFileAction.OverwriteSilently);
+                }
+            }
+
+           //     ZipFile.ExtractToDirectory(fileBaseName, destineExtract);
+
+            newPedidoEntity.LogPedidoImportacao.Add(new LogPedidoImportacao
+            {
+                Descricao = $"Arquivos extraidos e sendo encaminhados para a fase de analise",
+                IndicadorStatus = "I"
+            });
+            _context.SaveChanges();
         }
 
 
@@ -276,22 +467,52 @@ namespace Infra.Business.Classes
                 Descricao = $"Donwload Finalizado",
                 IndicadorStatus = "I"
             });
-
-            _systemContext.SaveChanges();
         }
 
         private void WebClient_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
-            if (e.ProgressPercentage.ToString().Contains("5"))
+            if (e.ProgressPercentage.ToString().Length != 1 && e.ProgressPercentage.ToString().EndsWith("0"))
             {
-                this._importacaoWebClient.LogPedidoImportacao.Add(new LogPedidoImportacao
+                if (this._valorPercentual.Any(a => a == e.ProgressPercentage))
+                    return;
+
+                this._valorPercentual.Add(e.ProgressPercentage);
+
+                var logPedidoImportacao = new LogPedidoImportacao
                 {
                     Descricao = $"Progresso do Download: {e.ProgressPercentage}",
-                    IndicadorStatus = "I"
+                    IndicadorStatus = "I",
+                    PedidoImportacao = this._importacaoWebClient
+                };
+
+                this._identityWebClient.LogPedidoImportacao.Add(logPedidoImportacao);
+
+                this._identityWebClient.SaveChanges();
+            }
+        }
+
+        public void RegisterNewFiles(string[] files, PedidoImportacao pedido, IIdentityContext context)
+        {
+            var index = pedido.Arquivos.FirstOrDefault().Index;
+
+            for (var i = 0; i < files.Length; i++)
+            {
+                var fileName = Path.GetFileName(files[i]);
+
+                pedido.Arquivos.Add(new ArquivoBase
+                {
+                    Index = index,
+                    Nome = fileName
                 });
             }
 
-            _systemContext.SaveChanges();
+            context.SaveChanges();
+        }
+
+        public void UpdateToRegisterData(PedidoImportacao pedido, IIdentityContext context)
+        {
+            pedido.Estado = "AR";
+            context.SaveChanges();
         }
     }
 }

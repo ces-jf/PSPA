@@ -1,4 +1,5 @@
-﻿using Infra.Entidades;
+﻿using System;
+using Infra.Entidades;
 using Infra.Interfaces;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -20,6 +21,11 @@ namespace Data.Context
         public DbSet<LogPedidoImportacao> LogPedidoImportacao { get; set; }
         public DbSet<Usuario> Usuario { get; set; }
 
+        public IIdentityContext Clone()
+        {
+            throw new NotImplementedException();
+        }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -29,7 +35,7 @@ namespace Data.Context
                 b.Property(a => a.Id).ValueGeneratedOnAdd();
                 b.HasIndex(a => a.Email).IsUnique();
 
-                b.ToTable("usuario", "systemtcc");
+                b.ToTable("usuario", "PSPABase");
 
             });
 

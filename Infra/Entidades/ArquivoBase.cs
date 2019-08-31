@@ -14,11 +14,13 @@ namespace Infra.Entidades
         [Required]
         public string Nome { get; set; }
         [Required]
-        public Index Index { get; set; }
-
+        public string UrlOrigem { get; set; }
 
         //Relationships
+        [Required]
+        public Index Index { get; set; }
         public ICollection<Cabecalho> Cabecalhos { get; set; }
+        public PedidoImportacao PedidoImportacao { get; set; }
         //public ICollection<Value> Values { get; set; }
     }
 }

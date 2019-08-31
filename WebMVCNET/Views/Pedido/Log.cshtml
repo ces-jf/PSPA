@@ -1,0 +1,60 @@
+﻿@model long
+
+@{
+    ViewData["Title"] = "Requisitar nova Base";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var ID = Model;
+}
+
+@section  styles { 
+    <link rel="stylesheet" href="~/datatables/css/jquery.dataTables.min.css" type="text/css" />
+}
+
+<h1>Registro da importação @ID</h1>
+
+<div class="row">
+    <div class="col-md-12">
+        <table id="logPedidosTable" class="table table-striped table-bordered table-hover responsive" width="100%">
+            <thead class="thin-border-bottom">
+                <tr>
+                    <th>ID</th>
+                    <th>Mensagem</th>
+                    <th>Estado</th>
+                    <th>Data de Registro</th>
+                </tr>
+            </thead>
+        </table> 
+    </div>
+</div>
+
+@section scripts {
+    <script type="text/javascript" src="~/datatables/js/jquery.dataTables.min.js"></script>
+
+    <script>
+        (function ($) {
+            var logPedidosTable = $("#logPedidosTable")
+                .dataTable({
+                    "processing": true,
+                    "serverSide": true,
+                    "ajax": {
+                        "url": "/api/pedido/log/@ID",
+                        "method": "POST"
+                    },
+                    "columns": [
+                        { "data": "id" },
+                        { "data": "descricao" },
+                        { "data": "indicadorStatus" },
+                        { "data": "dataCriacao" }
+                    ],
+                    "ordering": true,
+                    "paging": true,
+                    "pagingType": "full_numbers",
+                    "pageLength": 5
+                });
+
+            setInterval(function () {
+                logPedidosTable.DataTable().ajax.reload(null, false);
+            }, 30000);
+        })(jQuery);
+    </script>
+}

@@ -4,17 +4,24 @@ services:
   db:
     image: mysql:5.5.62
     restart: always
+    volumes:
+       - dbdata:/var/lib/mysql
+       - ./_MySQL_Init_Script:/docker-entrypoint-initdb.d
     environment:
       MYSQL_ROOT_PASSWORD: root
     ports:
       - 3306:3306
-
+  
   webapi:
-    image: ${DOCKER_REGISTRY-}webapi
+    image: ${DOCKER_REGISTRY-}webmvcnet
     build:
       context: .
-      dockerfile: WebApi/Dockerfile
+      dockerfile: WebMVCNET/Dockerfile
     depends_on:
        - db
     environment:
       - DBHOST = db
+
+volumes:
+  dbdata:
+

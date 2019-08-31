@@ -1,0 +1,35 @@
+﻿@model RequestViewModel
+
+@{
+    ViewData["Title"] = "Requisitar nova Base";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Requisitar nova base</h1>
+
+<div class="row">
+    <div class="col-md-8">
+        <section>
+            <form id="request" method="post">
+                <h4>Preencha os dados abaixo para solicitar a importação de uma nova base de dados no sistema.</h4>
+                <hr />
+                <div asp-validation-summary="All" class="text-danger"></div>
+                <div asp-success-validation="@TempData["Success"]"></div>
+                <div class="form-group">
+                    <label asp-for="Index"></label>
+                    <input asp-for="Index" class="form-control" />
+                    <span asp-validation-for="Index" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Url"></label>
+                    <input asp-for="Url" class="form-control" />
+                    <span asp-validation-for="Url" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Requisitar Importação</button>
+                </div>
+            </form>
+        </section>
+    </div>
+</div>
+

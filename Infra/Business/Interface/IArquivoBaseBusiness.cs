@@ -1,4 +1,5 @@
-﻿using System.Security.Principal;
+﻿using System.Collections.Generic;
+using System.Security.Principal;
 using System.Threading.Tasks;
 using Infra.Entidades;
 using Infra.Interfaces;
@@ -8,7 +9,11 @@ namespace Infra.Business.Interfaces
 {
     public interface IArquivoBaseBusiness
     {
-        Task CadastrarBaseAsync(string _url, string _index, IPrincipal User);
-        void DownloadOnDisk(string _url, string _nameBase, ref PedidoImportacao newPedidoEntity, IIdentityContext _systemContext);
+        Task<PedidoImportacao> CreateImportRequestAsync(string _url, string _index, IPrincipal User);
+        void DownloadOnDisk(ArquivoBase arquivo, PedidoImportacao newPedidoEntity, IIdentityContext _context);
+        string[] CheckFileList(string _index, PedidoImportacao newPedidoEntity, IIdentityContext _systemContext);
+        void RegisterNewFiles(string[] files, PedidoImportacao pedido, IIdentityContext context);
+        void UpdateToRegisterData(PedidoImportacao pedido, IIdentityContext context);
+        void InserirArquivo(PedidoImportacao pedido, IIdentityContext context);
     }
 }

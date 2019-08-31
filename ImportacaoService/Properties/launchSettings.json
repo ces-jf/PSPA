@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "ImportacaoService": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}

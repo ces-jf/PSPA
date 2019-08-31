@@ -5,7 +5,10 @@ using Infra.Interfaces;
 using IoC.Configurations;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
@@ -25,49 +28,35 @@ namespace Microsoft.Extensions.DependencyInjection
 
             var connectionString = $"Server={server};Database={databaseName};User={user};Password={password}";
 
-            
+            services.Configure<CookiePolicyOptions>(options =>
+            {
+                options.CheckConsentNeeded = context => true;
+                options.MinimumSameSitePolicy = SameSiteMode.None;
+            });
+
             services.AddDbContext<IdentityContext>(options =>
 
                 options.UseMySql(connectionString, mysqlOptions =>
                 {
                     mysqlOptions.ServerVersion(SystemHelper.Configuration.DatabaseVersion, ServerType.MySql);
-                    mysqlOptions.MigrationsAssembly("WebApi");
+                    mysqlOptions.MigrationsAssembly("WebMVCNET");
                 }));
 
             services.AddIdentity<Usuario, IdentityRole>()
                 .AddEntityFrameworkStores<IdentityContext>()
                 .AddDefaultTokenProviders();
 
-            var signingConfigurations = new SigningConfigurations();
-            services.AddSingleton(signingConfigurations);
-
-            var tokenConfigurations = new TokenConfigurations();
-            new ConfigureFromConfigurationOptions<TokenConfigurations>(
-            configuration.GetSection("TokenConfigurations"))
-                .Configure(tokenConfigurations);
-            services.AddSingleton(tokenConfigurations);
-
-            services.AddAuthentication(authOptions => {
-                authOptions.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                authOptions.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(bearerOptions => {
-                var paramsValidation = bearerOptions.TokenValidationParameters;
-                paramsValidation.IssuerSigningKey = signingConfigurations.Key;
-                paramsValidation.ValidAudience = tokenConfigurations.Audience;
-                paramsValidation.ValidIssuer = tokenConfigurations.Issuer;
-
-                paramsValidation.ValidateIssuerSigningKey = true;
-                paramsValidation.ValidateLifetime = true;
-
-                paramsValidation.ClockSkew = TimeSpan.Zero;
-            });
 
 
-            services.AddAuthorization(auth =>
+            services.ConfigureApplicationCookie(options =>
             {
-                auth.AddPolicy("Bearer", new AuthorizationPolicyBuilder()
-                    .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
-                    .RequireAuthenticatedUser().Build());
+                // Cookie settings
+                options.Cookie.HttpOnly = true;
+                options.ExpireTimeSpan = TimeSpan.FromMinutes(120);
+
+                options.LoginPath = "/Account/Login";
+                options.AccessDeniedPath = "/Account/AccessDenied";
+                options.SlidingExpiration = true;
             });
 
             return services;
