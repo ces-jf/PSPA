@@ -60,7 +60,7 @@
             },
             "nest": {
               "target": "Package",
-              "version": "[6.6.0, )"
+              "version": "[7.1.0, )"
             }
           },
           "imports": [

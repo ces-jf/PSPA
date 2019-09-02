@@ -19,6 +19,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             services.AddTransient<IArquivoBaseBusiness, ArquivoBaseBusiness>();
             services.AddTransient<IPedidoImportacaoBusiness, PedidoImportacaoBusiness>();
+            services.AddTransient<IIndexBusiness, IndexBusiness>();
             services.AddTransient<IdentityBusiness, IdentityBusiness>();
             services.AddScoped<IIdentityContext, IdentityContext>();
 

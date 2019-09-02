@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using SystemHelper;
 using Infra.Class;
 using Microsoft.Extensions.Options;
+using System.Linq;
+using Infra.Entidades;
 
 namespace Data.Class
 {
@@ -20,13 +22,6 @@ namespace Data.Class
             this.ElasticSearchURL = new Uri(_configuration.ElasticSearchURL);
             this.ConnectionSettings = new ConnectionSettings(ElasticSearchURL);
             ClientFactory = new Dictionary<string, object>();
-        }
-
-        public bool IndexExists (string _indexName)
-        {
-            var client = new ElasticClient(this.ConnectionSettings);
-            var request = new IndexExistsRequest(_indexName);
-            return client.IndexExists(request).Exists;
         }
 
         public Infra.Interfaces.IRepository<TEntity> StartClient<TEntity>(string nameInstance, string _index) where TEntity : class
@@ -47,6 +42,64 @@ namespace Data.Class
             this.ClientFactory.TryGetValue(nameInstance, out object repository);
 
             return (repository as Repository<TEntity>);
+        }
+
+        public IEnumerable<Index> ListarIndices()
+        {
+            var client = new ElasticClient(this.ConnectionSettings);
+            var result = client.Indices.GetAlias();
+
+            if (!result.IsValid)
+                throw result.OriginalException;
+
+            var indices = result.Indices.Keys;
+            var indicesName = indices.Select(a => a.Name).Where(a => !a.StartsWith("."))
+                .Select(a => new Index {
+                    Name = a
+                });
+
+            return indicesName;
+        }
+
+        public IEnumerable<Cabecalho> Colunas(string indexName)
+        {
+            var client = new ElasticClient(this.ConnectionSettings);
+            var result = client.Search<dynamic>(a =>
+
+                a.Index(indexName)
+                .Size(1)
+                .Query(q => q.MatchAll())
+            );
+
+            if (!result.IsValid)
+                throw result.OriginalException;
+
+            if (result.Documents.Count < 1)
+                return new List<Cabecalho> { new Cabecalho() };
+
+            var indicesName = (result.Documents.FirstOrDefault() as Dictionary<string, object>).Select(a => new Cabecalho
+            {
+                Descricao = a.Key
+            });
+
+            return indicesName;
+        }
+
+        public IEnumerable<Dictionary<string, string>> MatchAll(string indexName)
+        {
+            var client = new ElasticClient(this.ConnectionSettings);
+            var result = client.Search<Dictionary<string, string>>(a =>
+            a.Index(indexName)
+                .Query(query => query.MatchAll())
+            );
+
+            if (!result.IsValid)
+                throw result.OriginalException;
+
+            if (result.Documents.Count < 1)
+                return new List<Dictionary<string, string>> { new Dictionary<string, string>() };
+
+            return result.Documents;
         }
     }
 }

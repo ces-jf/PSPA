@@ -16,8 +16,14 @@
           "lib/netstandard2.0/DotNetZip.dll": {}
         }
       },
-      "Elasticsearch.Net/6.6.0": {
+      "Elasticsearch.Net/7.1.0": {
         "type": "package",
+        "dependencies": {
+          "System.Buffers": "4.5.0",
+          "System.Diagnostics.DiagnosticSource": "4.5.1",
+          "System.Reflection.Emit": "4.3.0",
+          "System.Reflection.Emit.Lightweight": "4.3.0"
+        },
         "compile": {
           "lib/netstandard2.0/Elasticsearch.Net.dll": {}
         },
@@ -1350,10 +1356,10 @@
           "lib/netstandard2.0/MySqlConnector.dll": {}
         }
       },
-      "NEST/6.6.0": {
+      "NEST/7.1.0": {
         "type": "package",
         "dependencies": {
-          "Elasticsearch.Net": "[6.6.0, 7.0.0)"
+          "Elasticsearch.Net": "[7.1.0, 8.0.0)"
         },
         "compile": {
           "lib/netstandard2.0/Nest.dll": {}
@@ -1774,7 +1780,7 @@
           "ref/netstandard1.3/System.Diagnostics.Debug.dll": {}
         }
       },
-      "System.Diagnostics.DiagnosticSource/4.5.0": {
+      "System.Diagnostics.DiagnosticSource/4.5.1": {
         "type": "package",
         "compile": {
           "lib/netstandard1.3/System.Diagnostics.DiagnosticSource.dll": {}
@@ -2252,7 +2258,7 @@
           "System.Runtime": "4.3.0"
         },
         "compile": {
-          "ref/netstandard1.1/_._": {}
+          "ref/netstandard1.1/System.Reflection.Emit.dll": {}
         },
         "runtime": {
           "lib/netstandard1.3/System.Reflection.Emit.dll": {}
@@ -2266,7 +2272,7 @@
           "System.Runtime": "4.3.0"
         },
         "compile": {
-          "ref/netstandard1.0/_._": {}
+          "ref/netstandard1.0/System.Reflection.Emit.ILGeneration.dll": {}
         },
         "runtime": {
           "lib/netstandard1.3/System.Reflection.Emit.ILGeneration.dll": {}
@@ -2281,7 +2287,7 @@
           "System.Runtime": "4.3.0"
         },
         "compile": {
-          "ref/netstandard1.0/_._": {}
+          "ref/netstandard1.0/System.Reflection.Emit.Lightweight.dll": {}
         },
         "runtime": {
           "lib/netstandard1.3/System.Reflection.Emit.Lightweight.dll": {}
@@ -3113,7 +3119,7 @@
           "Infra": "1.0.0",
           "Pomelo.EntityFrameworkCore.MySql": "2.2.0",
           "SystemHelper": "1.0.0",
-          "nest": "6.6.0"
+          "nest": "7.1.0"
         },
         "compile": {
           "bin/placeholder/Data.dll": {}
@@ -3174,14 +3180,14 @@
         "lib/netstandard2.0/DotNetZip.xml"
       ]
     },
-    "Elasticsearch.Net/6.6.0": {
-      "sha512": "gblydSbix+SQ/DPONFt+HW1bLxcd+sC1gfM3IqqJj3FG2NpMwDlXi5MVSIzqmBjAeOCn15aP2xVaJlClVCjlbg==",
+    "Elasticsearch.Net/7.1.0": {
+      "sha512": "MFjokKp8YrdnB1CR+LSveVa6j+pKWrHJtGV/b9A300eOyq+RWacJfIa0Qv/SsDqaUErga63J6RmqMM/ICi4vHA==",
       "type": "package",
-      "path": "elasticsearch.net/6.6.0",
+      "path": "elasticsearch.net/7.1.0",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
-        "elasticsearch.net.6.6.0.nupkg.sha512",
+        "elasticsearch.net.7.1.0.nupkg.sha512",
         "elasticsearch.net.nuspec",
         "lib/net461/Elasticsearch.Net.dll",
         "lib/net461/Elasticsearch.Net.xml",
@@ -4631,10 +4637,10 @@
         "mysqlconnector.nuspec"
       ]
     },
-    "NEST/6.6.0": {
-      "sha512": "swzNL8M1nex2XzParvA3zLzYUZeU9vu94z2MHmwb/OnFf5El3Lwp0f3fVamZwgmTUNmGlixv1YdlNziqNzGL/g==",
+    "NEST/7.1.0": {
+      "sha512": "/Ij6XS5SnTeeZudTHypO8IlopiMZmyeljim7fz02UxwQPZ7duSmuw/bZu+ixKgXSWXGDH0thkdawv/81RZZKdA==",
       "type": "package",
-      "path": "nest/6.6.0",
+      "path": "nest/7.1.0",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
@@ -4643,7 +4649,7 @@
         "lib/netstandard2.0/Nest.dll",
         "lib/netstandard2.0/Nest.xml",
         "license.txt",
-        "nest.6.6.0.nupkg.sha512",
+        "nest.7.1.0.nupkg.sha512",
         "nest.nuspec"
       ]
     },
@@ -5664,10 +5670,10 @@
         "system.diagnostics.debug.nuspec"
       ]
     },
-    "System.Diagnostics.DiagnosticSource/4.5.0": {
-      "sha512": "eIHRELiYDQvsMToML81QFkXEEYXUSUT2F28t1SGrevWqP+epFdw80SyAXIKTXOHrIEXReFOEnEr7XlGiC2GgOg==",
+    "System.Diagnostics.DiagnosticSource/4.5.1": {
+      "sha512": "zCno/m44ymWhgLFh7tELDG9587q0l/EynPM0m4KgLaWQbz/TEKvNRX2YT5ip2qXW/uayifQ2ZqbnErsKJ4lYrQ==",
       "type": "package",
-      "path": "system.diagnostics.diagnosticsource/4.5.0",
+      "path": "system.diagnostics.diagnosticsource/4.5.1",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
@@ -5683,7 +5689,7 @@
         "lib/netstandard1.3/System.Diagnostics.DiagnosticSource.xml",
         "lib/portable-net45+win8+wpa81/System.Diagnostics.DiagnosticSource.dll",
         "lib/portable-net45+win8+wpa81/System.Diagnostics.DiagnosticSource.xml",
-        "system.diagnostics.diagnosticsource.4.5.0.nupkg.sha512",
+        "system.diagnostics.diagnosticsource.4.5.1.nupkg.sha512",
         "system.diagnostics.diagnosticsource.nuspec",
         "useSharedDesignerContext.txt",
         "version.txt"

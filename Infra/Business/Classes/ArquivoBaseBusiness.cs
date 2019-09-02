@@ -13,6 +13,7 @@ using System.Linq;
 using System.Net;
 using System.Security.Claims;
 using System.Security.Principal;
+using System.Text;
 using System.Threading.Tasks;
 using SystemHelper;
 
@@ -513,6 +514,40 @@ namespace Infra.Business.Classes
         {
             pedido.Estado = "AR";
             context.SaveChanges();
+        }
+
+        public CsvExport ConsultaToCSV(string indexName)
+        {
+            try
+            {
+                var result = _unitOfWork.MatchAll(indexName);
+
+                var export = new CsvExport();
+
+                var cabecalho = result.FirstOrDefault();
+
+                export.AddRow();
+                foreach (var key in cabecalho.Keys)
+                {
+                    export[key] = key;
+                }
+
+                foreach(var item in result)
+                {
+                    export.AddRow();
+
+                    foreach(var key in item.Keys)
+                    {
+                        export[key] = item[key];
+                    }
+                }
+
+                return export;
+            }
+            catch(Exception erro)
+            {
+                throw erro;
+            }
         }
     }
 }
