@@ -1,7 +1,7 @@
 ﻿@model long
 
 @{
-    ViewData["Title"] = "Requisitar nova Base";
+    ViewData["Title"] = $"Log for Import Order {Model}";
     Layout = "~/Views/Shared/_Layout.cshtml";
     var ID = Model;
 }
@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="~/datatables/css/jquery.dataTables.min.css" type="text/css" />
 }
 
-<h1>Registro da importação @ID</h1>
+<h1>Logs for import order @ID</h1>
 
 <div class="row">
     <div class="col-md-12">
@@ -18,9 +18,9 @@
             <thead class="thin-border-bottom">
                 <tr>
                     <th>ID</th>
-                    <th>Mensagem</th>
-                    <th>Estado</th>
-                    <th>Data de Registro</th>
+                    <th>Message</th>
+                    <th>State</th>
+                    <th>Creation Date</th>
                 </tr>
             </thead>
         </table> 

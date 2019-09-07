@@ -9,10 +9,10 @@ namespace WebMVCNET.Models
     public class RequestViewModel
     {
         [Required]
-        [Display(Name = "Endereço do Arquivo")]
+        [Display(Name = "File Address")]
         public string Url { get; set; }
         [Required]
-        [Display(Name = "Nome da Base de Dados")]
+        [Display(Name = "Database Name")]
         public string Index { get; set; }
     }
 }

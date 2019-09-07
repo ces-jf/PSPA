@@ -6,25 +6,25 @@
 @if (SignInManager.IsSignedIn(User))
 {
     <li class="nav-item">
-        <a  class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Olá @User.Identity.Name!</a>
+        <a  class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @User.Identity.Name!</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link text-dark" asp-controller="Consulta" asp-action="Index">Consulta de Dados</a>
+        <a class="nav-link text-dark" asp-controller="Consulta" asp-action="Index">Work with some data!!!!</a>
     </li>
     <li class="nav-item dropdown">
         <a class="nav-link text-dark dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            Importação
+            Import Data
         </a>
         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-            <a class="dropdown-item" asp-controller="Pedido" asp-action="Index">Pedidos de Importação</a>
-            <a class="dropdown-item" href="#">Bases Importadas</a>
+            <a class="dropdown-item" asp-controller="Pedido" asp-action="Index">Import Orders</a>
+            <a class="dropdown-item" href="#">My Imports</a>
             <div class="dropdown-divider"></div>
-            <a class="dropdown-item" asp-controller="Pedido" asp-action="Request">Importar Arquivo</a>
+            <a class="dropdown-item" asp-controller="Pedido" asp-action="Request">New Import</a>
         </div>
     </li>
     <li class="nav-item">
         <form  class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-            <button  type="submit" class="nav-link btn btn-link text-dark">Sair</button>
+            <button  type="submit" class="nav-link btn btn-link text-dark">Logout</button>
         </form>
     </li>
 }

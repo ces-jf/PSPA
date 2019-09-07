@@ -1,7 +1,7 @@
 ﻿@model RequestViewModel
 
 @{
-    ViewData["Title"] = "Requisitar nova Base";
+    ViewData["Title"] = "Import Orders";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -9,17 +9,17 @@
     <link rel="stylesheet" href="~/datatables/css/jquery.dataTables.min.css" type="text/css" />
 }
 
-<h1>Pedidos de importação feitos</h1>
+<h1>Import Orders by @User.Identity.Name</h1>
 
 <div class="row">
     <div class="col-md-12">
         <table id="PedidosTable" class="table table-striped table-bordered table-hover responsive" width="100%">
             <thead class="thin-border-bottom">
                 <tr>
-                    <th>ID</th>
-                    <th>Pasta Temporaria</th>
-                    <th>Estado</th>
-                    <th>Data de Término</th>
+                    <th>Order</th>
+                    <th>Base</th>
+                    <th>State</th>
+                    <th>End Date</th>
                     <th></th>
                 </tr>
             </thead>
