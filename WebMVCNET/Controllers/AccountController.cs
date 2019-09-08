@@ -102,5 +102,18 @@ namespace WebMVCNET.Controllers
             // If we got this far, something failed, redisplay form
             return View();
         }
+
+        public async Task<IActionResult> LogOut()
+        {
+            try
+            {
+                await this._signInManager.SignOutAsync();
+                return RedirectToAction("Index", "Home");
+            }
+            catch(Exception erro)
+            {
+                throw erro;
+            }
+        }
     }
 }
