@@ -89,10 +89,7 @@ $("#BaseTable tbody").on("click", "button.dt-view", function () {
         return;
     }
 
-    basesBusca.push({
-        name: baseName,
-        columns: colunas
-    });
+    basesBusca.push(new BaseBusca(baseName));
 
 });
 
@@ -167,18 +164,20 @@ function addFilter(idSelectList: string) {
 
 function montarModals(idBody: string) {
     for (var l = 0; l < basesBusca.length; l++) {
-        var field = '<fieldset>';
+        var field = '<fieldset id="' + basesBusca[l].name + '-fieldset">';
 
         var select = '';
         select += '<select class="custom-select custom-select-sm" id="' + basesBusca[l].name + '-selectListColunas">';
 
-        for (var j = 0; j < basesBusca[l].columns.length; j++) {
-            select += '<option value="' + basesBusca[l].columns[j].descricao + '">' + basesBusca[l].columns[j].descricao + '</option>';
+        var columns = getColunas(basesBusca[l].name);
+
+        for (var j = 0; j < columns.length; j++) {
+            select += '<option value="' + columns[j].descricao + '">' + columns[j].descricao + '</option>';
         }
 
         select += '</select>';
 
-        var legend = '<legend>' + basesBusca[l].name + ' <button type="button" class="btn bt-sm btn-primary"><i class="fas fa-plus-square"></i> Add Filter</button>' + select + '</legend>';
+        var legend = '<legend>' + basesBusca[l].name + ' <button type="button" data-id-seleclist="' + basesBusca[l].name + '-selectListColunas" class="btn bt-sm btn-primary"><i class="fas fa-plus-square"></i> Add</button>' + select + '</legend>';
         field += legend;
         field += '<ul class="list-group list-group-flush" id="' + basesBusca[l].name + '-ulFiltro">';
         field += '</ul></fieldset>';
@@ -193,5 +192,45 @@ function unmountModal(idBody: string) {
 
     for (var i = 0; i < children.length; i++) {
         filtrosBody.removeChild(children[i]);
+    }
+}
+
+function addSelectItem(idSelectList: string, baseName: string) {
+    var selectList = document.getElementById(idSelectList) as HTMLSelectElement;
+
+    if (selectList.value == null || selectList.value == undefined)
+        return;
+
+    var baseIndex = basesBusca.findIndex(function (value) {
+        value.name == baseName;
+    });
+
+    if (baseIndex == -1) {
+        return;
+    }
+
+    var base = basesBusca[baseIndex];
+
+    var columnIndex = base.columnsSelect.findIndex(function (value) {
+        value.descricao = selectList.value;
+    });
+
+    if (columnIndex != -1)
+        return;
+
+    base.columnsSelect.push(new ColunaBase(selectList.value));
+
+
+}
+
+function updateModalSelect() {
+
+    var fieldsets = document.getElementById("selectsBody").children;
+
+    for (var s = 0; s < basesBusca.length; s++) {
+        for (var p = 0; p < fieldsets.length; p++) {
+            if (basesBusca[s].name != fieldsets[p].id)
+                return;
+        }
     }
 }

@@ -1,0 +1,1 @@
+{"version":3,"file":"BaseBusca.js","sourceRoot":"","sources":["BaseBusca.ts"],"names":[],"mappings":"AAAA,MAAM,SAAS;IAKX,YAAY,OAAe,EAAE,EAAE,gBAAmC,IAAI,KAAK,EAAc,EAAE,gBAAmC,IAAI,KAAK,EAAe;QAClJ,IAAI,CAAC,IAAI,GAAG,IAAI,CAAC;QACjB,IAAI,CAAC,aAAa,GAAG,aAAa,CAAC;QACnC,IAAI,CAAC,aAAa,GAAG,aAAa,CAAC;IACvC,CAAC;CACJ"}

@@ -1,9 +1,11 @@
 ﻿class BaseBusca {
     name: string;
-    columns: Array<ColunaBase>;
+    columnsFilter: Array<ColunaBase>;
+    columnsSelect: Array<ColunaBase>;
 
-    constructor(name: string = "", columns: Array<ColunaBase> = new Array<ColunaBase>()) {
+    constructor(name: string = "", columnsFilter: Array<ColunaBase> = new Array<ColunaBase>(), columnsSelect: Array<ColunaBase> = new Array <ColunaBase>()) {
         this.name = name;
-        this.columns = columns;
+        this.columnsFilter = columnsFilter;
+        this.columnsSelect = columnsSelect;
     }
 }
