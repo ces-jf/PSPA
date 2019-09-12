@@ -516,11 +516,11 @@ namespace Infra.Business.Classes
             context.SaveChanges();
         }
 
-        public CsvExport ConsultaToCSV(string indexName)
+        public CsvExport ConsultaToCSV(string indexName, IEnumerable<string> selectFilter = null)
         {
             try
             {
-                var result = _unitOfWork.MatchAll(indexName);
+                var result = _unitOfWork.MatchAll(indexName, selectFilter);
 
                 var export = new CsvExport();
 

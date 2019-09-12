@@ -202,7 +202,7 @@ function addSelectItem(idSelectList: string, baseName: string) {
         return;
 
     var baseIndex = basesBusca.findIndex(function (value) {
-        value.name == baseName;
+        return value.name == baseName;
     });
 
     if (baseIndex == -1) {
@@ -212,7 +212,7 @@ function addSelectItem(idSelectList: string, baseName: string) {
     var base = basesBusca[baseIndex];
 
     var columnIndex = base.columnsSelect.findIndex(function (value) {
-        value.descricao = selectList.value;
+        return value.descricao == selectList.value;
     });
 
     if (columnIndex != -1)

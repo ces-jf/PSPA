@@ -26,7 +26,15 @@ namespace WebMVCNET.Controllers
         {
             try
             {
+                var selectFilter = new List<string> {
+                    "NOME MUNICÍPIO",
+                    "CÓDIGO MUNICÍPIO SIAFI",
+                    "NOME FAVORECIDO"
+                };
+
+                //var export = this.ArquivoBaseBusiness.ConsultaToCSV(indexBase,selectFilter);
                 var export = this.ArquivoBaseBusiness.ConsultaToCSV(indexBase);
+
                 return File(export.ExportToBytes(), "text/csv", $"{indexBase}.csv");
             }
             catch(Exception erro)

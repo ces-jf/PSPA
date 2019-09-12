@@ -5,7 +5,7 @@
     <UserSecretsId>aspnet-WebMVCNET-A82CC28F-51B9-4D54-AD8A-1815FD8273F9</UserSecretsId>
     <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-    <TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
+    <TypeScriptToolsVersion>3.2</TypeScriptToolsVersion>
   </PropertyGroup>
 
   <ItemGroup>

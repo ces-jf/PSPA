@@ -154,14 +154,14 @@ function addSelectItem(idSelectList, baseName) {
     if (selectList.value == null || selectList.value == undefined)
         return;
     var baseIndex = basesBusca.findIndex(function (value) {
-        value.name == baseName;
+        return value.name == baseName;
     });
     if (baseIndex == -1) {
         return;
     }
     var base = basesBusca[baseIndex];
     var columnIndex = base.columnsSelect.findIndex(function (value) {
-        value.descricao = selectList.value;
+        return value.descricao == selectList.value;
     });
     if (columnIndex != -1)
         return;

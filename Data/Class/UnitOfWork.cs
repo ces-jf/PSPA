@@ -85,11 +85,20 @@ namespace Data.Class
             return indicesName;
         }
 
-        public IEnumerable<Dictionary<string, string>> MatchAll(string indexName)
+        public IEnumerable<Dictionary<string, string>> MatchAll(string indexName, IEnumerable<string> selectFilter = null)
         {
             var client = new ElasticClient(this.ConnectionSettings);
+
+            if(selectFilter == null)
+                selectFilter = this.Colunas(indexName).Select(a => a.Descricao);
+
+            var selectFilterArray = selectFilter.ToArray();
+
             var result = client.Search<Dictionary<string, string>>(a =>
             a.Index(indexName)
+                .Source(s => 
+                    s.Includes(i => 
+                        i.Fields(selectFilterArray)))
                 .Query(query => query.MatchAll())
             );
 

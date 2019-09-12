@@ -13,3 +13,18 @@ C:\Users\T-Gamer\Documents\GitHub\PSPA\Data\obj\Debug\netstandard2.0\Data.Assemb
 C:\Users\T-Gamer\Documents\GitHub\PSPA\Data\obj\Debug\netstandard2.0\Data.csproj.CopyComplete
 C:\Users\T-Gamer\Documents\GitHub\PSPA\Data\obj\Debug\netstandard2.0\Data.dll
 C:\Users\T-Gamer\Documents\GitHub\PSPA\Data\obj\Debug\netstandard2.0\Data.pdb
+C:\Users\Savio Macedo\Source\Repos\PSPA\Data\bin\Debug\netstandard2.0\Data.dll.config
+C:\Users\Savio Macedo\Source\Repos\PSPA\Data\bin\Debug\netstandard2.0\Data.deps.json
+C:\Users\Savio Macedo\Source\Repos\PSPA\Data\bin\Debug\netstandard2.0\Data.dll
+C:\Users\Savio Macedo\Source\Repos\PSPA\Data\bin\Debug\netstandard2.0\Data.pdb
+C:\Users\Savio Macedo\Source\Repos\PSPA\Data\bin\Debug\netstandard2.0\Infra.dll
+C:\Users\Savio Macedo\Source\Repos\PSPA\Data\bin\Debug\netstandard2.0\SystemHelper.dll
+C:\Users\Savio Macedo\Source\Repos\PSPA\Data\bin\Debug\netstandard2.0\Infra.pdb
+C:\Users\Savio Macedo\Source\Repos\PSPA\Data\bin\Debug\netstandard2.0\SystemHelper.pdb
+C:\Users\Savio Macedo\Source\Repos\PSPA\Data\obj\Debug\netstandard2.0\Data.csprojAssemblyReference.cache
+C:\Users\Savio Macedo\Source\Repos\PSPA\Data\obj\Debug\netstandard2.0\Data.csproj.CoreCompileInputs.cache
+C:\Users\Savio Macedo\Source\Repos\PSPA\Data\obj\Debug\netstandard2.0\Data.AssemblyInfoInputs.cache
+C:\Users\Savio Macedo\Source\Repos\PSPA\Data\obj\Debug\netstandard2.0\Data.AssemblyInfo.cs
+C:\Users\Savio Macedo\Source\Repos\PSPA\Data\obj\Debug\netstandard2.0\Data.csproj.CopyComplete
+C:\Users\Savio Macedo\Source\Repos\PSPA\Data\obj\Debug\netstandard2.0\Data.dll
+C:\Users\Savio Macedo\Source\Repos\PSPA\Data\obj\Debug\netstandard2.0\Data.pdb

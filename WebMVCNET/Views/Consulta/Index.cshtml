@@ -5,7 +5,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-@section  styles { 
+@section styles {
     <link rel="stylesheet" href="~/datatables/css/jquery.dataTables.min.css" type="text/css" />
 }
 
@@ -21,7 +21,7 @@
                     <th></th>
                 </tr>
             </thead>
-        </table> 
+        </table>
     </div>
     <div class=" col-md-12">
         <div class="card">
@@ -38,14 +38,14 @@
                     <li class="nav-item"><a class="nav-link"></a></li>
                     <li class="nav-item"><a class="nav-link"></a></li>
                     <li class="nav-item">
-                        <a class="nav-link btn btn-dark" href="#">Search</a>
+                        <a class="nav-link btn btn-dark" href="@Url.Action("Consultar","Consulta", new { indexBase = "bolsafamilia" })">Search</a>
                     </li>
                 </ul>
             </div>
             <div class="card-body">
                 <h5 class="card-title">Selected Base</h5>
                 <div id="baseArea">
-                    
+
                 </div>
             </div>
         </div>
@@ -55,6 +55,8 @@
 @section scripts {
     <script type="text/javascript" src="~/datatables/js/jquery.dataTables.min.js"></script>
     <script src="~/custom/consulta/Index.js"></script>
+    <script src="~/custom/consulta/ColunaBase.js"></script>
+    <script src="~/custom/consulta/BaseBusca.js"></script>
 }
 
 <!-- modals -->
@@ -68,7 +70,7 @@
                 </button>
             </div>
             <div class="modal-body" id="filtrosBody">
-                
+
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
