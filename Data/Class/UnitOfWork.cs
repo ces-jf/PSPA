@@ -99,6 +99,8 @@ namespace Data.Class
                 .Source(s => 
                     s.Includes(i => 
                         i.Fields(selectFilterArray)))
+                .From(0)
+                .Size(10000)
                 .Query(query => query.MatchAll())
             );
 

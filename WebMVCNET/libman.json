@@ -9,6 +9,10 @@
     {
       "library": "font-awesome@5.9.0",
       "destination": "wwwroot/lib/font-awesome/"
+    },
+    {
+      "library": "jquery.blockUI@2.70",
+      "destination": "wwwroot/jquery.blockUI/"
     }
   ]
 }

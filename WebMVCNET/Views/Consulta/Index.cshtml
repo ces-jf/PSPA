@@ -38,7 +38,7 @@
                     <li class="nav-item"><a class="nav-link"></a></li>
                     <li class="nav-item"><a class="nav-link"></a></li>
                     <li class="nav-item">
-                        <a class="nav-link btn btn-dark" href="@Url.Action("Consultar","Consulta", new { indexBase = "bolsafamilia" })">Search</a>
+                        <a class="nav-link btn btn-dark" id="BtnQuery">Search</a>
                     </li>
                 </ul>
             </div>
@@ -54,6 +54,7 @@
 
 @section scripts {
     <script type="text/javascript" src="~/datatables/js/jquery.dataTables.min.js"></script>
+    <script src="~/jquery.blockUI/jquery.blockUI.min.js"></script>
     <script src="~/custom/consulta/Index.js"></script>
     <script src="~/custom/consulta/ColunaBase.js"></script>
     <script src="~/custom/consulta/BaseBusca.js"></script>

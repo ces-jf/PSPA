@@ -1,12 +1,12 @@
 var basesBusca = new Array();
 $("#filtrosModal").on('show.bs.modal', function () {
-    montarModals("filtrosBody");
+    montarModals("filtrosBody", "filter");
 });
 $("#filtrosModal").on('hidden.bs.modal', function () {
     unmountModal("filtrosBody");
 });
 $("#selectsModal").on('show.bs.modal', function () {
-    montarModals("selectsBody");
+    montarModals("selectsBody", "select");
 });
 $("#selectsModal").on('hidden.bs.modal', function () {
     unmountModal("selectsBody");
@@ -16,7 +16,7 @@ setInterval(function () {
     for (var z = 0; z < basesBusca.length; z++) {
         var children = element.children("#" + basesBusca[z].name);
         if (children.length == 0)
-            element.append('<span id=' + basesBusca[z].name + ' class="badge badge-info">' + basesBusca[z].name + '</span>');
+            element.append(`<span id="${basesBusca[z].name}" class="badge badge-info">${basesBusca[z].name}</span>`);
     }
     var childrens = element.children();
     for (var z = 0; z < childrens.length; z++) {
@@ -27,6 +27,7 @@ setInterval(function () {
             element[0].removeChild(childrens[z]);
     }
 }, 500);
+setInterval(function () { updateModalSelect(); }, 500);
 var baseTable = $("#BaseTable")
     .DataTable({
     "processing": true,
@@ -87,6 +88,9 @@ $("#BaseTable tbody").on("click", "button.dt-expand", function () {
         tr.addClass('shown');
     }
 });
+$("#BtnQuery").on("click", function () {
+    queryBases();
+});
 //Funcions Definitions
 function montarFiltro(selectName) {
     var idBase = selectName;
@@ -125,21 +129,23 @@ function getColunas(indexName) {
 function addFilter(idSelectList) {
     var selectList = document.getElementById(idSelectList);
 }
-function montarModals(idBody) {
+function montarModals(idBody, modalType) {
     for (var l = 0; l < basesBusca.length; l++) {
-        var field = '<fieldset id="' + basesBusca[l].name + '-fieldset">';
+        var field = `<fieldset id="${basesBusca[l].name}">`;
         var select = '';
-        select += '<select class="custom-select custom-select-sm" id="' + basesBusca[l].name + '-selectListColunas">';
+        var selectListId = `${basesBusca[l].name}-selectListColunas`;
+        select += `<select class="custom-select custom-select-sm" id="${selectListId}">`;
         var columns = getColunas(basesBusca[l].name);
         for (var j = 0; j < columns.length; j++) {
             select += '<option value="' + columns[j].descricao + '">' + columns[j].descricao + '</option>';
         }
         select += '</select>';
-        var legend = '<legend>' + basesBusca[l].name + ' <button type="button" data-id-seleclist="' + basesBusca[l].name + '-selectListColunas" class="btn bt-sm btn-primary"><i class="fas fa-plus-square"></i> Add</button>' + select + '</legend>';
+        var legend = `<legend>${basesBusca[l].name} <button type="button" data-type="${modalType}" data-id-selectlist="${selectListId}" class="btn bt-sm btn-primary btn-add-query"><i class="fas fa-plus-square"></i> Add</button> ${select} </legend>`;
         field += legend;
-        field += '<ul class="list-group list-group-flush" id="' + basesBusca[l].name + '-ulFiltro">';
+        field += `<ul class="list-group list-group-flush" id="${basesBusca[l].name}-ulFiltro">`;
         field += '</ul></fieldset>';
         $("#" + idBody).append(field);
+        updateClickAddFeature();
     }
 }
 function unmountModal(idBody) {
@@ -168,12 +174,99 @@ function addSelectItem(idSelectList, baseName) {
     base.columnsSelect.push(new ColunaBase(selectList.value));
 }
 function updateModalSelect() {
-    var fieldsets = document.getElementById("selectsBody").children;
-    for (var s = 0; s < basesBusca.length; s++) {
-        for (var p = 0; p < fieldsets.length; p++) {
-            if (basesBusca[s].name != fieldsets[p].id)
+    var fieldsets = Array.from(document.getElementById("selectsBody").children);
+    fieldsets.forEach(function (value) {
+        for (var b = 0; b < basesBusca.length; b++) {
+            if (value.id != basesBusca[b].name)
+                continue;
+            var ul = document.getElementById(`${value.id}-ulFiltro`);
+            var ulArray = Array.from(ul.children);
+            if (basesBusca[b].columnsSelect.length == 0) {
+                ulArray.forEach(function (value) {
+                    ul.removeChild(value);
+                });
+            }
+            for (var c = 0; c < basesBusca[b].columnsSelect.length; c++) {
+                var column = basesBusca[b].columnsSelect[c];
+                var liIndex = ulArray.findIndex(function (value) { return value.id == column.descricao; });
+                if (liIndex != -1)
+                    continue;
+                var liElement = document.createElement("li");
+                liElement.classList.add("list-group-item", "d-flex", "justify-content-between", "align-items-center");
+                liElement.id = column.descricao;
+                liElement.innerHTML = `${column.descricao}<span class="badge badge-danger badge-pill">X</span>`;
+                ul.append(liElement);
+                updateClickDeleteSelect();
+            }
+            for (var c = 0; c < ulArray.length; c++) {
+                var li = ulArray[c];
+                var liIndex = basesBusca[b].columnsSelect.findIndex(function (value) { return value.descricao == li.id; });
+                if (liIndex == -1)
+                    ul.removeChild(li);
+            }
+        }
+    });
+}
+function updateClickAddFeature() {
+    $("button.btn-add-query").on("click", function (value) {
+        var element = value.currentTarget;
+        var dataType = element.getAttribute("data-type");
+        switch (dataType) {
+            case "select":
+                updateSelectList(element);
+                break;
+            default:
                 return;
         }
-    }
+    });
+}
+function updateClickDeleteSelect() {
+    $("span.badge-danger").on("click", function (value) {
+        var element = value.currentTarget;
+        var parent = element.parentElement;
+        basesBusca.forEach(function value(value) {
+            value.columnsSelect.forEach(function (value, index, array) {
+                if (value.descricao != parent.id)
+                    return;
+                array.splice(index, 1);
+            });
+        });
+    });
+    $("span.badge-danger").css("cursor", "pointer");
+}
+function updateSelectList(element) {
+    var selectListId = element.getAttribute("data-id-selectlist");
+    if (selectListId == null)
+        throw `Attribute data-id-selectlist in ${element.id} not found!`;
+    var selectList = document.getElementById(selectListId);
+    if (selectList == null || selectList == undefined)
+        throw `SelectList ${selectListId} not found!`;
+    var baseBuscaName = selectListId.replace("-selectListColunas", "");
+    basesBusca.forEach(function (value) {
+        if (value.name != baseBuscaName)
+            return;
+        var indexColunaExists = value.columnsSelect.findIndex(function (value) { return value.descricao == selectList.value; });
+        if (indexColunaExists != -1)
+            return;
+        value.columnsSelect.push(new ColunaBase(selectList.value));
+    });
+}
+function queryBases() {
+    var base = basesBusca[0];
+    $.blockUI();
+    $.ajax({
+        url: '/Consulta/Consultar',
+        method: 'POST',
+        data: base,
+        async: false,
+        success: function (data) {
+            window.location.href = `/Consulta/DownloadFile/?guid=${data.fileGuid}`;
+            $.unblockUI();
+        },
+        error: function (data) {
+            $.unblockUI();
+            throw data.responseJSON;
+        }
+    });
 }
 //# sourceMappingURL=Index.js.map

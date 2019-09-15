@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Infra.Business.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using WebMVCNET.Models;
+using SystemHelper.NetCoreTagHelper;
 
 namespace WebMVCNET.Controllers
 {
@@ -22,25 +24,34 @@ namespace WebMVCNET.Controllers
             return View();
         }
 
-        public IActionResult Consultar(string indexBase)
+        [HttpPost]
+        public IActionResult Consultar(BaseBuscaViewModel baseBusca)
         {
+            var indexBase = baseBusca.Name;
+            IEnumerable<string> selectFilter = null;
+
+            if(baseBusca.ColumnsSelect != null || baseBusca.ColumnsSelect.Count() > 0)
+                selectFilter = baseBusca.ColumnsSelect.Select(a => a.Descricao);
+
             try
             {
-                var selectFilter = new List<string> {
-                    "NOME MUNICÍPIO",
-                    "CÓDIGO MUNICÍPIO SIAFI",
-                    "NOME FAVORECIDO"
-                };
+                var export = this.ArquivoBaseBusiness.ConsultaToCSV(indexBase, selectFilter);
+                var guid = Guid.NewGuid().ToString();
 
-                //var export = this.ArquivoBaseBusiness.ConsultaToCSV(indexBase,selectFilter);
-                var export = this.ArquivoBaseBusiness.ConsultaToCSV(indexBase);
+                TempData.Put(guid, new Tuple<byte[], string>(export.ExportToBytes(), $"{indexBase}.csv"));
 
-                return File(export.ExportToBytes(), "text/csv", $"{indexBase}.csv");
+                return Ok(new { fileGuid = guid });
             }
             catch(Exception erro)
             {
                 throw erro;
             }
+        }
+
+        public IActionResult DownloadFile(string guid)
+        {
+            var file = TempData.Get<Tuple<byte[], string>>(guid);
+            return File(file.Item1, "text/csv", file.Item2);
         }
     }
 }
