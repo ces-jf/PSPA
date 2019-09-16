@@ -516,7 +516,7 @@ namespace Infra.Business.Classes
             context.SaveChanges();
         }
 
-        public CsvExport ConsultaToCSV(string indexName, IEnumerable<string> selectFilter = null)
+        public string ConsultaToCSV(IPrincipal user, string indexName, IEnumerable<string> selectFilter = null)
         {
             try
             {
@@ -542,7 +542,14 @@ namespace Infra.Business.Classes
                     }
                 }
 
-                return export;
+                var tempDownloadFolderUser = Path.Combine(Configuration.DefaultTempFolder, user.Identity.Name, "downloadTemp");
+                Directory.CreateDirectory(tempDownloadFolderUser);
+
+                var fileName = Path.Combine(tempDownloadFolderUser, $"{indexName}_{DateTime.Now.ToString("yyyyMMddHHmmss")}.csv");
+
+                export.ExportToFile(fileName);
+
+                return fileName;
             }
             catch(Exception erro)
             {

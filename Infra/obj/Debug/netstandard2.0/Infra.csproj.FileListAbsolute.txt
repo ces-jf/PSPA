@@ -22,15 +22,3 @@ C:\Users\Savio Macedo\Source\Repos\PSPA\Infra\obj\Debug\netstandard2.0\Infra.Ass
 C:\Users\Savio Macedo\Source\Repos\PSPA\Infra\obj\Debug\netstandard2.0\Infra.csproj.CopyComplete
 C:\Users\Savio Macedo\Source\Repos\PSPA\Infra\obj\Debug\netstandard2.0\Infra.dll
 C:\Users\Savio Macedo\Source\Repos\PSPA\Infra\obj\Debug\netstandard2.0\Infra.pdb
-C:\Users\T-Gamer\Source\Repos\PSPA\Infra\bin\Debug\netstandard2.0\Infra.deps.json
-C:\Users\T-Gamer\Source\Repos\PSPA\Infra\bin\Debug\netstandard2.0\Infra.dll
-C:\Users\T-Gamer\Source\Repos\PSPA\Infra\bin\Debug\netstandard2.0\Infra.pdb
-C:\Users\T-Gamer\Source\Repos\PSPA\Infra\bin\Debug\netstandard2.0\SystemHelper.dll
-C:\Users\T-Gamer\Source\Repos\PSPA\Infra\bin\Debug\netstandard2.0\SystemHelper.pdb
-C:\Users\T-Gamer\Source\Repos\PSPA\Infra\obj\Debug\netstandard2.0\Infra.csprojAssemblyReference.cache
-C:\Users\T-Gamer\Source\Repos\PSPA\Infra\obj\Debug\netstandard2.0\Infra.csproj.CoreCompileInputs.cache
-C:\Users\T-Gamer\Source\Repos\PSPA\Infra\obj\Debug\netstandard2.0\Infra.AssemblyInfoInputs.cache
-C:\Users\T-Gamer\Source\Repos\PSPA\Infra\obj\Debug\netstandard2.0\Infra.AssemblyInfo.cs
-C:\Users\T-Gamer\Source\Repos\PSPA\Infra\obj\Debug\netstandard2.0\Infra.csproj.CopyComplete
-C:\Users\T-Gamer\Source\Repos\PSPA\Infra\obj\Debug\netstandard2.0\Infra.dll
-C:\Users\T-Gamer\Source\Repos\PSPA\Infra\obj\Debug\netstandard2.0\Infra.pdb

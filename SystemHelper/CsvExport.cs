@@ -166,7 +166,8 @@ namespace SystemHelper
         /// </summary>
         public void ExportToFile(string path, Boolean includeHeader = false)
         {
-            File.WriteAllLines(path, ExportToLines(includeHeader), Encoding.UTF8);
+            var encoding = Encoding.GetEncoding("ISO-8859-1");
+            File.WriteAllLines(path, ExportToLines(includeHeader), encoding);
         }
 
         /// <summary>

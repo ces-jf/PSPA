@@ -85,7 +85,7 @@ namespace Data.Class
             return indicesName;
         }
 
-        public IEnumerable<Dictionary<string, string>> MatchAll(string indexName, IEnumerable<string> selectFilter = null)
+        public IEnumerable<Dictionary<string, string>> MatchAll(string indexName, IEnumerable<string> selectFilter = null, int from = 0, int size = 1000)
         {
             var client = new ElasticClient(this.ConnectionSettings);
 
@@ -99,8 +99,8 @@ namespace Data.Class
                 .Source(s => 
                     s.Includes(i => 
                         i.Fields(selectFilterArray)))
-                .From(0)
-                .Size(10000)
+                .From(from)
+                .Size(size)
                 .Query(query => query.MatchAll())
             );
 
