@@ -5,13 +5,14 @@
     <UserSecretsId>aspnet-WebMVCNET-A82CC28F-51B9-4D54-AD8A-1815FD8273F9</UserSecretsId>
     <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-    <TypeScriptToolsVersion>3.2</TypeScriptToolsVersion>
+    <TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <Content Remove="wwwroot\custom\consulta\BaseBusca.ts" />
     <Content Remove="wwwroot\custom\consulta\ColunaBase.ts" />
     <Content Remove="wwwroot\custom\consulta\Index.ts" />
+    <Content Remove="wwwroot\custom\consulta\IndexEvents.ts" />
   </ItemGroup>
 
 

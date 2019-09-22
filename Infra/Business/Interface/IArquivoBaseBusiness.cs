@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Security.Principal;
 using System.Threading.Tasks;
 using Infra.Entidades;
@@ -16,6 +17,6 @@ namespace Infra.Business.Interfaces
         void RegisterNewFiles(string[] files, PedidoImportacao pedido, IIdentityContext context);
         void UpdateToRegisterData(PedidoImportacao pedido, IIdentityContext context);
         void InserirArquivo(PedidoImportacao pedido, IIdentityContext context);
-        string ConsultaToCSV(IPrincipal User, string indexName, IEnumerable<string> selectFilter = null);
+        string ConsultaToCSV(IPrincipal User, string indexName, IEnumerable<string> selectFilter = null, IEnumerable<Tuple<string, string, string>> filterFilter = null, int numberEntries = 1000, bool allEntries = false);
     }
 }

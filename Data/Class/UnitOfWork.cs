@@ -6,6 +6,7 @@ using Infra.Class;
 using Microsoft.Extensions.Options;
 using System.Linq;
 using Infra.Entidades;
+using Data.ContextExtension;
 
 namespace Data.Class
 {
@@ -85,23 +86,36 @@ namespace Data.Class
             return indicesName;
         }
 
-        public IEnumerable<Dictionary<string, string>> MatchAll(string indexName, IEnumerable<string> selectFilter = null, int from = 0, int size = 1000)
+        public long TotalDocuments(string indexName)
         {
             var client = new ElasticClient(this.ConnectionSettings);
 
-            if(selectFilter == null)
+            var request = new CountRequest {
+                Query = new MatchAllQuery()
+            };
+
+            return client.Count(c => c.Index(""));
+        }
+
+        public IList<Dictionary<string, string>> MatchAll(string indexName, IEnumerable<string> selectFilter = null, IEnumerable<Tuple<string, string, string>> filterFilter = null, int from = 0, int size = 1000)
+        {
+            var client = new ElasticClient(this.ConnectionSettings);
+
+            if (selectFilter == null)
                 selectFilter = this.Colunas(indexName).Select(a => a.Descricao);
 
             var selectFilterArray = selectFilter.ToArray();
 
+            client.Indices.UpdateSettings(indexName, a => a.IndexSettings(z => z.Setting("index.max_result_window", int.MaxValue)));
+
             var result = client.Search<Dictionary<string, string>>(a =>
             a.Index(indexName)
-                .Source(s => 
-                    s.Includes(i => 
+                .Source(s =>
+                    s.Includes(i =>
                         i.Fields(selectFilterArray)))
                 .From(from)
                 .Size(size)
-                .Query(query => query.MatchAll())
+                .Query(query => query.FilterMatch(filterFilter))
             );
 
             if (!result.IsValid)
@@ -110,7 +124,7 @@ namespace Data.Class
             if (result.Documents.Count < 1)
                 return new List<Dictionary<string, string>> { new Dictionary<string, string>() };
 
-            return result.Documents;
+            return result.Documents.ToList();
         }
     }
 }

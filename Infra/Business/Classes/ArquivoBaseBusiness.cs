@@ -516,38 +516,49 @@ namespace Infra.Business.Classes
             context.SaveChanges();
         }
 
-        public string ConsultaToCSV(IPrincipal user, string indexName, IEnumerable<string> selectFilter = null)
+        public string ConsultaToCSV(IPrincipal user, string indexName, IEnumerable<string> selectFilter = null, IEnumerable<Tuple<string, string, string>> filterFilter = null, int numberEntries = 1000, bool allEntries = false)
         {
             try
             {
-                var result = _unitOfWork.MatchAll(indexName, selectFilter);
-
-                var export = new CsvExport();
-
-                var cabecalho = result.FirstOrDefault();
-
-                export.AddRow();
-                foreach (var key in cabecalho.Keys)
-                {
-                    export[key] = key;
-                }
-
-                foreach(var item in result)
-                {
-                    export.AddRow();
-
-                    foreach(var key in item.Keys)
-                    {
-                        export[key] = item[key];
-                    }
-                }
+                int from = 0;
+                int size = 10000;
 
                 var tempDownloadFolderUser = Path.Combine(Configuration.DefaultTempFolder, user.Identity.Name, "downloadTemp");
                 Directory.CreateDirectory(tempDownloadFolderUser);
 
                 var fileName = Path.Combine(tempDownloadFolderUser, $"{indexName}_{DateTime.Now.ToString("yyyyMMddHHmmss")}.csv");
 
-                export.ExportToFile(fileName);
+                do
+                {
+                    var result = _unitOfWork.MatchAll(indexName, selectFilter, filterFilter, from, size);
+
+                    var export = new CsvExport();
+
+                    foreach (var item in result)
+                    {
+                        export.AddRow();
+
+                        foreach (var key in item.Keys)
+                        {
+                            export[key] = item[key];
+                        }
+                    }
+
+                    result.Clear();
+
+                    if (from == 0)
+                        export.ExportToFile(fileName, includeHeader: true);
+                    else
+                        export.AddLinesToFile(fileName);
+
+                    export.Dispose();
+
+                    from += size;
+
+                    if ((from + size) >= numberEntries)
+                        size = numberEntries - from;
+                }
+                while (from < numberEntries);
 
                 return fileName;
             }

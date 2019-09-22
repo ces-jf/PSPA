@@ -7,7 +7,7 @@ using System.Text;
 
 namespace SystemHelper
 {
-    public class CsvExport
+    public class CsvExport : IDisposable
     {
         /// <summary>
         /// To keep the ordered list of column names
@@ -32,7 +32,7 @@ namespace SystemHelper
         /// <summary>
         /// Whether to include the preamble that declares which column separator is used in the output
         /// </summary>
-        private readonly bool _includeColumnSeparatorDefinitionPreamble;
+        private bool _includeColumnSeparatorDefinitionPreamble;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Jitbit.Utils.CsvExport"/> class.
@@ -127,7 +127,7 @@ namespace SystemHelper
         /// <summary>
         /// Outputs all rows as a CSV, returning one string at a time
         /// </summary>
-        private IEnumerable<string> ExportToLines(Boolean includeHeader = false)
+        private IEnumerable<string> ExportToLines(bool includeHeader = false)
         {
             if (_includeColumnSeparatorDefinitionPreamble) yield return "sep=" + _columnSeparator;
 
@@ -167,7 +167,13 @@ namespace SystemHelper
         public void ExportToFile(string path, Boolean includeHeader = false)
         {
             var encoding = Encoding.GetEncoding("ISO-8859-1");
-            File.WriteAllLines(path, ExportToLines(includeHeader), encoding);
+            File.AppendAllLines(path, ExportToLines(includeHeader), encoding);
+        }
+
+        public void AddLinesToFile(string path, Boolean includeHeader = false)
+        {
+            this._includeColumnSeparatorDefinitionPreamble = false;
+            ExportToFile(path, includeHeader);
         }
 
         /// <summary>
@@ -179,5 +185,41 @@ namespace SystemHelper
             var data = encoding.GetBytes(Export(includeHeader));
             return encoding.GetPreamble().Concat(data).ToArray();
         }
+
+        #region IDisposable Support
+        private bool disposedValue = false; // Para detectar chamadas redundantes
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    // TODO: descartar estado gerenciado (objetos gerenciados).
+                }
+
+                // TODO: liberar recursos não gerenciados (objetos não gerenciados) e substituir um finalizador abaixo.
+                // TODO: definir campos grandes como nulos.
+
+                disposedValue = true;
+            }
+        }
+
+        // TODO: substituir um finalizador somente se Dispose(bool disposing) acima tiver o código para liberar recursos não gerenciados.
+        // ~CsvExport()
+        // {
+        //   // Não altere este código. Coloque o código de limpeza em Dispose(bool disposing) acima.
+        //   Dispose(false);
+        // }
+
+        // Código adicionado para implementar corretamente o padrão descartável.
+        public void Dispose()
+        {
+            // Não altere este código. Coloque o código de limpeza em Dispose(bool disposing) acima.
+            Dispose(true);
+            // TODO: remover marca de comentário da linha a seguir se o finalizador for substituído acima.
+            // GC.SuppressFinalize(this);
+        }
+        #endregion
     }
 }
