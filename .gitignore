@@ -355,3 +355,11 @@ MigrationBackup/
 */obj
 *bin
 *obj
+/WebMVCNET/wwwroot/custom/consulta/BaseBusca.js
+/WebMVCNET/wwwroot/custom/consulta/BaseBusca.js.map
+/WebMVCNET/wwwroot/custom/consulta/ColunaBase.js
+/WebMVCNET/wwwroot/custom/consulta/ColunaBase.js.map
+/WebMVCNET/wwwroot/custom/consulta/Index.js
+/WebMVCNET/wwwroot/custom/consulta/Index.js.map
+/WebMVCNET/wwwroot/custom/consulta/IndexEvents.js
+/WebMVCNET/wwwroot/custom/consulta/IndexEvents.js.map
