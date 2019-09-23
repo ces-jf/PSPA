@@ -1,7 +1,9 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\Infra\\Business",
+    "\\Infra\\Business\\Classes"
   ],
-  "SelectedNode": "\\.gitignore",
+  "SelectedNode": "\\Infra",
   "PreviewInSolutionExplorer": false
 }

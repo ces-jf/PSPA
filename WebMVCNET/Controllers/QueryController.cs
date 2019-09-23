@@ -41,7 +41,7 @@ namespace WebMVCNET.Controllers
 
             try
             {
-                var fileName = this.ArquivoBaseBusiness.ConsultaToCSV(User, indexBase, selectFilter, filterFilter, baseBusca.NumberEntries);
+                var fileName = this.ArquivoBaseBusiness.ConsultaToCSV(User, indexBase, selectFilter, filterFilter, baseBusca.NumberEntries, baseBusca.AllEntries);
                 var guid = Guid.NewGuid().ToString();
 
                 TempData.Put(guid, new Tuple<string, string>(fileName, $"{indexBase}.csv"));

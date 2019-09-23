@@ -195,7 +195,12 @@ namespace SystemHelper
             {
                 if (disposing)
                 {
-                    // TODO: descartar estado gerenciado (objetos gerenciados).
+                    if (this._rows != null)
+                        this._rows = null;
+
+                    if (this._fields != null)
+                        this._fields = null;
+
                 }
 
                 // TODO: liberar recursos não gerenciados (objetos não gerenciados) e substituir um finalizador abaixo.
@@ -218,7 +223,7 @@ namespace SystemHelper
             // Não altere este código. Coloque o código de limpeza em Dispose(bool disposing) acima.
             Dispose(true);
             // TODO: remover marca de comentário da linha a seguir se o finalizador for substituído acima.
-            // GC.SuppressFinalize(this);
+            GC.SuppressFinalize(this);
         }
         #endregion
     }

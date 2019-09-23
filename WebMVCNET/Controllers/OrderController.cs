@@ -10,7 +10,7 @@ using WebMVCNET.Models;
 
 namespace WebMVCNET.Controllers
 {
-    public class PedidoController : Controller
+    public class OrderController : Controller
     {
         //Forms bind properties
         [BindProperty]
@@ -20,7 +20,7 @@ namespace WebMVCNET.Controllers
         private IArquivoBaseBusiness ArquivoBaseBusiness { get; set; }
         private IServiceProvider ServiceProvider { get; set; }
 
-        public PedidoController(IArquivoBaseBusiness arquivoBaseBusiness, IServiceProvider serviceProvider)
+        public OrderController(IArquivoBaseBusiness arquivoBaseBusiness, IServiceProvider serviceProvider)
         {
             this.ArquivoBaseBusiness = arquivoBaseBusiness;
             this.ServiceProvider = serviceProvider;

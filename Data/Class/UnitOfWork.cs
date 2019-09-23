@@ -90,11 +90,12 @@ namespace Data.Class
         {
             var client = new ElasticClient(this.ConnectionSettings);
 
-            var request = new CountRequest {
-                Query = new MatchAllQuery()
-            };
+            var request = client.Count<Dictionary<string, string>>(c => c.Index(indexName));
 
-            return client.Count(c => c.Index(""));
+            if (!request.IsValid)
+                throw request.OriginalException;
+
+            return request.Count;
         }
 
         public IList<Dictionary<string, string>> MatchAll(string indexName, IEnumerable<string> selectFilter = null, IEnumerable<Tuple<string, string, string>> filterFilter = null, int from = 0, int size = 1000)

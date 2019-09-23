@@ -516,7 +516,7 @@ namespace Infra.Business.Classes
             context.SaveChanges();
         }
 
-        public string ConsultaToCSV(IPrincipal user, string indexName, IEnumerable<string> selectFilter = null, IEnumerable<Tuple<string, string, string>> filterFilter = null, int numberEntries = 1000, bool allEntries = false)
+        public string ConsultaToCSV(IPrincipal user, string indexName, IEnumerable<string> selectFilter = null, IEnumerable<Tuple<string, string, string>> filterFilter = null, long numberEntries = 1000, bool allEntries = false)
         {
             try
             {
@@ -527,6 +527,9 @@ namespace Infra.Business.Classes
                 Directory.CreateDirectory(tempDownloadFolderUser);
 
                 var fileName = Path.Combine(tempDownloadFolderUser, $"{indexName}_{DateTime.Now.ToString("yyyyMMddHHmmss")}.csv");
+
+                if (allEntries)
+                    numberEntries = _unitOfWork.TotalDocuments(indexName: indexName);
 
                 do
                 {
@@ -556,7 +559,7 @@ namespace Infra.Business.Classes
                     from += size;
 
                     if ((from + size) >= numberEntries)
-                        size = numberEntries - from;
+                        size = (int)(numberEntries - from);
                 }
                 while (from < numberEntries);
 

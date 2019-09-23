@@ -8,7 +8,7 @@ namespace WebMVCNET.Models
     public class BaseBuscaViewModel
     {
         public string Name { get; set; }
-        public int NumberEntries { get; set; }
+        public long NumberEntries { get; set; }
         public bool AllEntries { get; set; }
         public IEnumerable<ColunaBase> ColumnsFilter { get; set; }
         public IEnumerable<ColunaBase> ColumnsSelect { get; set; }
