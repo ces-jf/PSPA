@@ -1,5 +1,6 @@
 ﻿using Infra.Business.Interfaces;
 using Infra.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -10,6 +11,7 @@ using WebMVCNET.Models;
 
 namespace WebMVCNET.Controllers
 {
+    [Authorize]
     public class OrderController : Controller
     {
         //Forms bind properties

@@ -5,9 +5,8 @@ using Infra.Business.Classes.Identity;
 using Infra.Business.Interfaces;
 using Infra.Class;
 using Infra.Interfaces;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using SystemHelper;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -21,6 +20,8 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTransient<IPedidoImportacaoBusiness, PedidoImportacaoBusiness>();
             services.AddTransient<IIndexBusiness, IndexBusiness>();
             services.AddTransient<IdentityBusiness, IdentityBusiness>();
+            services.AddTransient<IEmailSender, EmailSender>();
+
             services.AddScoped<IIdentityContext, IdentityContext>();
 
             return services;

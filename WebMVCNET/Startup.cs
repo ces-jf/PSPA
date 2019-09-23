@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.IO;
 using SystemHelper;
 using Infra.Interfaces;
+using SystemHelper.ViewModel;
 
 namespace WebMVCNET
 {
@@ -37,7 +38,9 @@ namespace WebMVCNET
             services.AddRestIndentity(Configuration);
             services.AddDependencyInjection();
             services.AddOptions();
+
             services.Configure<Configuration>(Configuration.GetSection("GeneralConfigurations"));
+            services.Configure<EmailSettings>(Configuration.GetSection("EmailSettings"));
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }

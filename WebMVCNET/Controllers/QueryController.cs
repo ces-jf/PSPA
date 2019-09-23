@@ -6,9 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 using WebMVCNET.Models;
 using SystemHelper.NetCoreTagHelper;
 using SystemHelper.NetCoreMVCAttribute;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebMVCNET.Controllers
 {
+    [Authorize]
     public class QueryController : Controller
     {
         //IoC Properties
