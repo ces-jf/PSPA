@@ -1,9 +1,10 @@
 {
   "ExpandedNodes": [
     "",
-    "\\Infra\\Business",
-    "\\Infra\\Business\\Classes"
+    "\\WebMVCNET",
+    "\\WebMVCNET\\Views",
+    "\\WebMVCNET\\Views\\Query"
   ],
-  "SelectedNode": "\\Infra",
+  "SelectedNode": "\\package.json",
   "PreviewInSolutionExplorer": false
 }

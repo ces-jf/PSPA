@@ -48,7 +48,7 @@ function montarModals(idBody: string, modalType: string) {
 
         select += '</select>';
 
-        var legend = `<legend>${basesBusca[l].name} <button type="button" data-type="${modalType}" data-id-selectlist="${selectListId}" class="btn bt-sm btn-primary btn-add-query"><i class="fas fa-plus-square"></i> Add</button> ${select} </legend>`;
+        var legend = `<legend>${basesBusca[l].name} <button id="add-button" type="button" data-type="${modalType}" data-id-selectlist="${selectListId}" class="btn bt-sm btn-primary btn-add-query"><i class="fas fa-plus-square"></i> Add</button> ${select} </legend>`;
         field += legend;
         field += `<ul class="list-group list-group-flush" id="${basesBusca[l].name}-ulFiltro">`;
         field += '</ul></fieldset>';
@@ -56,6 +56,11 @@ function montarModals(idBody: string, modalType: string) {
         $("#" + idBody).append(field);
 
         updateClickAddFeature();
+
+        if (modalType == "runGraphics") {
+            var buttonAdd = document.getElementById("add-button") as HTMLButtonElement;
+            buttonAdd.parentElement.removeChild(buttonAdd);
+        }
     }
 }
 
@@ -216,6 +221,34 @@ function updateModalFilter() {
     });
 }
 
+function updateRunGraphicsList(element: Element) {
+
+    var selectListId = element.getAttribute("data-id-selectlist");
+
+    if (selectListId == null)
+        throw `Attribute data-id-selectlist in ${element.id} not found!`;
+
+    var selectList = document.getElementById(selectListId) as HTMLSelectElement;
+
+    if (selectList == null || selectList == undefined)
+        throw `SelectList ${selectListId} not found!`;
+
+    var baseBuscaName = selectListId.replace("-selectListColunas", "");
+
+    basesBusca.forEach(function (value) {
+
+        if (value.name != baseBuscaName)
+            return;
+
+        var indexColunaExists = value.columnsGroup.findIndex(function (value) { return value.descricao == selectList.value; });
+
+        if (indexColunaExists != -1)
+            return;
+
+        value.columnsGroup.push(new ColunaBase(selectList.value));
+    });
+}
+
 function updateClickAddFeature() {
     $("button.btn-add-query").on("click", function (value) {
 
@@ -228,6 +261,9 @@ function updateClickAddFeature() {
                 break;
             case "filter":
                 updateFilterList(element);
+                break;
+            case "runGraphics":
+                updateRunGraphicsList(element);
                 break;
             default:
                 return;
@@ -354,3 +390,40 @@ function queryBases() {
     });
 }
 
+function runGraphicsBases() {
+
+    var base = basesBusca[0];
+    base.allEntries = (document.getElementById("checkboxEntries") as HTMLInputElement).checked;
+    base.numberEntries = (document.getElementById("formEntries") as HTMLInputElement).valueAsNumber;
+
+    if (base.columnsSelect.length != 1) {
+        alert("Only need ONE select field!");
+        return;
+    }
+
+    var selectListId = `${base.name}-selectListColunas`;
+
+    var selectList = document.getElementById(selectListId) as HTMLSelectElement;
+
+    if (selectList == null || selectList == undefined)
+        throw `SelectList ${selectListId} not found!`;
+
+    base.columnsGroup.push(new ColunaBase(selectList.value));
+
+    $.blockUI();
+
+    $.ajax({
+        url: '/Query/RunGraphics',
+        method: 'POST',
+        data: base,
+        async: false,
+        success: function (data) {
+            window.location.href = `/Query/DownloadFile/?guid=${data.fileGuid}`;
+            $.unblockUI();
+        },
+        error: function (data) {
+            $.unblockUI();
+            throw data.responseJSON;
+        }
+    });
+}

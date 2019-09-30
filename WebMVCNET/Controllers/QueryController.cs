@@ -30,12 +30,12 @@ namespace WebMVCNET.Controllers
         public IActionResult Run(BaseBuscaViewModel baseBusca)
         {
             var indexBase = baseBusca.Name;
-            IEnumerable<string> selectFilter = null;
+            IList<string> selectFilter = null;
             IEnumerable<Tuple<string, string, string>> filterFilter = null;
 
             if(baseBusca.ColumnsSelect != null)
                 if(baseBusca.ColumnsSelect.Count() > 0)
-                    selectFilter = baseBusca.ColumnsSelect.Select(a => a.Descricao);
+                    selectFilter = baseBusca.ColumnsSelect.Select(a => a.Descricao).ToList();
 
             if (baseBusca.ColumnsFilter != null)
                 if (baseBusca.ColumnsFilter.Count() > 0)
@@ -51,6 +51,38 @@ namespace WebMVCNET.Controllers
                 return Ok(new { fileGuid = guid });
             }
             catch(Exception erro)
+            {
+                throw erro;
+            }
+        }
+
+        [HttpPost]
+        public IActionResult RunGraphics(BaseBuscaViewModel baseBusca)
+        {
+            var indexBase = baseBusca.Name;
+            IList<string> selectFilter = null;
+            IEnumerable<Tuple<string, string, string>> filterFilter = null;
+            string columnGroup = null;
+
+            if (baseBusca.ColumnsSelect != null)
+                if (baseBusca.ColumnsSelect.Count() > 0)
+                    selectFilter = baseBusca.ColumnsSelect.Select(a => a.Descricao).ToList();
+
+            if (baseBusca.ColumnsFilter != null)
+                if (baseBusca.ColumnsFilter.Count() > 0)
+                    filterFilter = baseBusca.ColumnsFilter.Select(a => new Tuple<string, string, string>(a.Descricao, a.FilterType, a.ValueFilter));
+
+            if (baseBusca.ColumnsGroup != null)
+                if (baseBusca.ColumnsGroup.Count() > 0)
+                    columnGroup = baseBusca.ColumnsGroup.FirstOrDefault().Descricao;
+
+            try
+            {
+                var resultsDictionarys = this.ArquivoBaseBusiness.QueryGroupData(indexBase, columnGroup: columnGroup, selectFilter, filterFilter, baseBusca.NumberEntries, baseBusca.AllEntries);
+
+                return Ok(new { resultsDictionarys });
+            }
+            catch (Exception erro)
             {
                 throw erro;
             }

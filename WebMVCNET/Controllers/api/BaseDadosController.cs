@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
-using Infra.Business.Classes.Identity;
+﻿using Infra.Business.Classes.Identity;
 using Infra.Business.Interfaces;
-using Infra.Entidades;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 
 namespace WebMVCNET.Controllers.api
 {
@@ -58,7 +56,7 @@ namespace WebMVCNET.Controllers.api
             }
             catch (Exception erro)
             {
-                throw erro;
+                return BadRequest(erro.Message);
             }
         }
 
@@ -100,7 +98,7 @@ namespace WebMVCNET.Controllers.api
             }
         }
 
-        private IList<TEntity> ProcessarDadosForm<TEntity>(IList<TEntity> listElements, IFormCollection requestFormData) where TEntity:class
+        private IList<TEntity> ProcessarDadosForm<TEntity>(IList<TEntity> listElements, IFormCollection requestFormData) where TEntity : class
         {
             var skip = Convert.ToInt32(requestFormData["start"].ToString());
             var pageSize = Convert.ToInt32(requestFormData["length"].ToString());
@@ -135,7 +133,7 @@ namespace WebMVCNET.Controllers.api
             return null;
         }
 
-        private PropertyInfo GetProperty<TEntity>(string name) where TEntity: class
+        private PropertyInfo GetProperty<TEntity>(string name) where TEntity : class
         {
             var properties = typeof(TEntity).GetProperties();
             PropertyInfo prop = null;

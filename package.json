@@ -1,0 +1,29 @@
+{
+  "author": "",
+  "bugs": {
+    "url": "https://github.com/ces-jf/PSPA/issues"
+  },
+  "dependencies": {
+    "@types/bootstrap": "^4.3.1",
+    "@types/datatables.net": "^1.10.17",
+    "@types/jquery": "^3.3.31",
+    "@types/jquery.blockui": "0.0.28",
+    "@types/popper.js": "^1.11.0",
+    "@types/sizzle": "^2.3.2",
+    "popper.js": "^1.15.0"
+  },
+  "description": "Uma Plataforma para Manipulação e Análise de Dados de Programas Sociais do Governo Federal (Platform for Social Program Analysis)",
+  "devDependencies": {},
+  "homepage": "https://github.com/ces-jf/PSPA#readme",
+  "license": "ISC",
+  "main": "index.js",
+  "name": "pspa",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ces-jf/PSPA.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "version": "1.0.0"
+}

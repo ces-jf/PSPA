@@ -16,6 +16,7 @@ using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
 using SystemHelper;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Infra.Business.Classes
 {
@@ -516,7 +517,46 @@ namespace Infra.Business.Classes
             context.SaveChanges();
         }
 
-        public string ConsultaToCSV(IPrincipal user, string indexName, IEnumerable<string> selectFilter = null, IEnumerable<Tuple<string, string, string>> filterFilter = null, long numberEntries = 1000, bool allEntries = false)
+        public IList<Dictionary<string, string>> QueryGroupData(string indexName, string columnGroup = null, IList<string> selectFilter = null, IEnumerable<Tuple<string, string, string>> filterFilter = null, long numberEntries = 1000, bool allEntries = false)
+        {
+            try
+            {
+                int from = 0;
+                int size = 10000;
+
+                var resultFinal = new List<Dictionary<string, string>>();
+
+                if (allEntries)
+                    numberEntries = _unitOfWork.TotalDocuments(indexName: indexName);
+
+                do
+                {
+                    using (var elasticUnitOfWork = ServiceProvider.GetService<IUnitOfWork>())
+                    {
+                        var result = elasticUnitOfWork.MatchAll(indexName: indexName, columnGroup: columnGroup, selectFilter: selectFilter, filterFilter: filterFilter, from: from, size: size);
+
+                        resultFinal.AddRange(result);
+
+                        result.Clear();
+                    }
+
+                    from += size;
+
+                    if ((from + size) >= numberEntries)
+                        size = (int)(numberEntries - from);
+
+                }
+                while (from < numberEntries);
+
+                return resultFinal;
+            }
+            catch(Exception erro)
+            {
+                throw erro;
+            }
+        }
+
+        public string ConsultaToCSV(IPrincipal user, string indexName, IList<string> selectFilter = null, IEnumerable<Tuple<string, string, string>> filterFilter = null, long numberEntries = 1000, bool allEntries = false)
         {
             try
             {
@@ -533,33 +573,34 @@ namespace Infra.Business.Classes
 
                 do
                 {
-                    var result = _unitOfWork.MatchAll(indexName, selectFilter, filterFilter, from, size);
-
-                    var export = new CsvExport();
-
-                    foreach (var item in result)
+                    using (var elasticUnitOfWork = ServiceProvider.GetService<IUnitOfWork>())
+                    using (var export = new CsvExport())
                     {
-                        export.AddRow();
+                        var result = elasticUnitOfWork.MatchAll(indexName: indexName, selectFilter: selectFilter, filterFilter: filterFilter, from: from, size: size);
 
-                        foreach (var key in item.Keys)
+                        foreach (var item in result)
                         {
-                            export[key] = item[key];
+                            export.AddRow();
+
+                            foreach (var key in item.Keys)
+                            {
+                                export[key] = item[key];
+                            }
                         }
+
+                        result.Clear();
+
+                        if (from == 0)
+                            export.ExportToFile(fileName, includeHeader: true);
+                        else
+                            export.AddLinesToFile(fileName);
                     }
-
-                    result.Clear();
-
-                    if (from == 0)
-                        export.ExportToFile(fileName, includeHeader: true);
-                    else
-                        export.AddLinesToFile(fileName);
-
-                    export.Dispose();
 
                     from += size;
 
                     if ((from + size) >= numberEntries)
                         size = (int)(numberEntries - from);
+
                 }
                 while (from < numberEntries);
 

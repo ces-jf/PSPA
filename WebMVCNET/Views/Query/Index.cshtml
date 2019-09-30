@@ -23,10 +23,11 @@
             </thead>
         </table>
     </div>
-    <div class=" col-md-12">
+
+    <div class="col-md-12">
         <div class="card">
             <div class="card-header">
-                <div class="float-left">Consulta</div>
+                <div class="float-left">Config Query Data</div>
                 <ul class="nav nav-pills card-header-pills float-right">
                     <li class="nav-item">
                         <input id="formEntries" class="form-control form-control-sm" type="number" placeholder="Number os entries" aria-label="Search">
@@ -46,7 +47,10 @@
                     <li class="nav-item"><a class="nav-link"></a></li>
                     <li class="nav-item"><a class="nav-link"></a></li>
                     <li class="nav-item">
-                        <a class="nav-link btn btn-dark" id="BtnQuery">Search</a>
+                        <a class="nav-link btn btn-dark" id="BtnQuery">Generate CSV</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-info" data-toggle="modal" data-target="#graphicsConfigModal" id="BtnGraphic">Generate Graphics</a>
                     </li>
                 </ul>
             </div>
@@ -58,17 +62,88 @@
             </div>
         </div>
     </div>
+
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="float-left"> Graphics </div>
+            </div>
+            <div class="card-body">
+                <!--Table and divs that hold the pie charts-->
+                <table class="columns">
+                    <tr>
+                        <td><div id="Sarah_chart_div" style="border: 1px solid #ccc"></div></td>
+                        <td><div id="Anthony_chart_div" style="border: 1px solid #ccc"></div></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 
 @section scripts {
     <script type="text/javascript" src="~/datatables/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script src="~/jquery.blockUI/jquery.blockUI.min.js"></script>
     <script src="~/custom/consulta/IndexEvents.js"></script>
     <script src="~/custom/consulta/Index.js"></script>
     <script src="~/custom/consulta/ColunaBase.js"></script>
     <script src="~/custom/consulta/BaseBusca.js"></script>
+    <script type="text/javascript">
+        google.charts.load('current', { packages: ['corechart'] });
+
+        google.charts.setOnLoadCallback(drawChart);
+        google.charts.setOnLoadCallback(drawSarahChart);
+
+        function drawChart() {
+            // Define the chart to be drawn.
+            var data = new google.visualization.DataTable();
+            data.addColumn('string', 'Element');
+            data.addColumn('number', 'Percentage');
+            data.addRows([
+                ['Nitrogen', 0.78],
+                ['Oxygen', 0.21],
+                ['Other', 0.01]
+            ]);
+
+            // Set chart options
+            var options = {'title':'How Much Pizza I Ate Last Night',
+                     'width':400,
+                     'height':300};
+
+            // Instantiate and draw the chart.
+            var chart = new google.visualization.PieChart(document.getElementById('Anthony_chart_div'));
+            chart.draw(data, options);
+        }
+
+        function drawSarahChart() {
+
+            // Create the data table for Sarah's pizza.
+            var data = new google.visualization.DataTable();
+            data.addColumn('string', 'Topping');
+            data.addColumn('number', 'Slices');
+
+            data.addRows([
+              ['Mushrooms', 1],
+              ['Onions', 1],
+              ['Olives', 2],
+              ['Zucchini', 2],
+              ['Pepperoni', 1]
+            ]);
+
+            // Set options for Sarah's pie chart.
+            var options = {title:'How Much Pizza Sarah Ate Last Night',
+                           width:400,
+                           height:300};
+
+            // Instantiate and draw the chart for Sarah's pizza.
+            var chart = new google.visualization.PieChart(document.getElementById('Sarah_chart_div'));
+            chart.draw(data, options);
+        }
+    </script>
 }
 
 <!-- modals -->
 <partial name="Modals/modalFilter" />
 <partial name="Modals/modalSelect" />
+<partial name="Modals/modalGraphicConfig" />

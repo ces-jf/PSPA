@@ -13,9 +13,9 @@ namespace Data.Class
     public class UnitOfWork : IUnitOfWork
     {
         private Uri ElasticSearchURL { get; set; }
-        private readonly ConnectionSettings ConnectionSettings;
-        private readonly Dictionary<string, object> ClientFactory;
-        private readonly Configuration _configuration;
+        private ConnectionSettings ConnectionSettings { get; set; }
+        private Dictionary<string, object> ClientFactory { get; set; }
+        private Configuration _configuration { get; set; }
 
         public UnitOfWork(IOptions<Configuration> configuration)
         {
@@ -98,12 +98,15 @@ namespace Data.Class
             return request.Count;
         }
 
-        public IList<Dictionary<string, string>> MatchAll(string indexName, IEnumerable<string> selectFilter = null, IEnumerable<Tuple<string, string, string>> filterFilter = null, int from = 0, int size = 1000)
+        public IList<Dictionary<string, string>> MatchAll(string indexName, string columnGroup = null, IList<string> selectFilter = null, IEnumerable<Tuple<string, string, string>> filterFilter = null, int from = 0, int size = 1000)
         {
             var client = new ElasticClient(this.ConnectionSettings);
 
             if (selectFilter == null)
-                selectFilter = this.Colunas(indexName).Select(a => a.Descricao);
+                selectFilter = this.Colunas(indexName).Select(a => a.Descricao).ToList();
+
+            if (!string.IsNullOrEmpty(columnGroup))
+                selectFilter.Add(columnGroup);
 
             var selectFilterArray = selectFilter.ToArray();
 
@@ -125,7 +128,61 @@ namespace Data.Class
             if (result.Documents.Count < 1)
                 return new List<Dictionary<string, string>> { new Dictionary<string, string>() };
 
-            return result.Documents.ToList();
+            var resultDictionary = result.Documents.ToList();
+
+            if (!string.IsNullOrEmpty(columnGroup))
+            {
+                var groups = resultDictionary.
+            }
+
+            return resultDictionary;
         }
+
+        #region IDisposable Support
+        private bool disposedValue = false; // Para detectar chamadas redundantes
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    // TODO: descartar estado gerenciado (objetos gerenciados).
+                    if (this.ClientFactory != null)
+                        this.ClientFactory = null;
+
+                    if (this.ConnectionSettings != null)
+                        this.ConnectionSettings = null;
+
+                    if (this.ElasticSearchURL != null)
+                        this.ElasticSearchURL = null;
+
+                    if (this._configuration != null)
+                        this._configuration = null;
+                }
+
+                // TODO: liberar recursos não gerenciados (objetos não gerenciados) e substituir um finalizador abaixo.
+                // TODO: definir campos grandes como nulos.
+
+                disposedValue = true;
+            }
+        }
+
+        // TODO: substituir um finalizador somente se Dispose(bool disposing) acima tiver o código para liberar recursos não gerenciados.
+        // ~UnitOfWork()
+        // {
+        //   // Não altere este código. Coloque o código de limpeza em Dispose(bool disposing) acima.
+        //   Dispose(false);
+        // }
+
+        // Código adicionado para implementar corretamente o padrão descartável.
+        public void Dispose()
+        {
+            // Não altere este código. Coloque o código de limpeza em Dispose(bool disposing) acima.
+            Dispose(true);
+            // TODO: remover marca de comentário da linha a seguir se o finalizador for substituído acima.
+            GC.SuppressFinalize(this);
+        }
+        #endregion
     }
 }
