@@ -221,34 +221,6 @@ function updateModalFilter() {
     });
 }
 
-function updateRunGraphicsList(element: Element) {
-
-    var selectListId = element.getAttribute("data-id-selectlist");
-
-    if (selectListId == null)
-        throw `Attribute data-id-selectlist in ${element.id} not found!`;
-
-    var selectList = document.getElementById(selectListId) as HTMLSelectElement;
-
-    if (selectList == null || selectList == undefined)
-        throw `SelectList ${selectListId} not found!`;
-
-    var baseBuscaName = selectListId.replace("-selectListColunas", "");
-
-    basesBusca.forEach(function (value) {
-
-        if (value.name != baseBuscaName)
-            return;
-
-        var indexColunaExists = value.columnsGroup.findIndex(function (value) { return value.descricao == selectList.value; });
-
-        if (indexColunaExists != -1)
-            return;
-
-        value.columnsGroup.push(new ColunaBase(selectList.value));
-    });
-}
-
 function updateClickAddFeature() {
     $("button.btn-add-query").on("click", function (value) {
 
@@ -261,9 +233,6 @@ function updateClickAddFeature() {
                 break;
             case "filter":
                 updateFilterList(element);
-                break;
-            case "runGraphics":
-                updateRunGraphicsList(element);
                 break;
             default:
                 return;
@@ -401,15 +370,6 @@ function runGraphicsBases() {
         return;
     }
 
-    var selectListId = `${base.name}-selectListColunas`;
-
-    var selectList = document.getElementById(selectListId) as HTMLSelectElement;
-
-    if (selectList == null || selectList == undefined)
-        throw `SelectList ${selectListId} not found!`;
-
-    base.columnsGroup.push(new ColunaBase(selectList.value));
-
     $.blockUI();
 
     $.ajax({
@@ -418,7 +378,8 @@ function runGraphicsBases() {
         data: base,
         async: false,
         success: function (data) {
-            window.location.href = `/Query/DownloadFile/?guid=${data.fileGuid}`;
+            var selectColumn = base.columnsSelect[0].descricao;
+            drawChart(data, selectColumn, base.columnsFilter);
             $.unblockUI();
         },
         error: function (data) {
@@ -426,4 +387,30 @@ function runGraphicsBases() {
             throw data.responseJSON;
         }
     });
+}
+
+function drawChart(elements: Array<object>, groupColumn: string, filterColumns: Array<ColunaBase>) {
+    var chartDiv = document.getElementById("chartDiv");
+    var data = new google.visualization.DataTable();
+    data.addColumn('string', 'Element');
+    data.addColumn('number', 'Slices');
+
+    elements.forEach(function (value, index, array) {
+        var columnName = Object.keys(array[index])[0];
+        var valueNumber = parseInt(value[columnName] as string);
+        data.addRow([columnName, valueNumber]);
+    });
+
+    var filterText = "";
+
+    filterColumns.forEach(function (value, index) {
+        if (index > 0)
+            filterText += ` and `;
+        filterText += `${value.descricao} ${value.filterType} ${value.valueFilter}`;
+    });
+
+    var options = { "title": `Graphic based on ${groupColumn} and filtered by ${filterText}` };
+
+    var chart = new google.visualization.PieChart(chartDiv);
+    chart.draw(data, options);
 }

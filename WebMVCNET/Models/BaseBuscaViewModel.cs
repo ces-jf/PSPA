@@ -12,8 +12,6 @@ namespace WebMVCNET.Models
         public bool AllEntries { get; set; }
         public IEnumerable<ColunaBase> ColumnsFilter { get; set; }
         public IEnumerable<ColunaBase> ColumnsSelect { get; set; }
-
-        public IEnumerable<ColunaBase> ColumnsGroup { get; set; }
     }
 
     public class ColunaBase

@@ -98,15 +98,12 @@ namespace Data.Class
             return request.Count;
         }
 
-        public IList<Dictionary<string, string>> MatchAll(string indexName, string columnGroup = null, IList<string> selectFilter = null, IEnumerable<Tuple<string, string, string>> filterFilter = null, int from = 0, int size = 1000)
+        public IList<Dictionary<string, string>> MatchAll(string indexName, bool columnGroup = false, IList<string> selectFilter = null, IEnumerable<Tuple<string, string, string>> filterFilter = null, int from = 0, int size = 1000)
         {
             var client = new ElasticClient(this.ConnectionSettings);
 
             if (selectFilter == null)
                 selectFilter = this.Colunas(indexName).Select(a => a.Descricao).ToList();
-
-            if (!string.IsNullOrEmpty(columnGroup))
-                selectFilter.Add(columnGroup);
 
             var selectFilterArray = selectFilter.ToArray();
 
@@ -130,9 +127,11 @@ namespace Data.Class
 
             var resultDictionary = result.Documents.ToList();
 
-            if (!string.IsNullOrEmpty(columnGroup))
+            if (columnGroup)
             {
-                var groups = resultDictionary.
+                resultDictionary = resultDictionary.Select(a => a.Values).Select(a => a.FirstOrDefault()).GroupBy(z => z).Select(a => new Dictionary<string, string>() {
+                    { a.Key, a.Count().ToString() }
+                }).ToList();
             }
 
             return resultDictionary;

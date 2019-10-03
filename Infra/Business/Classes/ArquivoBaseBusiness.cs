@@ -517,7 +517,7 @@ namespace Infra.Business.Classes
             context.SaveChanges();
         }
 
-        public IList<Dictionary<string, string>> QueryGroupData(string indexName, string columnGroup = null, IList<string> selectFilter = null, IEnumerable<Tuple<string, string, string>> filterFilter = null, long numberEntries = 1000, bool allEntries = false)
+        public IList<Dictionary<string, string>> QueryGroupData(string indexName, IList<string> selectFilter = null, IEnumerable<Tuple<string, string, string>> filterFilter = null, long numberEntries = 1000, bool allEntries = false)
         {
             try
             {
@@ -533,7 +533,7 @@ namespace Infra.Business.Classes
                 {
                     using (var elasticUnitOfWork = ServiceProvider.GetService<IUnitOfWork>())
                     {
-                        var result = elasticUnitOfWork.MatchAll(indexName: indexName, columnGroup: columnGroup, selectFilter: selectFilter, filterFilter: filterFilter, from: from, size: size);
+                        var result = elasticUnitOfWork.MatchAll(indexName: indexName, columnGroup: true, selectFilter: selectFilter, filterFilter: filterFilter, from: from, size: size);
 
                         resultFinal.AddRange(result);
 

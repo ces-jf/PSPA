@@ -6,6 +6,7 @@
     <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
+    <Product>PSPA - Data Analysis</Product>
   </PropertyGroup>
 
   <ItemGroup>

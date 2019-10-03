@@ -62,7 +62,6 @@ namespace WebMVCNET.Controllers
             var indexBase = baseBusca.Name;
             IList<string> selectFilter = null;
             IEnumerable<Tuple<string, string, string>> filterFilter = null;
-            string columnGroup = null;
 
             if (baseBusca.ColumnsSelect != null)
                 if (baseBusca.ColumnsSelect.Count() > 0)
@@ -72,15 +71,11 @@ namespace WebMVCNET.Controllers
                 if (baseBusca.ColumnsFilter.Count() > 0)
                     filterFilter = baseBusca.ColumnsFilter.Select(a => new Tuple<string, string, string>(a.Descricao, a.FilterType, a.ValueFilter));
 
-            if (baseBusca.ColumnsGroup != null)
-                if (baseBusca.ColumnsGroup.Count() > 0)
-                    columnGroup = baseBusca.ColumnsGroup.FirstOrDefault().Descricao;
-
             try
             {
-                var resultsDictionarys = this.ArquivoBaseBusiness.QueryGroupData(indexBase, columnGroup: columnGroup, selectFilter, filterFilter, baseBusca.NumberEntries, baseBusca.AllEntries);
+                var resultsDictionarys = this.ArquivoBaseBusiness.QueryGroupData(indexBase, selectFilter, filterFilter, baseBusca.NumberEntries, baseBusca.AllEntries);
 
-                return Ok(new { resultsDictionarys });
+                return Ok(resultsDictionarys);
             }
             catch (Exception erro)
             {

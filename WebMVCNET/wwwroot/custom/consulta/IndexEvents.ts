@@ -16,13 +16,6 @@ $("#selectsModal").on('hidden.bs.modal', function() {
     unmountModal("selectsBody");
 });
 
-$("#graphicsConfigModal").on('show.bs.modal', function () {
-    montarModals("graphicsCondigBody", "runGraphics");
-});
-
-$("#graphicsConfigModal").on('hidden.bs.modal', function () {
-    unmountModal("graphicsCondigBody");
-});
 
 setInterval(function() {
     var element = $("#baseArea");

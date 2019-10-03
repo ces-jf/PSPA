@@ -6,6 +6,7 @@
   "dependencies": {
     "@types/bootstrap": "^4.3.1",
     "@types/datatables.net": "^1.10.17",
+    "@types/google.visualization": "0.0.48",
     "@types/jquery": "^3.3.31",
     "@types/jquery.blockui": "0.0.28",
     "@types/popper.js": "^1.11.0",

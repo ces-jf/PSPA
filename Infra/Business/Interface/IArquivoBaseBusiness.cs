@@ -17,7 +17,7 @@ namespace Infra.Business.Interfaces
         void RegisterNewFiles(string[] files, PedidoImportacao pedido, IIdentityContext context);
         void UpdateToRegisterData(PedidoImportacao pedido, IIdentityContext context);
         void InserirArquivo(PedidoImportacao pedido, IIdentityContext context);
-        IList<Dictionary<string, string>> QueryGroupData(string indexName, string columnGroup = null, IList<string> selectFilter = null, IEnumerable<Tuple<string, string, string>> filterFilter = null, long numberEntries = 1000, bool allEntries = false);
+        IList<Dictionary<string, string>> QueryGroupData(string indexName, IList<string> selectFilter = null, IEnumerable<Tuple<string, string, string>> filterFilter = null, long numberEntries = 1000, bool allEntries = false);
         string ConsultaToCSV(IPrincipal User, string indexName, IList<string> selectFilter = null, IEnumerable<Tuple<string, string, string>> filterFilter = null, long numberEntries = 1000, bool allEntries = false);
     }
 }
