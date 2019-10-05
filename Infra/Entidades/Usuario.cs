@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Identity;
 
 namespace Infra.Entidades
@@ -6,6 +7,11 @@ namespace Infra.Entidades
     // Add profile data for application users by adding properties to the Usuario class
     public class Usuario : IdentityUser
     {
+        public Usuario()
+        {
+            this.Roles = new List<string>();
+        }
+
         [PersonalData]
         public string FirstName { get; set; }
         [PersonalData]
@@ -14,5 +20,9 @@ namespace Infra.Entidades
 
         //Relationships
         public ICollection<PedidoImportacao> PedidosImportacao { get; set; }
+
+        //Not Mapped
+        [NotMapped]
+        public List<string> Roles { get; set; }
     }
 }

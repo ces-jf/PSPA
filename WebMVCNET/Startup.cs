@@ -9,6 +9,8 @@ using System.IO;
 using SystemHelper;
 using Infra.Interfaces;
 using SystemHelper.ViewModel;
+using Microsoft.AspNetCore.Identity;
+using Infra.Entidades;
 
 namespace WebMVCNET
 {
@@ -46,7 +48,7 @@ namespace WebMVCNET
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IIdentityContext identityContext)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IIdentityContext identityContext, RoleManager<Role> _roleManager)
         {
             if (env.IsDevelopment())
             {
@@ -66,7 +68,7 @@ namespace WebMVCNET
 
             app.UseAuthentication();
 
-            identityContext.Database.Migrate();
+            ConfigureDataBase(identityContext, _roleManager);
 
             app.UseMvc(routes =>
             {
@@ -74,6 +76,29 @@ namespace WebMVCNET
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+        }
+
+        private static void ConfigureDataBase(IIdentityContext identityContext, RoleManager<Role> _roleManager)
+        {
+            identityContext.Database.Migrate();
+
+            if (!_roleManager.RoleExistsAsync("Administrator").GetAwaiter().GetResult())
+            {
+                var role = new Role() { Name = "Administrator" };
+                _roleManager.CreateAsync(role).GetAwaiter().GetResult();
+            }
+
+            if (!_roleManager.RoleExistsAsync("Manager").GetAwaiter().GetResult())
+            {
+                var role = new Role() { Name = "Manager" };
+                _roleManager.CreateAsync(role).GetAwaiter().GetResult();
+            }
+
+            if (!_roleManager.RoleExistsAsync("Queryable").GetAwaiter().GetResult())
+            {
+                var role = new Role() { Name = "Queryable" };
+                _roleManager.CreateAsync(role).GetAwaiter().GetResult();
+            }
         }
     }
 }

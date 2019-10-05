@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Identity.UI.V4.Pages.Account.Internal;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using SystemHelper;
+using WebMVCNET.Models;
 using static Microsoft.AspNetCore.Identity.UI.V3.Pages.Account.Internal.LoginModel;
 
 namespace WebMVCNET.Controllers
@@ -75,13 +76,21 @@ namespace WebMVCNET.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [AllowAnonymous]
-        public async Task<IActionResult> Register(RegisterModel.InputModel input, string returnUrl = null)
+        public async Task<IActionResult> Register(RegisterViewModel input, string returnUrl = null)
         {
             returnUrl = returnUrl ?? Url.Content("~/");
             if (ModelState.IsValid)
             {
-                var user = new Usuario { UserName = input.Email, Email = input.Email };
+                var user = new Usuario
+                {
+                    UserName = input.UserName,
+                    Email = input.Email,
+                    FirstName = input.FirstName,
+                    SecondName = input.SecondName
+                };
+
                 var result = await _userManager.CreateAsync(user, input.Password);
+
                 if (result.Succeeded)
                 {
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
@@ -185,6 +194,67 @@ namespace WebMVCNET.Controllers
         public IActionResult ResetPasswordConfirmation()
         {
             return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Manage()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var roles = await _userManager.GetRolesAsync(user);
+
+            if (roles.Count > 0)
+                user.Roles.AddRange(roles);
+
+            return View(user);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Update(Usuario userModified)
+        {
+            if (!ModelState.IsValid)
+                return View("Manage", userModified);
+
+            var user = await _userManager.FindByIdAsync(userModified.Id);
+
+            if(user == null)
+            {
+                ModelState.AddModelError(string.Empty, "Not possible to reconize logged user.");
+                return View("Manage", userModified);
+            }
+
+            user.UserName = userModified.UserName;
+            user.FirstName = userModified.FirstName;
+            user.SecondName = userModified.SecondName;
+            user.Email = userModified.Email;
+
+            var result = await _userManager.UpdateAsync(user);
+
+            if(!result.Succeeded)
+            {
+                AddErrors(result);
+                return View("Manage", userModified);
+            }
+
+            return View("Manage",user);
+        }
+
+        [HttpGet]
+        public IActionResult Accounts()
+        {
+            var users = _userManager.Users.ToList();
+            return View(users);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ViewUser(string idUser)
+        {
+            var user = await _userManager.FindByIdAsync(idUser);
+            var roles = await _userManager.GetRolesAsync(user);
+
+            if (roles.Count > 0)
+                user.Roles.AddRange(roles);
+
+            return View("Manage", user);
         }
 
         private void AddErrors(IdentityResult result)

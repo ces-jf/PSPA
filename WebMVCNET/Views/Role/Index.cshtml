@@ -1,0 +1,37 @@
+﻿@model IEnumerable<Role>
+
+
+@{
+    ViewData["Title"] = "Managing system roles.";
+}
+
+<h1>Index</h1>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                System Roles
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <caption>List of roles</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">Name Role</th>
+                            <th scope="col"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var role in Model) {
+                            <tr>
+                                <td>@role.Name</td>
+                                <td><div class="float-right"><a asp-controller="Role" asp-action="Delete" asp-route-roleName="@role.Name" class="btn btn-sm btn-danger">Delete</a></div></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

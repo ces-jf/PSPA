@@ -78,6 +78,12 @@ $("#BaseTable tbody").on("click", "button.dt-view", function() {
         basesBusca.splice(isNaBusca, 1);
         return;
     }
+
+    if (basesBusca.length > 0) {
+        alert("In this version is only allowed ONE base.");
+        return;
+    }
+
     basesBusca.push(new BaseBusca(baseName));
 });
 

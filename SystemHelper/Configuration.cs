@@ -14,5 +14,14 @@ namespace SystemHelper
         public double MaxMemoryUsing { get; set; }
         public static Version DatabaseVersion { get { return new Version(5, 5, 62); } }
         public int TokenMinutesValidation { get; set; }
+        public static string ProductName
+        {
+            get
+            {
+                AssemblyProductAttribute myProduct = (AssemblyProductAttribute)Attribute.GetCustomAttribute(Assembly.GetCallingAssembly(),
+                 typeof(AssemblyProductAttribute));
+                return myProduct.Product;
+            }
+        }
     }
 }

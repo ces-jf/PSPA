@@ -6,18 +6,25 @@
 @if (SignInManager.IsSignedIn(User))
 {
     <li class="nav-item">
-        <a  class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @User.Identity.Name!</a>
+        <a  class="nav-link text-dark" asp-controller="Account" asp-action="Manage" title="Manage">Hello @User.Identity.Name!</a>
     </li>
     <li class="nav-item">
         <a class="nav-link text-dark" asp-controller="Query" asp-action="Index">Query Data</a>
     </li>
     <li class="nav-item dropdown">
         <a class="nav-link text-dark dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            Import Data
+            System Data
         </a>
         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
             <a class="dropdown-item" asp-controller="Order" asp-action="Index">Import Orders</a>
-            <a class="dropdown-item" href="#">My Imports</a>
+
+            @if (User.IsInRole("Administrator"))
+            {
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" asp-controller="Role" asp-action="Index">System Roles</a>
+                <a class="dropdown-item" asp-controller="Account" asp-action="Accounts">System Users</a>
+            }
+
             <div class="dropdown-divider"></div>
             <a class="dropdown-item" asp-controller="Order" asp-action="Request">New Import</a>
         </div>

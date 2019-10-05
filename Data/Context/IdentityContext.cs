@@ -20,6 +20,7 @@ namespace Data.Context
         public DbSet<PedidoImportacao> PedidoImportacao { get; set; }
         public DbSet<LogPedidoImportacao> LogPedidoImportacao { get; set; }
         public DbSet<Usuario> Usuario { get; set; }
+        public DbSet<Role> Role { get; set; }
 
         public IIdentityContext Clone()
         {
@@ -29,14 +30,21 @@ namespace Data.Context
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+
             builder.Entity<Usuario>(b => {
 
                 b.HasKey(a => a.Id);
                 b.Property(a => a.Id).ValueGeneratedOnAdd();
                 b.HasIndex(a => a.Email).IsUnique();
+                b.HasIndex(a => a.UserName).IsUnique();
 
                 b.ToTable("usuario", "PSPABase");
 
+            });
+
+            builder.Entity<Role>(b =>
+            {
+                b.ToTable("role", "PSPABase");
             });
 
             builder.Entity<PedidoImportacao>(b => {

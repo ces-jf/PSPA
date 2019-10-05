@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using System.Security.Principal;
 using System.Text;
@@ -11,25 +12,62 @@ namespace Infra.Business.Classes.Identity
 {
     public class IdentityBusiness: IDisposable
     {
-        private readonly SignInManager<Usuario> _signInManager;
         private readonly UserManager<Usuario> _userManager;
+        private readonly RoleManager<Role> _roleManager;
 
-        public IdentityBusiness(UserManager<Usuario> userManager, SignInManager<Usuario> signInManager)
+        public IdentityBusiness(UserManager<Usuario> userManager, RoleManager<Role> roleManager)
         {
-            _signInManager = signInManager;
             _userManager = userManager;
+            _roleManager = roleManager;
         }
 
-        public async Task<Usuario> GetUsuarioAsync(ClaimsPrincipal User)
+        public async Task<Usuario> GetUsuarioAsync(ClaimsPrincipal User, bool includeRoles = false)
         {
             try
             {
-                return await _userManager.FindByEmailAsync(User.Identity.Name);
+                var usuario = await _userManager.GetUserAsync(User);
+
+                if (!includeRoles)
+                    return usuario;
+
+                var roles = await _userManager.GetRolesAsync(usuario);
+
+                if (roles.Count > 0)
+                    usuario.Roles.AddRange(roles);
+
+                return usuario;
             }
             catch(Exception erro)
             {
                 throw erro;
             }
+        }
+
+        public IEnumerable<Role> GetRoles()
+        {
+            return _roleManager.Roles.ToList();
+        }
+
+        public async Task CreateRoleAsync(string roleName)
+        {
+            var role = new Role
+            {
+                Name = roleName
+            };
+
+            if (!await _roleManager.RoleExistsAsync(roleName))
+                await _roleManager.CreateAsync(role);
+        }
+
+        public async Task DeleteRoleAsync(string roleName)
+        {
+            var users = await _userManager.GetUsersInRoleAsync(roleName);
+
+            if (users.Count > 0)
+                throw new Exception("Have users assigned in this role.");
+
+            var role = await _roleManager.FindByNameAsync(roleName);
+            await _roleManager.DeleteAsync(role);
         }
 
         #region IDisposable Support
