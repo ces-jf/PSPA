@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Identity.UI.V4.Pages.Account.Internal;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Options;
 using SystemHelper;
 using WebMVCNET.Models;
@@ -246,13 +247,19 @@ namespace WebMVCNET.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> ViewUser(string idUser)
+        public async Task<IActionResult> ViewUser([FromServices] RoleManager<Role> roleManager, string idUser)
         {
             var user = await _userManager.FindByIdAsync(idUser);
             var roles = await _userManager.GetRolesAsync(user);
 
             if (roles.Count > 0)
                 user.Roles.AddRange(roles);
+
+            ViewData["SystemRoles"] = roleManager.Roles.Where(a => !roles.Contains(a.Name)).Select(s => new SelectListItem
+            {
+                Text = s.Name,
+                Value = s.Id
+            }).ToList();
 
             return View("Manage", user);
         }
