@@ -48,7 +48,7 @@ namespace WebMVCNET
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IIdentityContext identityContext, RoleManager<Role> _roleManager)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IIdentityContext identityContext, RoleManager<Role> _roleManager, UserManager<Usuario> _userManager)
         {
             if (env.IsDevelopment())
             {
@@ -68,7 +68,7 @@ namespace WebMVCNET
 
             app.UseAuthentication();
 
-            ConfigureDataBase(identityContext, _roleManager);
+            ConfigureDataBase(identityContext, _roleManager, _userManager);
 
             app.UseMvc(routes =>
             {
@@ -78,7 +78,7 @@ namespace WebMVCNET
             });
         }
 
-        private static void ConfigureDataBase(IIdentityContext identityContext, RoleManager<Role> _roleManager)
+        private static void ConfigureDataBase(IIdentityContext identityContext, RoleManager<Role> _roleManager, UserManager<Usuario> _userManager)
         {
             identityContext.Database.Migrate();
 
@@ -99,6 +99,21 @@ namespace WebMVCNET
                 var role = new Role() { Name = "Queryable" };
                 _roleManager.CreateAsync(role).GetAwaiter().GetResult();
             }
+
+            var users = _userManager.GetUsersInRoleAsync("Administrator").GetAwaiter().GetResult();
+
+            if (users.Count > 0)
+                return;
+
+            var user = new Usuario
+            {
+                UserName = "Administrator",
+                Email = "admin@admin.com",
+                FirstName = "Administrator",
+                SecondName = "Administrator"
+            };
+
+            _userManager.CreateAsync(user, "administrator").GetAwaiter().GetResult();
         }
     }
 }

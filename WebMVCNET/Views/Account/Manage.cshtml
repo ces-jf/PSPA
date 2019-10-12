@@ -18,7 +18,7 @@
                 <fieldset>
                     <legend>General Information</legend>
                     <hr />
-                    <input asp-for="Id" hidden="hidden"/>
+                    <input asp-for="Id" hidden="hidden" />
                     <div class="form-group">
                         <label asp-for="UserName"></label>
                         <input asp-for="UserName" class="form-control" />
@@ -51,9 +51,9 @@
             <fieldset>
                 <legend>
                     Roles Information
-                    @if(User.IsInRole("Administrator"))
+                    @if (User.IsInRole("Administrator"))
                     {
-                        @if(selectRoleList != null)
+                        @if (selectRoleList != null)
                         {
                             <select class="form-control form-control-sm" style="width: 35%" id="selectRoleList" asp-items="@selectRoleList"></select>
                             <a class="btn btn-sm btn-primary" href="#" id="btnAddRole">Add Role</a>
@@ -69,9 +69,10 @@
                     <tbody>
                         @foreach (var role in Model.Roles)
                         {
-                            <tr>
-                                <td>@role</td>
-                            </tr>
+                        <tr>
+                            <td>@role</td>
+                            <td><div class="float-right"><a asp-controller="Account" asp-action="RemoveRole" asp-route-roleName="@role" asp-route-userId="@Model.Id" class="btn btn-sm btn-danger">Remove Role</a></div></td>
+                        </tr>
                         }
                     </tbody>
                 </table>
@@ -82,4 +83,12 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script src="~/jquery.blockUI/jquery.blockUI.min.js"></script>
+    <script src="~/custom/manage/ManageRole.js"></script>
+    <script src="~/custom/manage/IndexEvents.js"></script>
+    <script>
+        $(document).ready(function () {
+            manageObj.userId = "@Model.Id";
+        });
+    </script>
 }

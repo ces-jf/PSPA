@@ -25,11 +25,12 @@
                     </thead>
                     <tbody>
                         @foreach (var role in Model) {
-                            <tr>
-                                <td>@role.UserName</td>
-                                <td>@role.Email</td>
-                                <td><div class="float-right"><a asp-controller="Account" asp-action="ViewUser" asp-route-idUser="@role.Id" class="btn btn-sm btn-outline-warning">View/Edit</a></div></td>
-                            </tr>
+                        <tr>
+                            <td>@role.UserName</td>
+                            <td>@role.Email</td>
+                            <td><div class="float-right"><a asp-controller="Account" asp-action="ViewUser" asp-route-idUser="@role.Id" class="btn btn-sm btn-outline-warning">View/Edit</a></div></td>
+                            <td><div class="float-right"><a asp-controller="Account" asp-action="DeleteUser" asp-route-idUser="@role.Id" class="btn btn-sm btn-outline-danger">Delete</a></div></td>
+                        </tr>
                         }
                     </tbody>
                 </table>

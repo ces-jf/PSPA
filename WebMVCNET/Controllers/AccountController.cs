@@ -264,6 +264,41 @@ namespace WebMVCNET.Controllers
             return View("Manage", user);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> DeleteUser(string idUser)
+        {
+            var user = await _userManager.FindByIdAsync(idUser);
+            await _userManager.DeleteAsync(user);
+
+            return RedirectToAction("Accounts");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddRole([FromServices] RoleManager<Role> roleManager, ManageRoleViewModel manageRole)
+        {
+            try
+            {
+                var user = await _userManager.FindByIdAsync(manageRole.UserId);
+                var role = await roleManager.FindByIdAsync(manageRole.RoleId);
+                await _userManager.AddToRoleAsync(user, role.Name);
+
+                return Ok(new { idUser = manageRole.UserId });
+            }
+            catch(Exception erro)
+            {
+                return BadRequest(erro.Message);
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> RemoveRole(string userId, string roleName)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            await _userManager.RemoveFromRoleAsync(user, roleName);
+
+            return RedirectToAction("ViewUser", new { idUser = user.Id });
+        }
+
         private void AddErrors(IdentityResult result)
         {
             foreach (var error in result.Errors)

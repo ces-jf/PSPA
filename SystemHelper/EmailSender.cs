@@ -38,13 +38,13 @@ namespace SystemHelper
             {
                 MailMessage mail = new MailMessage()
                 {
-                    From = new MailAddress(_emailSettings.UsernameEmail, "Jose Carlos Macoratti")
+                    From = new MailAddress(_emailSettings.UsernameEmail, Configuration.ProductName)
                 };
 
                 mail.To.Add(new MailAddress(email));
                 //mail.CC.Add(new MailAddress(_emailSettings.CcEmail));
 
-                mail.Subject = "Macoratti .net - " + subject;
+                mail.Subject = $"{Configuration.ProductName} - {subject}";
                 mail.Body = message;
                 mail.IsBodyHtml = true;
                 mail.Priority = MailPriority.High;

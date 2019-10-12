@@ -15,6 +15,7 @@
     <Content Remove="wwwroot\custom\consulta\Index.ts" />
     <Content Remove="wwwroot\custom\consulta\IndexEvents.ts" />
     <Content Remove="wwwroot\custom\manage\IndexEvents.ts" />
+    <Content Remove="wwwroot\custom\manage\ManageRole.ts" />
   </ItemGroup>
 
 

@@ -1,6 +1,5 @@
 @using Microsoft.AspNetCore.Identity
 @inject SignInManager<Usuario> SignInManager
-@inject UserManager<Usuario> UserManager
 
 <ul class="navbar-nav">
 @if (SignInManager.IsSignedIn(User))
@@ -8,15 +7,23 @@
     <li class="nav-item">
         <a  class="nav-link text-dark" asp-controller="Account" asp-action="Manage" title="Manage">Hello @User.Identity.Name!</a>
     </li>
-    <li class="nav-item">
-        <a class="nav-link text-dark" asp-controller="Query" asp-action="Index">Query Data</a>
-    </li>
+
+    @if (User.IsInRole("Queryable"))
+    {
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-controller="Query" asp-action="Index">Query Data</a>
+        </li>
+    }
+
     <li class="nav-item dropdown">
         <a class="nav-link text-dark dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             System Data
         </a>
         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-            <a class="dropdown-item" asp-controller="Order" asp-action="Index">Import Orders</a>
+            @if (User.IsInRole("Manager"))
+            {
+                <a class="dropdown-item" asp-controller="Order" asp-action="Index">Import Orders</a>
+            }
 
             @if (User.IsInRole("Administrator"))
             {
@@ -25,8 +32,11 @@
                 <a class="dropdown-item" asp-controller="Account" asp-action="Accounts">System Users</a>
             }
 
-            <div class="dropdown-divider"></div>
-            <a class="dropdown-item" asp-controller="Order" asp-action="Request">New Import</a>
+            @if (User.IsInRole("Manager"))
+            {
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" asp-controller="Order" asp-action="Request">New Import</a>
+            }
         </div>
     </li>
     <li class="nav-item">
