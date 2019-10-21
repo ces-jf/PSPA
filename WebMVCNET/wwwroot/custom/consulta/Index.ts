@@ -365,6 +365,13 @@ function runGraphicsBases() {
     base.allEntries = (document.getElementById("checkboxEntries") as HTMLInputElement).checked;
     base.numberEntries = (document.getElementById("formEntries") as HTMLInputElement).valueAsNumber;
 
+    var graphicType = (document.getElementById("graphicSelectTypeList") as HTMLSelectElement).value;
+
+    if (graphicType == undefined || graphicType == "" || graphicType == null) {
+        alert("Need to select ONE Graphic Type!");
+        return;
+    }
+
     if (base.columnsSelect.length != 1) {
         alert("Only need ONE select field!");
         return;
@@ -379,7 +386,8 @@ function runGraphicsBases() {
         async: false,
         success: function (data) {
             var selectColumn = base.columnsSelect[0].descricao;
-            drawChart(data, selectColumn, base.columnsFilter);
+            drawChart(data, selectColumn, base.columnsFilter, graphicType);
+            $("#graphicsConfigModal").modal('toggle');
             $.unblockUI();
         },
         error: function (data) {
@@ -389,11 +397,11 @@ function runGraphicsBases() {
     });
 }
 
-function drawChart(elements: Array<object>, groupColumn: string, filterColumns: Array<ColunaBase>) {
+function drawChart(elements: Array<object>, groupColumn: string, filterColumns: Array<ColunaBase>, graphicType: string) {
     var chartDiv = document.getElementById("chartDiv");
     var data = new google.visualization.DataTable();
-    data.addColumn('string', 'Element');
-    data.addColumn('number', 'Slices');
+    data.addColumn('string', groupColumn);
+    data.addColumn('number', `Number of ${groupColumn}`);
 
     elements.forEach(function (value, index, array) {
         var columnName = Object.keys(array[index])[0];
@@ -404,13 +412,38 @@ function drawChart(elements: Array<object>, groupColumn: string, filterColumns: 
     var filterText = "";
 
     filterColumns.forEach(function (value, index) {
+        if (index == 0)
+            filterText = "and filtered by ";
+
         if (index > 0)
             filterText += ` and `;
+
         filterText += `${value.descricao} ${value.filterType} ${value.valueFilter}`;
     });
 
-    var options = { "title": `Graphic based on ${groupColumn} and filtered by ${filterText}` };
+    var options = { "title": `Graphic based on ${groupColumn} ${filterText}` };
 
-    var chart = new google.visualization.PieChart(chartDiv);
+    var chart = null;
+
+    switch (graphicType) {
+        case "pie":
+            chart = new google.visualization.PieChart(chartDiv);
+            break;
+        case "bar":
+            chart = new google.visualization.BarChart(chartDiv);
+            break;
+        case "column":
+            chart = new google.visualization.ColumnChart(chartDiv);
+            break;
+        case "histogram":
+            chart = new google.visualization.Histogram(chartDiv);
+            break;
+        case "table":
+            chart = new google.visualization.Table(chartDiv);
+            break;
+        default:
+            break;
+    }
+
     chart.draw(data, options);
 }

@@ -20,7 +20,7 @@ services:
     depends_on:
        - db
     environment:
-      - DBHOST = db
+       - DBHOST=db
 
 volumes:
   dbdata:

@@ -62,7 +62,7 @@
 
             $("#PedidosTable tbody").on("click", "button", function () {
                 var data = pedidosTable.row($(this).parents("tr")).data();
-                location.href = "/Pedido/Log/" + data["id"];
+                location.href = "/Order/Log/" + data["id"];
             });
         });
     </script>

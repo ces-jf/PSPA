@@ -21,10 +21,12 @@ namespace Microsoft.Extensions.DependencyInjection
     {
         public static IServiceCollection AddRestIndentity(this IServiceCollection services, IConfiguration configuration)
         {
-            var server = configuration.GetValue<string>("ServerDatabase");
-            var databaseName = configuration.GetValue<string>("DatabaseName");
-            var user = configuration.GetValue<string>("UserDatabase");
-            var password = configuration.GetValue<string>("PassDatabase");
+            var configurationSection = configuration.GetSection("DatabaseConfiguration");
+
+            var server = configurationSection.GetValue<string>("ServerDatabase");
+            var databaseName = configurationSection.GetValue<string>("DatabaseName");
+            var user = configurationSection.GetValue<string>("UserDatabase");
+            var password = configurationSection.GetValue<string>("PassDatabase");
 
             var connectionString = $"Server={server};Database={databaseName};User={user};Password={password}";
 

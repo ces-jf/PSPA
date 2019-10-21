@@ -82,43 +82,6 @@ namespace Infra.Business.Classes
             return newPedidoEntity;
         }
 
-        private void NewMethod(string _index, PedidoImportacao newPedidoEntity, List<Dictionary<int[], string>> errors, string[] files)
-        {
-            newPedidoEntity.LogPedidoImportacao.Add(new LogPedidoImportacao()
-            {
-                Descricao = $"Iniciando leitura dos arquivos...",
-                IndicadorStatus = "I"
-            });
-            _systemContext.SaveChanges();
-
-            foreach (var _file in files)
-            {
-                newPedidoEntity.LogPedidoImportacao.Add(new LogPedidoImportacao()
-                {
-                    Descricao = $"Iniciando leitura do arquivo {_file}...",
-                    IndicadorStatus = "I"
-                });
-
-                _systemContext.SaveChanges();
-
-                var file = File.ReadLines(_file);
-
-                newPedidoEntity.LogPedidoImportacao.Add(new LogPedidoImportacao()
-                {
-                    Descricao = $"Gravando no banco ElasticSearch os dados do arquivo {_file}...",
-                    IndicadorStatus = "I"
-                });
-                _systemContext.SaveChanges();
-
-                //var result = this.InserirArquivo(file, _index);
-
-                //if (result.Count > 0)
-                //    errors.Add(result);
-                //else
-                //    this.DeleteTempFiles(_file);
-            }
-        }
-
         public string[] CheckFileList(string fileName, PedidoImportacao newPedidoEntity, IIdentityContext _systemContext)
         {
             try
@@ -253,7 +216,7 @@ namespace Infra.Business.Classes
             var index = arquivo.Index;
 
             context.SaveChanges();
-
+            
             var repository = this._unitOfWork.StartClient<Dictionary<string, string>>($"{index.Name}Repository", index.Name);
 
             bool isMemoryFull = false;
@@ -531,14 +494,11 @@ namespace Infra.Business.Classes
 
                 do
                 {
-                    using (var elasticUnitOfWork = ServiceProvider.GetService<IUnitOfWork>())
-                    {
-                        var result = elasticUnitOfWork.MatchAll(indexName: indexName, columnGroup: true, selectFilter: selectFilter, filterFilter: filterFilter, from: from, size: size);
+                    var result = this._unitOfWork.MatchAll(indexName: indexName, columnGroup: true, selectFilter: selectFilter, filterFilter: filterFilter, from: from, size: size);
 
-                        resultFinal.AddRange(result);
+                    resultFinal.AddRange(result);
 
-                        result.Clear();
-                    }
+                    result.Clear();
 
                     from += size;
 
@@ -573,10 +533,9 @@ namespace Infra.Business.Classes
 
                 do
                 {
-                    using (var elasticUnitOfWork = ServiceProvider.GetService<IUnitOfWork>())
                     using (var export = new CsvExport())
                     {
-                        var result = elasticUnitOfWork.MatchAll(indexName: indexName, selectFilter: selectFilter, filterFilter: filterFilter, from: from, size: size);
+                        var result = this._unitOfWork.MatchAll(indexName: indexName, selectFilter: selectFilter, filterFilter: filterFilter, from: from, size: size);
 
                         foreach (var item in result)
                         {

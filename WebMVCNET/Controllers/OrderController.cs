@@ -68,7 +68,7 @@ namespace WebMVCNET.Controllers
 
                         context.PedidoImportacao.Attach(pedidoImportacao);
 
-                        this.ArquivoBaseBusiness.DownloadOnDisk(arquivo, pedidoImportacao, context);
+                        //this.ArquivoBaseBusiness.DownloadOnDisk(arquivo, pedidoImportacao, context);
                         this.ArquivoBaseBusiness.CheckFileList(arquivo.Index.Name, pedidoImportacao, context);
                         this.ArquivoBaseBusiness.UpdateToRegisterData(pedidoImportacao, context);
 
