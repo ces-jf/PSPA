@@ -7,6 +7,8 @@ using Microsoft.Extensions.Options;
 using System.Linq;
 using Infra.Entidades;
 using Data.ContextExtension;
+using SystemHelper.Configurations;
+using Elasticsearch.Net;
 
 namespace Data.Class
 {
@@ -15,14 +17,15 @@ namespace Data.Class
         private Uri ElasticSearchURL { get; set; }
         private ConnectionSettings ConnectionSettings { get; set; }
         private Dictionary<string, object> ClientFactory { get; set; }
-        private Configuration _configuration { get; set; }
+        private ElasticSearch _configuration { get; set; }
 
-        public UnitOfWork(IOptions<Configuration> configuration)
+        public UnitOfWork(IOptions<ElasticSearch> configuration)
         {
             _configuration = configuration.Value;
-            this.ElasticSearchURL = new Uri(_configuration.ElasticSearchURL);
+            this.ElasticSearchURL = new Uri(_configuration.URL);
             this.ConnectionSettings = new ConnectionSettings(ElasticSearchURL);
-            ClientFactory = new Dictionary<string, object>();
+            this.ConnectionSettings.BasicAuthentication(_configuration.Account, _configuration.Password);
+            this.ClientFactory = new Dictionary<string, object>();
         }
 
         public Infra.Interfaces.IRepository<TEntity> StartClient<TEntity>(string nameInstance, string _index) where TEntity : class

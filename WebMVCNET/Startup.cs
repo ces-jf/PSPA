@@ -11,6 +11,7 @@ using Infra.Interfaces;
 using SystemHelper.ViewModel;
 using Microsoft.AspNetCore.Identity;
 using Infra.Entidades;
+using SystemHelper.Configurations;
 
 namespace WebMVCNET
 {
@@ -43,6 +44,7 @@ namespace WebMVCNET
 
             services.Configure<Configuration>(Configuration.GetSection("GeneralConfigurations"));
             services.Configure<EmailSettings>(Configuration.GetSection("EmailSettings"));
+            services.Configure<ElasticSearch>(Configuration.GetSection("ElasticSearch"));
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }

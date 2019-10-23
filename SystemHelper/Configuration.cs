@@ -8,7 +8,6 @@ namespace SystemHelper
 {
     public class Configuration
     {
-        public string ElasticSearchURL { get; set; }
         public static string DefaultTempBaseFiles { get { return Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "TempBases"); } }
         public static string DefaultTempFolder { get { return Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "_temp"); } }
         public double MaxMemoryUsing { get; set; }
