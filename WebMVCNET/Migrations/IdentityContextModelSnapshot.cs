@@ -38,7 +38,7 @@ namespace WebApi.Migrations
 
                     b.HasIndex("PedidoImportacaoID");
 
-                    b.ToTable("arquivo_base","PSPABase");
+                    b.ToTable("ArquivoBase","PSPABase");
                 });
 
             modelBuilder.Entity("Infra.Entidades.Index", b =>
@@ -50,7 +50,7 @@ namespace WebApi.Migrations
 
                     b.HasKey("ID");
 
-                    b.ToTable("Indice");
+                    b.ToTable("Indice","PSPABase");
                 });
 
             modelBuilder.Entity("Infra.Entidades.LogPedidoImportacao", b =>
@@ -73,7 +73,7 @@ namespace WebApi.Migrations
 
                     b.HasIndex("PedidoImportacaoID");
 
-                    b.ToTable("log_pedido_importacao","PSPABase");
+                    b.ToTable("LogPedidoImportacao","PSPABase");
                 });
 
             modelBuilder.Entity("Infra.Entidades.PedidoImportacao", b =>
@@ -94,7 +94,7 @@ namespace WebApi.Migrations
 
                     b.HasIndex("UsuarioId");
 
-                    b.ToTable("pedido_importacao","PSPABase");
+                    b.ToTable("PedidoImportacao","PSPABase");
                 });
 
             modelBuilder.Entity("Infra.Entidades.Usuario", b =>
@@ -154,7 +154,7 @@ namespace WebApi.Migrations
                     b.HasIndex("UserName")
                         .IsUnique();
 
-                    b.ToTable("usuario","PSPABase");
+                    b.ToTable("Usuario","PSPABase");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -177,7 +177,7 @@ namespace WebApi.Migrations
                         .IsUnique()
                         .HasName("RoleNameIndex");
 
-                    b.ToTable("role","PSPABase");
+                    b.ToTable("Role","PSPABase");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -238,7 +238,8 @@ namespace WebApi.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
                 {
-                    b.Property<string>("UserId");
+                    b.Property<string>("UserId")
+                        .HasColumnName("UsuarioId");
 
                     b.Property<string>("RoleId");
 
@@ -246,7 +247,7 @@ namespace WebApi.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("usuario_role","PSPABase");
+                    b.ToTable("UsuarioRole","PSPABase");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>

@@ -36,25 +36,31 @@ namespace Data.Context
                 b.HasIndex(a => a.Email).IsUnique();
                 b.HasIndex(a => a.UserName).IsUnique();
 
-                b.ToTable("usuario", "PSPABase");
+                b.ToTable("Usuario", "PSPABase");
 
             });
 
             builder.Entity<IdentityRole>(b =>
             {
-                b.ToTable("role", "PSPABase");
+                b.ToTable("Role", "PSPABase");
             });
 
             builder.Entity<IdentityUserRole<string>>(b => {
-                b.ToTable("usuario_role", "PSPABase");
+                b.Property(a => a.UserId).HasColumnName("UsuarioId");
+
+                b.ToTable("UsuarioRole", "PSPABase");
             });
 
             builder.Entity<LogPedidoImportacao>(b => {
-                b.ToTable("log_pedido_importacao", "PSPABase");
+                b.ToTable("LogPedidoImportacao", "PSPABase");
             });
 
             builder.Entity<ArquivoBase>(b => {
-                b.ToTable("arquivo_base", "PSPABase");
+                b.ToTable("ArquivoBase", "PSPABase");
+            });
+
+            builder.Entity<Index>(b => {
+                b.ToTable("Indice", "PSPABase");
             });
 
             builder.Entity<PedidoImportacao>(b => {
@@ -62,7 +68,7 @@ namespace Data.Context
                 b.Property(a => a.ID).ValueGeneratedOnAdd();
 
 
-                b.ToTable("pedido_importacao","PSPABase");
+                b.ToTable("PedidoImportacao", "PSPABase");
             });
             // Customize the ASP.NET Identity model and override the defaults if needed.
             // For example, you can rename the ASP.NET Identity table names and more.
