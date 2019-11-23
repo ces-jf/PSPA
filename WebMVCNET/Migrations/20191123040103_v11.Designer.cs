@@ -3,14 +3,16 @@ using System;
 using Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace WebApi.Migrations
 {
     [DbContext(typeof(IdentityContext))]
-    partial class IdentityContextModelSnapshot : ModelSnapshot
+    [Migration("20191123040103_v11")]
+    partial class v11
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -39,6 +41,23 @@ namespace WebApi.Migrations
                     b.HasIndex("PedidoImportacaoID");
 
                     b.ToTable("arquivo_base","PSPABase");
+                });
+
+            modelBuilder.Entity("Infra.Entidades.Cabecalho", b =>
+                {
+                    b.Property<long>("ID")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<long?>("ArquivoBaseID");
+
+                    b.Property<string>("Descricao")
+                        .IsRequired();
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("ArquivoBaseID");
+
+                    b.ToTable("Cabecalho");
                 });
 
             modelBuilder.Entity("Infra.Entidades.Index", b =>
@@ -274,6 +293,13 @@ namespace WebApi.Migrations
                     b.HasOne("Infra.Entidades.PedidoImportacao", "PedidoImportacao")
                         .WithMany("Arquivos")
                         .HasForeignKey("PedidoImportacaoID");
+                });
+
+            modelBuilder.Entity("Infra.Entidades.Cabecalho", b =>
+                {
+                    b.HasOne("Infra.Entidades.ArquivoBase", "ArquivoBase")
+                        .WithMany("Cabecalhos")
+                        .HasForeignKey("ArquivoBaseID");
                 });
 
             modelBuilder.Entity("Infra.Entidades.LogPedidoImportacao", b =>

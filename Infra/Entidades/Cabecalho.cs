@@ -9,7 +9,6 @@ namespace Infra.Entidades
     public class Cabecalho
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long ID { get; set; }
         [Required]
         public string Descricao { get; set; }

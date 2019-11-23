@@ -3,14 +3,16 @@ using System;
 using Data.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace WebApi.Migrations
 {
     [DbContext(typeof(IdentityContext))]
-    partial class IdentityContextModelSnapshot : ModelSnapshot
+    [Migration("20191123035657_v10")]
+    partial class v10
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -38,7 +40,24 @@ namespace WebApi.Migrations
 
                     b.HasIndex("PedidoImportacaoID");
 
-                    b.ToTable("arquivo_base","PSPABase");
+                    b.ToTable("ArquivoBase");
+                });
+
+            modelBuilder.Entity("Infra.Entidades.Cabecalho", b =>
+                {
+                    b.Property<long>("ID")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<long?>("ArquivoBaseID");
+
+                    b.Property<string>("Descricao")
+                        .IsRequired();
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("ArquivoBaseID");
+
+                    b.ToTable("Cabecalho");
                 });
 
             modelBuilder.Entity("Infra.Entidades.Index", b =>
@@ -73,7 +92,7 @@ namespace WebApi.Migrations
 
                     b.HasIndex("PedidoImportacaoID");
 
-                    b.ToTable("log_pedido_importacao","PSPABase");
+                    b.ToTable("LogPedidoImportacao");
                 });
 
             modelBuilder.Entity("Infra.Entidades.PedidoImportacao", b =>
@@ -94,7 +113,7 @@ namespace WebApi.Migrations
 
                     b.HasIndex("UsuarioId");
 
-                    b.ToTable("pedido_importacao","PSPABase");
+                    b.ToTable("PedidoImportacao");
                 });
 
             modelBuilder.Entity("Infra.Entidades.Usuario", b =>
@@ -274,6 +293,13 @@ namespace WebApi.Migrations
                     b.HasOne("Infra.Entidades.PedidoImportacao", "PedidoImportacao")
                         .WithMany("Arquivos")
                         .HasForeignKey("PedidoImportacaoID");
+                });
+
+            modelBuilder.Entity("Infra.Entidades.Cabecalho", b =>
+                {
+                    b.HasOne("Infra.Entidades.ArquivoBase", "ArquivoBase")
+                        .WithMany("Cabecalhos")
+                        .HasForeignKey("ArquivoBaseID");
                 });
 
             modelBuilder.Entity("Infra.Entidades.LogPedidoImportacao", b =>

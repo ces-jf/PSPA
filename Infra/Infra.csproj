@@ -5,7 +5,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Entidades\DBEntities\" />
+    <Compile Remove="Entidades\DBEntities\**" />
+    <EmbeddedResource Remove="Entidades\DBEntities\**" />
+    <None Remove="Entidades\DBEntities\**" />
   </ItemGroup>
 
   <ItemGroup>

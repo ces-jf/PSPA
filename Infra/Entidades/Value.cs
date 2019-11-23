@@ -15,6 +15,7 @@ namespace Infra.Entidades
         public string Descricao { get; set; }
 
         // Relationships
+        [NotMapped]
         public Cabecalho Cabecalho { get; set; }
         public ArquivoBase ArquivoBase { get; set; }
     }

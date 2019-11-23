@@ -19,6 +19,7 @@ namespace Infra.Entidades
         //Relationships
         [Required]
         public Index Index { get; set; }
+        [NotMapped]
         public ICollection<Cabecalho> Cabecalhos { get; set; }
         public PedidoImportacao PedidoImportacao { get; set; }
         //public ICollection<Value> Values { get; set; }
