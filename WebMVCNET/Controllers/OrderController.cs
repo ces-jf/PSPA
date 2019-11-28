@@ -68,7 +68,7 @@ namespace WebMVCNET.Controllers
 
                         context.PedidoImportacao.Attach(pedidoImportacao);
 
-                        //this.ArquivoBaseBusiness.DownloadOnDisk(arquivo, pedidoImportacao, context);
+                        this.ArquivoBaseBusiness.DownloadOnDisk(arquivo, pedidoImportacao, context);
                         this.ArquivoBaseBusiness.CheckFileList(arquivo.Index.Name, pedidoImportacao, context);
                         this.ArquivoBaseBusiness.UpdateToRegisterData(pedidoImportacao, context);
 
@@ -77,7 +77,8 @@ namespace WebMVCNET.Controllers
                         serviceScope.Dispose();
                     });
                 }
-                TempData["Success"] = $"Pedido para carga da base de dados {pedidoImportacao.ID} cadastrada com sucesso!";
+
+                TempData["Success"] = $"Order generated successfully in the number of {pedidoImportacao.ID} !";
                 return View();
             }
             catch (Exception erro)

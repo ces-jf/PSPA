@@ -17,6 +17,7 @@ using System.Text;
 using System.Threading.Tasks;
 using SystemHelper;
 using Microsoft.Extensions.DependencyInjection;
+using System.Threading;
 
 namespace Infra.Business.Classes
 {
@@ -436,9 +437,11 @@ namespace Infra.Business.Classes
 
         private void WebClient_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
+            Thread.Sleep(10000);
+
             if (e.ProgressPercentage.ToString().Length != 1 && e.ProgressPercentage.ToString().EndsWith("0"))
             {
-                if (this._valorPercentual.Any(a => a == e.ProgressPercentage))
+                if (this._valorPercentual.ToList().Any(a => a == e.ProgressPercentage))
                     return;
 
                 this._valorPercentual.Add(e.ProgressPercentage);

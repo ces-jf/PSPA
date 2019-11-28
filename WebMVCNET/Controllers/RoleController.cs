@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Infra.Business.Classes.Identity;
 using Infra.Entidades;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -23,7 +24,7 @@ namespace WebMVCNET.Controllers
         // GET: /<controller>/
         public IActionResult Index()
         {
-            var roles = new List<Role>();
+            var roles = new List<IdentityRole>();
 
             using(var identityBusiness = this.ServiceProvider.GetService<IdentityBusiness>())
             {

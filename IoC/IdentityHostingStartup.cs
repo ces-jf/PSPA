@@ -37,7 +37,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     mysqlOptions.MigrationsAssembly("WebMVCNET");
                 }));
 
-            services.AddIdentity<Usuario, Role>()
+            services.AddIdentity<Usuario, IdentityRole>()
                 .AddEntityFrameworkStores<IdentityContext>()
                 .AddDefaultTokenProviders();
 

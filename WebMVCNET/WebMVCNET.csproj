@@ -60,4 +60,7 @@
     <TypeScriptSourceRoot />
   </PropertyGroup>
 
+
+  <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
+
 </Project>

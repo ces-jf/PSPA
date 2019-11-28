@@ -50,7 +50,7 @@ namespace WebMVCNET
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IIdentityContext identityContext, RoleManager<Role> _roleManager, UserManager<Usuario> _userManager)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IIdentityContext identityContext, RoleManager<IdentityRole> _roleManager, UserManager<Usuario> _userManager)
         {
             if (env.IsDevelopment())
             {
@@ -80,25 +80,25 @@ namespace WebMVCNET
             });
         }
 
-        private static void ConfigureDataBase(IIdentityContext identityContext, RoleManager<Role> _roleManager, UserManager<Usuario> _userManager)
+        private static void ConfigureDataBase(IIdentityContext identityContext, RoleManager<IdentityRole> _roleManager, UserManager<Usuario> _userManager)
         {
             identityContext.Database.Migrate();
 
             if (!_roleManager.RoleExistsAsync("Administrator").GetAwaiter().GetResult())
             {
-                var role = new Role() { Name = "Administrator" };
+                var role = new IdentityRole() { Name = "Administrator" };
                 _roleManager.CreateAsync(role).GetAwaiter().GetResult();
             }
 
             if (!_roleManager.RoleExistsAsync("Manager").GetAwaiter().GetResult())
             {
-                var role = new Role() { Name = "Manager" };
+                var role = new IdentityRole() { Name = "Manager" };
                 _roleManager.CreateAsync(role).GetAwaiter().GetResult();
             }
 
             if (!_roleManager.RoleExistsAsync("Queryable").GetAwaiter().GetResult())
             {
-                var role = new Role() { Name = "Queryable" };
+                var role = new IdentityRole() { Name = "Queryable" };
                 _roleManager.CreateAsync(role).GetAwaiter().GetResult();
             }
 

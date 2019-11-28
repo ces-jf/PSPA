@@ -34,7 +34,8 @@ setInterval(function() {
     }
 }, 500);
 
-setInterval(function() { updateModalSelect(); updateModalFilter(); }, 500);
+setInterval(function () { updateModalSelect(); updateModalFilter(); }, 500);
+
 var baseTable = $("#BaseTable")
     .DataTable({
         "processing": true,
@@ -68,6 +69,7 @@ var baseTable = $("#BaseTable")
 
 $("#BaseTable tbody").on("click", "button.dt-view", function() {
     var tr = $(this).closest('tr');
+    var btnElement = $(this).children()[0] as HTMLElement;
     var row = baseTable.row(tr);
     var dataRow = row.data() as BaseBusca;
     var baseName = dataRow.name;
@@ -76,6 +78,10 @@ $("#BaseTable tbody").on("click", "button.dt-view", function() {
     });
     if (isNaBusca != -1) {
         basesBusca.splice(isNaBusca, 1);
+
+        if (btnElement.classList.contains("fa-minus-square"))
+            btnElement.classList.replace("fa-minus-square", "fa-plus-square");
+
         return;
     }
 
@@ -85,6 +91,9 @@ $("#BaseTable tbody").on("click", "button.dt-view", function() {
     }
 
     basesBusca.push(new BaseBusca(baseName));
+
+    if (btnElement.classList.contains("fa-plus-square"))
+        btnElement.classList.replace("fa-plus-square", "fa-minus-square");
 });
 
 $("#checkboxEntries").on("change", function() {

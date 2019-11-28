@@ -13,9 +13,9 @@ namespace Infra.Business.Classes.Identity
     public class IdentityBusiness: IDisposable
     {
         private readonly UserManager<Usuario> _userManager;
-        private readonly RoleManager<Role> _roleManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
-        public IdentityBusiness(UserManager<Usuario> userManager, RoleManager<Role> roleManager)
+        public IdentityBusiness(UserManager<Usuario> userManager, RoleManager<IdentityRole> roleManager)
         {
             _userManager = userManager;
             _roleManager = roleManager;
@@ -43,14 +43,14 @@ namespace Infra.Business.Classes.Identity
             }
         }
 
-        public IEnumerable<Role> GetRoles()
+        public IEnumerable<IdentityRole> GetRoles()
         {
             return _roleManager.Roles.ToList();
         }
 
         public async Task CreateRoleAsync(string roleName)
         {
-            var role = new Role
+            var role = new IdentityRole
             {
                 Name = roleName
             };

@@ -247,7 +247,7 @@ namespace WebMVCNET.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> ViewUser([FromServices] RoleManager<Role> roleManager, string idUser)
+        public async Task<IActionResult> ViewUser([FromServices] RoleManager<IdentityRole> roleManager, string idUser)
         {
             var user = await _userManager.FindByIdAsync(idUser);
             var roles = await _userManager.GetRolesAsync(user);
@@ -274,7 +274,7 @@ namespace WebMVCNET.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddRole([FromServices] RoleManager<Role> roleManager, ManageRoleViewModel manageRole)
+        public async Task<IActionResult> AddRole([FromServices] RoleManager<IdentityRole> roleManager, ManageRoleViewModel manageRole)
         {
             try
             {

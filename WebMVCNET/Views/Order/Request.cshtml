@@ -14,7 +14,7 @@
                 <h4>Fill in the data below to request to import a new database into the system.</h4>
                 <hr />
                 <div asp-validation-summary="All" class="text-danger"></div>
-                <div asp-success-validation="@TempData["Success"]"></div>
+                <div asp-success-validation success-message="@TempData["Success"]"></div>
                 <div class="form-group">
                     <label asp-for="Index"></label>
                     <input asp-for="Index" class="form-control" />

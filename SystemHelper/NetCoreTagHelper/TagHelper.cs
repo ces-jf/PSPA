@@ -7,10 +7,10 @@ namespace SystemHelper.NetCoreTagHelper
     using Microsoft.AspNetCore.Razor.TagHelpers;
     using System.Text;
 
-    [HtmlTargetElement("div")]
+    [HtmlTargetElement(Attributes = "asp-success-validation")]
     public class SuccessValidation : TagHelper
     {
-        [HtmlAttributeName("asp-success-validation")]
+        [HtmlAttributeName("success-message")]
         public string Message { get; set; }
         public override void Process(TagHelperContext context, TagHelperOutput output)
         {

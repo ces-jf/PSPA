@@ -1,5 +1,6 @@
 ﻿using Infra.Entidades;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using System;
 
@@ -14,6 +15,7 @@ namespace Infra.Interfaces
         DbSet<Usuario> Usuario { get; set; }
 
         DatabaseFacade Database { get; }
+        ChangeTracker ChangeTracker { get; }
         int SaveChanges(bool acceptAllChangesOnSuccess);
         int SaveChanges();
         void Dispose();
