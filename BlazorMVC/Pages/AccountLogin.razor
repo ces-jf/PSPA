@@ -1,0 +1,58 @@
+﻿@page "/AccountLogin"
+@inject LoginState LoginState
+@inject HttpClient HttpClient
+
+<div class="row">
+    <div class="col-md-2"></div>
+    <div class="col-md-8">
+        <section>
+            <h4>
+                Use a local account to proceed.
+            </h4>
+            <hr />
+            <EditForm Model="LoginState.Input" OnSubmit="SignUp">
+                <div class="form-group">
+                    <label>Email: </label>
+                    <InputText class="form-control" @bind-Value="LoginState.Input.Email" />
+                    <ValidationMessage For="@(() => LoginState.Input.Email)" />
+                </div>
+                <div class="form-group">
+                    <label>Password: </label>
+                    <InputText class="form-control" @bind-Value="LoginState.Input.Password" />
+                    <ValidationMessage For="@(() => LoginState.Input.Password)" />
+                </div>
+                <div class="form-group">
+                    <div class="checkbox">
+                        <label>Remember Me: </label>
+                        <InputCheckbox @bind-Value="LoginState.Input.RememberMe" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Login</button>
+                </div>
+                <div class="form-group">
+                    <p>
+                        <NavLink id="forgot-password" href="ForgotPassword">I forgot my password</NavLink>
+                    </p>
+                    <p>
+                        <NavLink href="AccountRegister">I want to sign up!</NavLink>
+                    </p>
+                </div>
+            </EditForm>
+        </section>
+    </div>
+</div>
+
+@code {
+    async Task SignUp()
+    {
+        try
+        {
+            var result = await HttpClient.PostJsonAsync<string>("api/Account/signin", LoginState.Input);
+        }
+        catch(Exception erro)
+        {
+            Console.WriteLine(erro);
+        }
+    }
+}

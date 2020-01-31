@@ -1,0 +1,15 @@
+﻿@inherits LayoutComponentBase
+
+<header>
+    <NavMenu />
+</header>
+
+<div class="container">
+    @Body
+</div>
+
+<footer class="border-top footer text-muted">
+    <div class="container">
+        &copy; 2019 - @Configuration.ProductName - <NavLink href="privacy">Privacy</NavLink>
+    </div>
+</footer>
