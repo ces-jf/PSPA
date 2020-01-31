@@ -27,7 +27,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ContainerServices", "Import
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebMVCNET", "WebMVCNET\WebMVCNET.csproj", "{FEA028AA-BBAC-4947-B7F2-3D45AE6C90BE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorMVC", "..\BlazorMVC\BlazorMVC.csproj", "{C5AAE94C-0F6F-41DB-9923-EF2B27CA6A02}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorSite", "..\BlazorMVC\BlazorSite.csproj", "{C5AAE94C-0F6F-41DB-9923-EF2B27CA6A02}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

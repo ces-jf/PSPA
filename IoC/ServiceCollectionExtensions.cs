@@ -5,7 +5,9 @@ using Infra.Business.Classes.Identity;
 using Infra.Business.Interfaces;
 using Infra.Class;
 using Infra.Interfaces;
+using Infra.States;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using System.Net.Http;
 using SystemHelper;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -23,6 +25,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddTransient<IEmailSender, EmailSender>();
 
             services.AddScoped<IIdentityContext, IdentityContext>();
+            services.AddScoped<LoginState>();
 
             return services;
         }
