@@ -1,0 +1,68 @@
+﻿@page "/SystemRoles"
+@inject IServiceProvider ServiceProvider
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                System Roles
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <caption>List of roles</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">Name Role</th>
+                            <th scope="col"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var role in Roles)
+                        {
+                            <tr>
+                                <td>@role.Name</td>
+                                <td>
+                                <div class="float-right">
+                                    <button @onclick="(() => Delete(role.Name))" class="btn btn-sm btn-danger">Delete</button>
+                                </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    public List<IdentityRole> Roles { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Roles = new List<IdentityRole>();
+
+        using(var identityBusiness = this.ServiceProvider.GetService<IdentityBusiness>())
+        {
+            Roles.AddRange(identityBusiness.GetRoles());
+        }
+
+        base.OnInitialized();
+    }
+
+    public async Task Delete(string roleName)
+    {
+        using(var identityBusiness = this.ServiceProvider.GetService<IdentityBusiness>())
+        {
+            try
+            {
+                await identityBusiness.DeleteRoleAsync(roleName);
+            }
+            catch(Exception erro)
+            {
+                //ModelState.AddModelError(string.Empty, erro.Message);
+            }
+
+        }
+    }
+}
