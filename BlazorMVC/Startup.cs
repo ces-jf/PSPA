@@ -16,6 +16,10 @@ using SystemHelper;
 using SystemHelper.ViewModel;
 using SystemHelper.Configurations;
 using System.Net.Http;
+using Infra.Interfaces;
+using Microsoft.AspNetCore.Identity;
+using Infra.Entidades;
+using Microsoft.EntityFrameworkCore;
 
 namespace BlazorSite
 {
@@ -51,6 +55,8 @@ namespace BlazorSite
             services.Configure<EmailSettings>(Configuration.GetSection("EmailSettings"));
             services.Configure<ElasticSearch>(Configuration.GetSection("ElasticSearch"));
 
+            services.AddScoped<ToastService>();
+
             services.AddRazorPages();
             services.AddServerSideBlazor();
 
@@ -70,7 +76,7 @@ namespace BlazorSite
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IIdentityContext identityContext, RoleManager<IdentityRole> _roleManager, UserManager<Usuario> _userManager)
         {
             if (env.IsDevelopment())
             {
@@ -89,6 +95,8 @@ namespace BlazorSite
             app.UseRouting();
 
             app.UseAuthentication();
+
+            ConfigureDataBase(identityContext, _roleManager, _userManager);
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
@@ -97,6 +105,44 @@ namespace BlazorSite
                 endpoints.MapFallbackToPage("/_Host");
                 endpoints.MapDefaultControllerRoute();
             });
+        }
+
+        private static void ConfigureDataBase(IIdentityContext identityContext, RoleManager<IdentityRole> _roleManager, UserManager<Usuario> _userManager)
+        {
+            identityContext.Database.Migrate();
+
+            if (!_roleManager.RoleExistsAsync("Administrator").GetAwaiter().GetResult())
+            {
+                var role = new IdentityRole() { Name = "Administrator" };
+                _roleManager.CreateAsync(role).GetAwaiter().GetResult();
+            }
+
+            if (!_roleManager.RoleExistsAsync("Manager").GetAwaiter().GetResult())
+            {
+                var role = new IdentityRole() { Name = "Manager" };
+                _roleManager.CreateAsync(role).GetAwaiter().GetResult();
+            }
+
+            if (!_roleManager.RoleExistsAsync("Queryable").GetAwaiter().GetResult())
+            {
+                var role = new IdentityRole() { Name = "Queryable" };
+                _roleManager.CreateAsync(role).GetAwaiter().GetResult();
+            }
+
+            var users = _userManager.GetUsersInRoleAsync("Administrator").GetAwaiter().GetResult();
+
+            if (users.Count > 0)
+                return;
+
+            var user = new Usuario
+            {
+                UserName = "Administrator",
+                Email = "admin@admin.com",
+                FirstName = "Administrator",
+                SecondName = "Administrator"
+            };
+
+            _userManager.CreateAsync(user, "administrator").GetAwaiter().GetResult();
         }
     }
 }

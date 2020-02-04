@@ -34,7 +34,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.UseMySql(connectionString, mysqlOptions =>
                 {
                     mysqlOptions.ServerVersion(SystemHelper.Configuration.DatabaseVersion, ServerType.MySql);
-                    mysqlOptions.MigrationsAssembly("WebMVCNET");
+                    mysqlOptions.MigrationsAssembly("BlazorSite");
                 }));
 
             services.AddIdentity<Usuario, IdentityRole>()

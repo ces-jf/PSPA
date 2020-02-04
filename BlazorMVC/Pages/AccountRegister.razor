@@ -1,0 +1,121 @@
+﻿@page "/AccountRegister"
+@inject RegisterState RegisterState
+@inject UserManager<Usuario> UserManager
+@inject SignInManager<Usuario> SignInManager
+@inject NavigationManager NavigationManager
+@inject ToastService ToastService
+
+<div class="row">
+    <div class="col-md-2"></div>
+    <div class="col-md-8">
+        <section>
+            <h4>
+                Use a local account to proceed.
+            </h4>
+            <hr />
+            @if (!string.IsNullOrEmpty(RegisterState.SuccessReturn))
+            {
+                <div class="alert alert-success" role="alert">
+                    @RegisterState.SuccessReturn
+                </div>
+            }
+            @if (RegisterState.ErrorReturn.Count > 0)
+            {
+                <div class="alert alert-danger" role="alert">
+                    <ul>
+                        @foreach (var error in RegisterState.ErrorReturn)
+                        {
+                            <li>@error</li>
+                        }
+                    </ul>
+                </div>
+            }
+            <EditForm OnSubmit="OnSubmit" EditContext="@editContext">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <fieldset>
+                    <legend>General Information</legend>
+                    <hr />
+                    <div class="form-group">
+                        <label>UserName: </label>
+                        <InputText class="form-control" @bind-Value="RegisterState.Input.UserName" />
+                        <ValidationMessage For="@(() => RegisterState.Input.UserName)" />
+                    </div>
+                    <div class="form-group">
+                        <label>First Name: </label>
+                        <InputText class="form-control" @bind-Value="RegisterState.Input.FirstName" />
+                        <ValidationMessage For="@(() => RegisterState.Input.FirstName)" />
+                    </div>
+                    <div class="form-group">
+                        <label>Second Name: </label>
+                        <InputText class="form-control" @bind-Value="RegisterState.Input.SecondName" />
+                        <ValidationMessage For="@(() => RegisterState.Input.SecondName)" />
+                    </div>
+                </fieldset>
+                <fieldset>
+                    <legend>Authentication Information</legend>
+                    <hr />
+                    <div class="form-group">
+                        <label>Email: </label>
+                        <InputText class="form-control" @bind-Value="RegisterState.Input.Email" />
+                        <ValidationMessage For="@(() => RegisterState.Input.Email)" />
+                    </div>
+                    <div class="form-group">
+                        <label>Password: </label>
+                        <InputText class="form-control" @bind-Value="RegisterState.Input.Password" />
+                        <ValidationMessage For="@(() => RegisterState.Input.Password)" />
+                    </div>
+                    <div class="form-group">
+                        <label>Confirm Password: </label>
+                        <InputText class="form-control" @bind-Value="RegisterState.Input.ConfirmPassword" />
+                        <ValidationMessage For="@(() => RegisterState.Input.ConfirmPassword)" />
+                    </div>
+                </fieldset>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Create New Account</button>
+                </div>
+            </EditForm>
+        </section>
+    </div>
+</div>
+
+
+@code {
+    private EditContext editContext;
+
+    protected override void OnInitialized()
+    {
+        editContext = new EditContext(RegisterState.Input);
+        base.OnInitialized();
+    }
+
+    private async Task OnSubmit()
+    {
+        var isValid = editContext.Validate();
+
+        if (!isValid)
+            return;
+
+        var user = new Usuario
+        {
+            UserName = RegisterState.Input.UserName,
+            Email = RegisterState.Input.Email,
+            FirstName = RegisterState.Input.FirstName,
+            SecondName = RegisterState.Input.SecondName
+        };
+
+        var result = await UserManager.CreateAsync(user, RegisterState.Input.Password);
+
+        if (result.Succeeded)
+        {
+            var code = await UserManager.GenerateEmailConfirmationTokenAsync(user);
+            ToastService.ShowToast($"Usuário {user.UserName} registrado com sucesso, redirecionando para tela principal.", Enums.ToastLevel.Success);
+            NavigationManager.NavigateTo("/AccountLogin");
+        }
+
+        foreach (var error in result.Errors)
+        {
+            RegisterState.ErrorReturn.Add(error.Description);
+        }
+    }
+}

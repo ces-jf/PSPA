@@ -1,5 +1,7 @@
 ﻿@page "/AccountLogin"
 @inject LoginState LoginState
+@inject UserManager<Usuario> UserManager
+@inject SignInManager<Usuario> SignInManager
 @inject HttpClient HttpClient
 
 <div class="row">
@@ -10,7 +12,26 @@
                 Use a local account to proceed.
             </h4>
             <hr />
+            @if (!string.IsNullOrEmpty(LoginState.SuccessReturn))
+            {
+            <div class="alert alert-success" role="alert">
+                @LoginState.SuccessReturn
+            </div>
+            }
+            @if (LoginState.ErrorReturn.Count > 0)
+            {
+            <div class="alert alert-danger" role="alert">
+                <ul>
+                    @foreach(var error in LoginState.ErrorReturn)
+                    {
+                        <li>@error</li>
+                    }
+                </ul>
+            </div>
+            }
             <EditForm Model="LoginState.Input" OnSubmit="SignUp">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
                 <div class="form-group">
                     <label>Email: </label>
                     <InputText class="form-control" @bind-Value="LoginState.Input.Email" />
@@ -44,13 +65,30 @@
 </div>
 
 @code {
-    async Task SignUp()
+    public async Task SignUp()
     {
         try
         {
-            var result = await HttpClient.PostJsonAsync<string>("api/Account/signin", LoginState.Input);
+            if (LoginState.Input != null && !string.IsNullOrWhiteSpace(LoginState.Input.Email))
+            {
+                var userIdentity = await UserManager.FindByEmailAsync(LoginState.Input.Email);
+                if (userIdentity != null)
+                {
+                    var resultLogin = await SignInManager.PasswordSignInAsync(userIdentity, LoginState.Input.Password, false, false);
+                    if (resultLogin.Succeeded)
+                    {
+                    }
+                    else
+                    {
+                    }
+                }
+                else
+                {
+                    LoginState.ErrorReturn.Add("User not found on the base!");
+                }
+            }
         }
-        catch(Exception erro)
+        catch (Exception erro)
         {
             Console.WriteLine(erro);
         }

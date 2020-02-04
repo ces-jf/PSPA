@@ -26,6 +26,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             services.AddScoped<IIdentityContext, IdentityContext>();
             services.AddScoped<LoginState>();
+            services.AddScoped<RegisterState>();
 
             return services;
         }

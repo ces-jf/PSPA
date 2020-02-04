@@ -9,5 +9,7 @@ namespace Infra.States
     public class LoginState
     {
         public LoginModel.InputModel Input { get; private set; } = new LoginModel.InputModel();
+        public string SuccessReturn { get; set; }
+        public IList<string> ErrorReturn { get; set; } = new List<string>();
     }
 }
