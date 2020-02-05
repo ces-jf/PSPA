@@ -1,0 +1,74 @@
+﻿@page "/RequestOrder"
+@inject RequestOrderState RequestOrderState
+@inject IArquivoBaseBusiness ArquivoBaseBusiness
+@inject IServiceProvider ServiceProvider
+
+<div class="row">
+    <div class="col-md-2"></div>
+    <div class="col-md-8">
+        <section>
+            <h4>Fill in the data below to request to import a new database into the system.</h4>
+            <hr />
+            <EditForm Model="RequestOrderState.Input" OnSubmit="Submit">
+                <div class="form-group">
+                    <label>Email: </label>
+                    <InputText class="form-control" @bind-Value="RequestOrderState.Input.Index" />
+                    <ValidationMessage For="@(() => RequestOrderState.Input.Index)" />
+                </div>
+                <div class="form-group">
+                    <label>Password: </label>
+                    <InputText class="form-control" @bind-Value="RequestOrderState.Input.Url" />
+                    <ValidationMessage For="@(() => RequestOrderState.Input.Url)" />
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Request Import Order</button>
+                </div>
+            </EditForm>
+        </section>
+    </div>
+</div>
+
+@code {
+
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    private async Task Submit()
+    {
+        try
+        {
+            var authState = await authenticationStateTask;
+            var user = authState.User;
+            var pedidoImportacao = await ArquivoBaseBusiness.CreateImportRequestAsync(RequestOrderState.Input.Url, RequestOrderState.Input.Index, user);
+            var arquivo = pedidoImportacao.Arquivos.FirstOrDefault();
+
+            if (arquivo != null)
+            {
+                _ = Task.Factory.StartNew(() =>
+                {
+                    Thread.CurrentThread.Name = $"Thread de Carga de Base Pedido {pedidoImportacao.ID}";
+
+                    var serviceScope = ServiceProvider.CreateScope();
+                    var context = serviceScope.ServiceProvider.GetRequiredService<IIdentityContext>();
+
+                    context.PedidoImportacao.Attach(pedidoImportacao);
+
+                    this.ArquivoBaseBusiness.DownloadOnDisk(arquivo, pedidoImportacao, context);
+                    this.ArquivoBaseBusiness.CheckFileList(arquivo.Index.Name, pedidoImportacao, context);
+                    this.ArquivoBaseBusiness.UpdateToRegisterData(pedidoImportacao, context);
+
+                    this.ArquivoBaseBusiness.InserirArquivo(pedidoImportacao, context);
+
+                    serviceScope.Dispose();
+                });
+            }
+
+            RequestOrderState.SuccessReturn = $"Order generated successfully in the number of {pedidoImportacao.ID} !";
+        }
+        catch (Exception erro)
+        {
+            RequestOrderState.ErrorReturn.Add(erro.Message);
+        }
+    }
+
+}
