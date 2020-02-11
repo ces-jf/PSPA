@@ -60,19 +60,10 @@ namespace BlazorSite
             services.AddRazorPages();
             services.AddServerSideBlazor();
 
-            if (!services.Any(x => x.ServiceType == typeof(HttpClient)))
-            {
-                // Setup HttpClient for server side in a client side compatible fashion
-                services.AddScoped<HttpClient>(s =>
-                {
-                    // Creating the URI helper needs to wait until the JS Runtime is initialized, so defer it.      
-                    var uriHelper = s.GetRequiredService<NavigationManager>();
-                    return new HttpClient
-                    {
-                        BaseAddress = new Uri(uriHelper.BaseUri)
-                    };
-                });
-            }
+            services.AddHttpContextAccessor();
+            services.AddScoped<HttpContextAccessor>();
+            services.AddHttpClient();
+            services.AddScoped<HttpClient>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -94,6 +85,7 @@ namespace BlazorSite
 
             app.UseRouting();
 
+            app.UseCookiePolicy();
             app.UseAuthentication();
 
             ConfigureDataBase(identityContext, _roleManager, _userManager);

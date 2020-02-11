@@ -1,8 +1,7 @@
 ﻿@page "/AccountLogin"
+@page "/AccountLogin/{ErrorRedirected}"
 @inject LoginState LoginState
-@inject UserManager<Usuario> UserManager
-@inject SignInManager<Usuario> SignInManager
-@inject HttpClient HttpClient
+@inject NavigationManager navigationManager
 
 <div class="row">
     <div class="col-md-2"></div>
@@ -14,20 +13,20 @@
             <hr />
             @if (!string.IsNullOrEmpty(LoginState.SuccessReturn))
             {
-            <div class="alert alert-success" role="alert">
-                @LoginState.SuccessReturn
-            </div>
+                <div class="alert alert-success" role="alert">
+                    @LoginState.SuccessReturn
+                </div>
             }
             @if (LoginState.ErrorReturn.Count > 0)
             {
-            <div class="alert alert-danger" role="alert">
-                <ul>
-                    @foreach(var error in LoginState.ErrorReturn)
-                    {
-                        <li>@error</li>
-                    }
-                </ul>
-            </div>
+                <div class="alert alert-danger" role="alert">
+                    <ul>
+                        @foreach (var error in LoginState.ErrorReturn)
+                        {
+                            <li>@error</li>
+                        }
+                    </ul>
+                </div>
             }
             <EditForm Model="LoginState.Input" OnSubmit="SignUp">
                 <DataAnnotationsValidator />
@@ -39,7 +38,7 @@
                 </div>
                 <div class="form-group">
                     <label>Password: </label>
-                    <InputText class="form-control" @bind-Value="LoginState.Input.Password" />
+                    <InputText type="password" class="form-control" @bind-Value="LoginState.Input.Password" />
                     <ValidationMessage For="@(() => LoginState.Input.Password)" />
                 </div>
                 <div class="form-group">
@@ -65,32 +64,19 @@
 </div>
 
 @code {
-    public async Task SignUp()
+    [Parameter]
+    public string ErrorRedirected { get; set; }
+
+    protected override void OnInitialized()
     {
-        try
-        {
-            if (LoginState.Input != null && !string.IsNullOrWhiteSpace(LoginState.Input.Email))
-            {
-                var userIdentity = await UserManager.FindByEmailAsync(LoginState.Input.Email);
-                if (userIdentity != null)
-                {
-                    var resultLogin = await SignInManager.PasswordSignInAsync(userIdentity, LoginState.Input.Password, false, false);
-                    if (resultLogin.Succeeded)
-                    {
-                    }
-                    else
-                    {
-                    }
-                }
-                else
-                {
-                    LoginState.ErrorReturn.Add("User not found on the base!");
-                }
-            }
-        }
-        catch (Exception erro)
-        {
-            Console.WriteLine(erro);
-        }
+        if (!string.IsNullOrEmpty(this.ErrorRedirected))
+            LoginState.ErrorReturn = ErrorRedirected.Split(Environment.NewLine);
+
+        base.OnInitialized();
+    }
+
+    public void SignUp()
+    {
+        navigationManager.NavigateTo($"/login?Email={LoginState.Input.Email}&Password={LoginState.Input.Password}&RememberMe={LoginState.Input.RememberMe}", true);
     }
 }

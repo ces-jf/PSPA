@@ -1,0 +1,93 @@
+﻿@page "/SystemUsers"
+@inject IServiceProvider ServiceProvider
+
+<div class="row">
+    <div class="col-md-12">
+        @if (!string.IsNullOrEmpty(SuccessReturn))
+        {
+            <div class="col-md-12">
+                <div class="alert alert-success" role="alert">
+                    @SuccessReturn
+                </div>
+            </div>
+        }
+        @if (ErrorReturn.Count > 0)
+        {
+            <div class="col-md-12">
+                <div class="alert alert-danger" role="alert">
+                    <ul>
+                        @foreach (var error in ErrorReturn)
+                        {
+                            <li>@error</li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        }
+        <div class="card">
+            <div class="card-header">
+                System Accounts
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <caption>List of accounts</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">UserName</th>
+                            <th scope="col">Email</th>
+                            <th scope="col"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var user in Users)
+                        {
+                            <tr>
+                                <td>@user.UserName</td>
+                                <td>@user.Email</td>
+                                <td><div class="float-right"><a href="#" class="btn btn-sm btn-outline-warning">View/Edit</a></div></td>
+                                <td><div class="float-right"><a @onclick="(() => Delete(user.Id))" href="#" class="btn btn-sm btn-outline-danger">Delete</a></div></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@code {
+    public List<Usuario> Users { get; set; }
+    public string SuccessReturn { get; set; }
+    public List<string> ErrorReturn { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Users = new List<Usuario>();
+        ErrorReturn = new List<string>();
+
+        using (var _userManager = this.ServiceProvider.GetService<UserManager<Usuario>>())
+        {
+            Users = _userManager.Users.ToList();
+        }
+
+        base.OnInitialized();
+    }
+
+    public async Task Delete(string userId)
+    {
+        using (var _userManager = this.ServiceProvider.GetService<UserManager<Usuario>>())
+        {
+            try
+            {
+                var user = await _userManager.FindByIdAsync(userId);
+                await _userManager.DeleteAsync(user);
+            }
+            catch (Exception erro)
+            {
+                ErrorReturn.Add(erro.Message);
+            }
+
+        }
+    }
+}
