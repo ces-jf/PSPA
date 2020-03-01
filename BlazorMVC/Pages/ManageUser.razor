@@ -1,0 +1,223 @@
+﻿@page "/ManageUser/{Id}"
+@inject UserManager<Usuario> _userManager
+@inject RoleManager<IdentityRole> _roleManager
+@inject ToastService ToastService
+
+<h1>Checking your informations</h1>
+
+<div class="row">
+    <div class="col-md-2"></div>
+    <div class="col-md-8">
+        <section>
+            @if (!string.IsNullOrEmpty(SuccessReturn))
+            {
+                <div class="alert alert-success" role="alert">
+                    @SuccessReturn
+                </div>
+            }
+            @if (ErrorReturn.Count > 0)
+            {
+                <div class="alert alert-danger" role="alert">
+                    <ul>
+                        @foreach (var error in ErrorReturn)
+                        {
+                            <li>@error</li>
+                        }
+                    </ul>
+                </div>
+            }
+            <hr />
+            <EditForm OnSubmit="OnSubmit" EditContext="@editContext">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <fieldset>
+                    <legend>General Information</legend>
+                    <hr />
+                    <input asp-for="Id" hidden="hidden" />
+                    <div class="form-group">
+                        <label>UserName: </label>
+                        <InputText @bind-Value="User.UserName" class="form-control" />
+                        <ValidationMessage For="@(() => User.UserName)" />
+                    </div>
+                    <div class="form-group">
+                        <label>First Name: </label>
+                        <InputText class="form-control" @bind-Value="User.FirstName" />
+                        <ValidationMessage For="@(() => User.FirstName)" />
+                    </div>
+                    <div class="form-group">
+                        <label>Second Name: </label>
+                        <InputText class="form-control" @bind-Value="User.SecondName" />
+                        <ValidationMessage For="@(() => User.SecondName)" />
+                    </div>
+                </fieldset>
+                <fieldset>
+                    <legend>Authentication Information</legend>
+                    <hr />
+                    <div class="form-group">
+                        <label>Email: </label>
+                        <InputText class="form-control" @bind-Value="User.Email" />
+                        <ValidationMessage For="@(() => User.Email)" />
+                    </div>
+                </fieldset>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Update Account</button>
+                </div>
+            </EditForm>
+            <fieldset>
+                <legend>
+                    Roles Information
+                    <AuthorizeView Roles="Administrator">
+                        @if (SystemRoles.Count > 0)
+                        {
+                            <select class="form-control form-control-sm" style="width: 35%" @bind="@SelectedRole">
+                                <option>Select a role</option>
+                                @foreach (var role in SystemRoles)
+                                {
+                                    <option value="@role">@role</option>
+                                }
+                            </select>
+                            <button class="btn btn-sm btn-primary" @onclick="(() => AddRole())">Add Role</button>
+                        }
+                    </AuthorizeView>
+                </legend>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Name Role</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var role in UserRoles)
+                        {
+                            <tr>
+                                <td>@role</td>
+                                <td><div class="float-right"><button @onclick="(() => RemoveRole(role))" class="btn btn-sm btn-danger">Remove Role</button></div></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </fieldset>
+        </section>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string Id { get; set; }
+
+    public Usuario User { get; set; }
+    public string SuccessReturn { get; set; }
+    public IList<string> ErrorReturn { get; set; }
+    public IList<string> SystemRoles { get; set; }
+    public IList<string> UserRoles { get; set; }
+    public string SelectedRole { get; set; }
+
+    private EditContext editContext;
+
+    protected override void OnInitialized()
+    {
+        User = _userManager.FindByIdAsync(Id).GetAwaiter().GetResult();
+        UpdateUserRoles().GetAwaiter().GetResult();
+
+        ErrorReturn = new List<string>();
+        SystemRoles = new List<string>();
+
+        UpdateSystemRoles();
+        editContext = new EditContext(User);
+        base.OnInitialized();
+    }
+
+    private async Task UpdateUserRoles()
+    {
+        UserRoles = await _userManager.GetRolesAsync(User);
+    }
+
+    private void UpdateSystemRoles()
+    {
+        SystemRoles = _roleManager.Roles.Where(a => !UserRoles.Contains(a.Name)).Select(a => a.Name).ToList();
+    }
+
+    private async Task AddRole()
+    {
+        try
+        {
+            var result = await _userManager.AddToRoleAsync(User, SelectedRole);
+
+            if(result.Succeeded)
+            {
+                await UpdateUserRoles();
+                UpdateSystemRoles();
+                ToastService.ShowToast($"Role {SelectedRole} adicionada com sucesso ao Usuário {User.UserName}.", Enums.ToastLevel.Success);
+            }
+            else
+            {
+                foreach (var error in result.Errors)
+                {
+                    ErrorReturn.Add(error.Description);
+                }
+            }
+        }
+        catch(Exception erro)
+        {
+            ErrorReturn.Add(erro.Message);
+        }
+    }
+
+    private async Task RemoveRole(string roleName)
+    {
+        try
+        {
+            var result = await _userManager.RemoveFromRoleAsync(User, roleName);
+
+            if(result.Succeeded)
+            {
+                await UpdateUserRoles();
+                UpdateSystemRoles();
+                ToastService.ShowToast($"Role {roleName} removida com sucesso do Usuário {User.UserName}.", Enums.ToastLevel.Success);
+            }
+            else
+            {
+                foreach (var error in result.Errors)
+                {
+                    ErrorReturn.Add(error.Description);
+                }
+            }
+        }
+        catch(Exception erro)
+        {
+            ErrorReturn.Add(erro.Message);
+        }
+    }
+
+    private async Task OnSubmit()
+    {
+        try
+        {
+            var userOriginal = await _userManager.FindByIdAsync(User.Id);
+
+            userOriginal.UserName = User.UserName;
+            userOriginal.FirstName = User.FirstName;
+            userOriginal.SecondName = User.SecondName;
+            userOriginal.Email = User.Email;
+
+            var result = await _userManager.UpdateAsync(userOriginal);
+
+            if (result.Succeeded)
+            {
+                ToastService.ShowToast($"Usuário {userOriginal.UserName} atualizado com sucesso.", Enums.ToastLevel.Success);
+            }
+            else
+            {
+                foreach (var error in result.Errors)
+                {
+                    ErrorReturn.Add(error.Description);
+                }
+            }
+
+        }
+        catch(Exception erro)
+        {
+            ErrorReturn.Add(erro.Message);
+        }
+    }
+}

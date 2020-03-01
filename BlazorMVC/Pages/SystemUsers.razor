@@ -1,5 +1,6 @@
 ﻿@page "/SystemUsers"
-@inject IServiceProvider ServiceProvider
+@inject UserManager<Usuario> _userManager
+@inject ToastService ToastService
 
 <div class="row">
     <div class="col-md-12">
@@ -44,8 +45,8 @@
                             <tr>
                                 <td>@user.UserName</td>
                                 <td>@user.Email</td>
-                                <td><div class="float-right"><a href="#" class="btn btn-sm btn-outline-warning">View/Edit</a></div></td>
-                                <td><div class="float-right"><a @onclick="(() => Delete(user.Id))" href="#" class="btn btn-sm btn-outline-danger">Delete</a></div></td>
+                                <td><div class="float-right"><a href="/ManageUser/@user.Id"  class="btn btn-sm btn-outline-warning">View/Edit</a></div></td>
+                                <td><div class="float-right"><button @onclick="(() => Delete(user.Id))" class="btn btn-sm btn-outline-danger">Delete</button></div></td>
                             </tr>
                         }
                     </tbody>
@@ -65,29 +66,29 @@
     {
         Users = new List<Usuario>();
         ErrorReturn = new List<string>();
-
-        using (var _userManager = this.ServiceProvider.GetService<UserManager<Usuario>>())
-        {
-            Users = _userManager.Users.ToList();
-        }
+        Users = new List<Usuario>();
+        UpdateUsers();
 
         base.OnInitialized();
     }
 
+    private void UpdateUsers()
+    {
+        Users = _userManager.Users.ToList();
+    }
+
     public async Task Delete(string userId)
     {
-        using (var _userManager = this.ServiceProvider.GetService<UserManager<Usuario>>())
+        try
         {
-            try
-            {
-                var user = await _userManager.FindByIdAsync(userId);
-                await _userManager.DeleteAsync(user);
-            }
-            catch (Exception erro)
-            {
-                ErrorReturn.Add(erro.Message);
-            }
-
+            var user = await _userManager.FindByIdAsync(userId);
+            await _userManager.DeleteAsync(user);
+            UpdateUsers();
+            ToastService.ShowToast($"Usuário {user.UserName} deletado com sucesso!", Enums.ToastLevel.Success);
+        }
+        catch (Exception erro)
+        {
+            ErrorReturn.Add(erro.Message);
         }
     }
 }

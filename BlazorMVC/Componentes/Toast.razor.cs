@@ -37,7 +37,7 @@ namespace BlazorSite.Componentes
         private void HideToast()
         {
             IsVisible = false;
-            StateHasChanged();
+            InvokeAsync(() => StateHasChanged());
         }
 
         private void BuildToastSettings(ToastLevel level, string message)

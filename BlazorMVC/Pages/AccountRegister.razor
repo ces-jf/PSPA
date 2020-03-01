@@ -62,12 +62,12 @@
                     </div>
                     <div class="form-group">
                         <label>Password: </label>
-                        <InputText class="form-control" @bind-Value="RegisterState.Input.Password" />
+                        <InputText class="form-control" type="password" @bind-Value="RegisterState.Input.Password" />
                         <ValidationMessage For="@(() => RegisterState.Input.Password)" />
                     </div>
                     <div class="form-group">
                         <label>Confirm Password: </label>
-                        <InputText class="form-control" @bind-Value="RegisterState.Input.ConfirmPassword" />
+                        <InputText class="form-control" type="password" @bind-Value="RegisterState.Input.ConfirmPassword" />
                         <ValidationMessage For="@(() => RegisterState.Input.ConfirmPassword)" />
                     </div>
                 </fieldset>
