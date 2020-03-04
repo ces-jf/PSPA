@@ -23,6 +23,7 @@ namespace SystemHelper
             if (bom[0] == 0xfe && bom[1] == 0xff) return Encoding.BigEndianUnicode; //UTF-16BE
             if (bom[0] == 0 && bom[1] == 0 && bom[2] == 0xfe && bom[3] == 0xff) return Encoding.UTF32;
             if (bom[0] == 34 && bom[1] == 77 && bom[2] == 202 && bom[3] == 83) return Encoding.GetEncoding("ISO-8859-1");
+            if (bom[0] == 34 && bom[1] == 69 && bom[2] == 88 && bom[3] == 69) return Encoding.GetEncoding("ISO-8859-1");
             return Encoding.ASCII;
         }
     }

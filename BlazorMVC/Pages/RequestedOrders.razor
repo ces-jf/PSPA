@@ -1,0 +1,57 @@
+﻿@page "/RequestedOrders"
+@inject IPedidoImportacaoBusiness PedidoImportacaoBusiness
+@inject RequestedOrdersState RequestedOrdersState
+@inject UserManager<Usuario> _userManager
+
+<AuthorizeView Context="Context">
+    <h1>Import Orders by @Context.User.Identity.Name</h1>
+
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table" width="100%">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">Order</th>
+                        <th scope="col">Base</th>
+                        <th scope="col">State</th>
+                        <th scope="col">End Date</th>
+                        <th scope="col"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach(var order in RequestedOrdersState.Input)
+                    {
+                        <tr>
+                            <th scope="row">@order.ID</th>
+                            <th>@order.PastaTemp</th>
+                            <th>@order.Estado</th>
+                            <th>@order.DataTermino</th>
+                            <th><div class="btn-group"> <a href="#" class="btn btn-info dt-view" style="margin-right:16px;"><i class="fab fa-searchengin"></i></a></div></th>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</AuthorizeView>
+
+@code {
+
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    protected override Task OnInitializedAsync()
+    {
+        UpdateOrderList().GetAwaiter();
+
+        return base.OnInitializedAsync();
+    }
+
+    private async Task UpdateOrderList()
+    {
+        var authState = await authenticationStateTask;
+        var user = await _userManager.GetUserAsync(authState.User);
+        RequestedOrdersState.Input = PedidoImportacaoBusiness.GetPedidoByUser(user).ToList();
+    }
+
+}

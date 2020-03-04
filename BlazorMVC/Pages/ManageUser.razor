@@ -114,17 +114,24 @@
 
     private EditContext editContext;
 
-    protected override void OnInitialized()
+    protected override Task OnInitializedAsync()
     {
-        User = _userManager.FindByIdAsync(Id).GetAwaiter().GetResult();
-        UpdateUserRoles().GetAwaiter().GetResult();
-
-        ErrorReturn = new List<string>();
+        User = new Usuario();
         SystemRoles = new List<string>();
-
-        UpdateSystemRoles();
+        ErrorReturn = new List<string>();
+        UserRoles = new List<string>();
         editContext = new EditContext(User);
-        base.OnInitialized();
+
+        Task.Factory.StartNew(async () =>
+        {
+            User = await _userManager.FindByIdAsync(Id);
+        }).ContinueWith(async _ =>
+        {
+            await UpdateUserRoles();
+            UpdateSystemRoles();
+        }).GetAwaiter().GetResult();
+
+        return base.OnInitializedAsync();
     }
 
     private async Task UpdateUserRoles()

@@ -27,6 +27,11 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<IIdentityContext, IdentityContext>();
             services.AddScoped<LoginState>();
             services.AddScoped<RegisterState>();
+            services.AddScoped<RequestedOrdersState>();
+            services.AddScoped<RequestOrderState>();
+            services.AddScoped<QueryDataState>();
+            services.AddScoped<ModalFilterState>();
+            services.AddScoped<ModalSelectState>();
 
             return services;
         }

@@ -428,9 +428,11 @@ namespace Infra.Business.Classes
 
         private void WebClient_DownloadFileCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
         {
+            var logLine = $"Donwload Finalizado";
+
             this._importacaoWebClient.LogPedidoImportacao.Add(new LogPedidoImportacao
             {
-                Descricao = $"Donwload Finalizado",
+                Descricao = logLine,
                 IndicadorStatus = "I"
             });
         }
@@ -446,9 +448,11 @@ namespace Infra.Business.Classes
 
                 this._valorPercentual.Add(e.ProgressPercentage);
 
+                var logLine = $"Progresso do Download: {e.ProgressPercentage}";
+
                 var logPedidoImportacao = new LogPedidoImportacao
                 {
-                    Descricao = $"Progresso do Download: {e.ProgressPercentage}",
+                    Descricao = logLine,
                     IndicadorStatus = "I",
                     PedidoImportacao = this._importacaoWebClient
                 };

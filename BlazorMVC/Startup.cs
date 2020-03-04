@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
+using Blazored.Modal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -20,6 +20,7 @@ using Infra.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Infra.Entidades;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 namespace BlazorSite
 {
@@ -49,6 +50,7 @@ namespace BlazorSite
 
             services.AddRestIndentity(Configuration);
             services.AddDependencyInjection();
+            services.AddBlazoredModal();
             services.AddOptions();
 
             services.Configure<Configuration>(Configuration.GetSection("GeneralConfigurations"));
@@ -64,6 +66,18 @@ namespace BlazorSite
             services.AddScoped<HttpContextAccessor>();
             services.AddHttpClient();
             services.AddScoped<HttpClient>();
+
+            // If using Kestrel:
+            services.Configure<KestrelServerOptions>(options =>
+            {
+                options.AllowSynchronousIO = true;
+            });
+
+            // If using IIS:
+            services.Configure<IISServerOptions>(options =>
+            {
+                options.AllowSynchronousIO = true;
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

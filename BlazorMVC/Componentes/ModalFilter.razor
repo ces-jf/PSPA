@@ -1,0 +1,81 @@
+﻿@inject IModalService ModalService
+@inject IIndexBusiness IndexBusiness
+@inject ModalFilterState ModalFilterState
+
+<div class="simple-form">
+    <fieldset>
+        <legend>
+            @ModalFilterState.IndexName <button type="button" @onclick="AddToFilter" class="btn bt-sm btn-primary btn-add-query"><i class="fas fa-plus-square"></i> Add</button>
+            @if (ModalFilterState.Columns.Count > 0)
+            {
+                <select class="custom-select custom-select-sm" @bind="@ModalFilterState.SelectToAddFilter">
+                    <option>Select a column to filter...</option>
+                    @foreach (var column in ModalFilterState.Columns)
+                    {
+                        <option value="@column.Descricao">@column.Descricao</option>
+                    }
+                </select>
+            }
+        </legend>
+        <ul class="list-group list-group-flush">
+            @foreach (var filter in ModalFilterState.FilterColumns)
+            {
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div style="padding-right: 5px">@filter.Name</div>
+                    <select class="form-control form-control-sm" @bind="@filter.Type">
+                        <option value="">Select a filter...</option>
+                        <option value=">">Greather than</option>
+                        <option value=">=">Greather or equals than</option>
+                        <option value="<=">Less or equals than</option>
+                        <option value="<">Less than</option>
+                        <option value="=">Equals than</option>
+                    </select>
+                    &nbsp;
+                    <input @bind="@filter.Value" class="form-control form-control-sm" type="text" placeholder="Value..." />
+                    &nbsp;
+                    <span @onclick="(() => RemoveFilter(filter))" style="cursor: pointer;" class="badge badge-danger badge-pill">X</span>
+                </li>
+            }
+        </ul>
+    </fieldset>
+    <hr />
+    <button @onclick="Cancel" type="button" class="btn btn-secondary">Close</button>
+    <button @onclick="Save" type="button" class="btn btn-primary">Save changes</button>
+</div>
+
+@code {
+    [CascadingParameter]
+    public ModalParameters Parameters { get; set; }
+
+    protected override void OnInitialized()
+    {
+        ModalFilterState.IndexName = Parameters.Get<string>("IndexName");
+        ModalFilterState.Columns = IndexBusiness.Colunas(ModalFilterState.IndexName).ToList();
+        base.OnInitialized();
+    }
+
+    public void AddToFilter()
+    {
+        var newFilter = new Filter(ModalFilterState.SelectToAddFilter, string.Empty, string.Empty);
+
+        if (ModalFilterState.FilterColumns.Contains(newFilter))
+            return;
+
+        ModalFilterState.FilterColumns.Add(newFilter);
+    }
+
+    public void RemoveFilter(Filter filter)
+    {
+        ModalFilterState.FilterColumns.Remove(filter);
+    }
+
+    public void Cancel()
+    {
+        ModalService.Cancel();
+    }
+
+    public void Save()
+    {
+        ModalService.Close(ModalResult.Ok<IList<Filter>>(ModalFilterState.FilterColumns));
+    }
+}

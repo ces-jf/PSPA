@@ -1,0 +1,271 @@
+﻿@page "/QueryData"
+@inject QueryDataState QueryDataState
+@inject IIndexBusiness IndexBusiness
+@inject IModalService Modal
+@inject IArquivoBaseBusiness ArquivoBaseBusiness
+@inject NavigationManager NavigationManager
+@inject ToastService ToastService
+
+<h3>Available Bases</h3>
+
+<div class="row">
+    <div class="col-md-12">
+        <table class="table" width="100%">
+            <thead class="table-dark">
+                <tr>
+                    <th></th>
+                    <th>Base</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var index in QueryDataState.Input)
+                {
+                    <tr>
+                        <td><div class="btn-group"> <button type="button" @onclick="(() => ChangeCabecalhos(index.Item1))" class="btn btn-info dt-expand" style="margin-right:16px;"><i class="fas @index.Item2"></i></button></div></td>
+                        <td>@index.Item1.Name</td>
+                        <td><div class="btn-group"> <button type="button" @onclick="(() => ChangeIndex(index.Item1))" class="btn btn-info dt-view" style="margin-right:16px;"><i class="fas @index.Item3"></i></button></div></td>
+                    </tr>
+                    if (QueryDataState.InputCabecalho.ContainsKey(index.Item1.Name))
+                    {
+                        @foreach (var cabecalho in QueryDataState.InputCabecalho.GetValueOrDefault(index.Item1.Name))
+                        {
+                            <tr>
+                                <td colspan="3">@cabecalho.Descricao</td>
+                            </tr>
+                        }
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="float-left">Config Query Data</div>
+                <ul class="nav nav-pills card-header-pills float-right">
+                    <li class="nav-item">
+                        <input @bind="QueryDataState.NumberEntries" class="form-control form-control-sm" type="number" placeholder="Number os entries" aria-label="Search">
+                    </li>
+                    <li class="nav-item"><a class="nav-link"></a></li>
+                    <li class="nav-item">
+                        <input @bind="QueryDataState.AllEntries" type="checkbox" aria-label="Search"> Return all entries
+                    </li>
+                    <li class="nav-item"><a class="nav-link"></a></li>
+                    <li class="nav-item">
+                        <button @onclick="ShowFilter" class="nav-link btn btn-sm btn-success">Filters</button>
+                    </li>
+                    <li class="nav-item"><a class="nav-link"></a></li>
+                    <li class="nav-item">
+                        <button class="nav-link btn btn-sm btn-primary" @onclick="ShowSelect">Select Columns</button>
+                    </li>
+                    <li class="nav-item"><a class="nav-link"></a></li>
+                    <li class="nav-item"><a class="nav-link"></a></li>
+                    <li class="nav-item"><a class="nav-link"></a></li>
+                    <li class="nav-item">
+                        <button @onclick="(() => QueryBases())" class="nav-link btn btn-dark">Generate CSV</button>
+                    </li>
+                    <li class="nav-item"><a class="nav-link"></a></li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-info" href="#" data-toggle="modal" data-target="#graphicsConfigModal" id="BtnGraphic">Generate Graphics</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">Selected Base</h5>
+                <div id="baseArea">
+                    @foreach (var index in QueryDataState.SelectedIndex)
+                    {
+                        <span id="@index.Name" class="badge badge-info">@index.Name</span>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="float-left"> Graphics </div>
+            </div>
+            <div class="card-body">
+                <div id="chartDiv" style="border: 1px solid #ccc"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    protected override void OnInitialized()
+    {
+        QueryDataState.Input = IndexBusiness.Listar().Select(a => new Tuple<SearchBase, string, string>(new SearchBase { Name = a.Name }, "fa-angle-right", "fa-plus-square")).ToList();
+
+        base.OnInitialized();
+    }
+
+    public void ChangeCabecalhos(SearchBase index)
+    {
+        if (QueryDataState.InputCabecalho.ContainsKey(index.Name))
+            RemoveCabecalhos(index);
+        else
+            GetCabecalhos(index);
+    }
+
+    private void GetCabecalhos(SearchBase index)
+    {
+        QueryDataState.Input.ForEach(item =>
+        {
+            if (item.Item1 == index)
+                item = new Tuple<SearchBase, string, string>(item.Item1, "fa-angle-down", item.Item3);
+        });
+
+        var cabecalhos = IndexBusiness.Colunas(index.Name).ToList();
+        QueryDataState.InputCabecalho.TryAdd(index.Name, cabecalhos);
+    }
+
+    private void RemoveCabecalhos(SearchBase index)
+    {
+        QueryDataState.Input.ForEach(item =>
+        {
+            if (item.Item1 == index)
+                item = new Tuple<SearchBase, string, string>(item.Item1, "fa-angle-right", item.Item3);
+        });
+
+        QueryDataState.InputCabecalho.Remove(index.Name);
+    }
+
+    public void ChangeIndex(SearchBase index)
+    {
+        if (QueryDataState.SelectedIndex.Contains(index))
+            RemoveIndex(index);
+        else
+            AddIndex(index);
+    }
+
+    private void AddIndex(SearchBase index)
+    {
+        if (QueryDataState.SelectedIndex.Count > 0)
+        {
+            ToastService.ShowToast("In this version is only allowed ONE base.", Enums.ToastLevel.Error);
+            return;
+        }
+
+        QueryDataState.Input.ForEach(item =>
+        {
+            if (item.Item1 == index)
+                item = new Tuple<SearchBase, string, string>(item.Item1, item.Item2, "fa-plus-square");
+        });
+
+        QueryDataState.SelectedIndex.Add(index);
+    }
+
+    private void RemoveIndex(SearchBase index)
+    {
+        QueryDataState.Input.ForEach(item =>
+        {
+            if (item.Item1 == index)
+                item = new Tuple<SearchBase, string, string>(item.Item1, item.Item2, "fa-minus-square");
+        });
+
+        QueryDataState.SelectedIndex.Remove(index);
+    }
+
+    public void ShowFilter()
+    {
+        var indexName = QueryDataState.SelectedIndex.FirstOrDefault().Name;
+        var parameters = new ModalParameters();
+        parameters.Add("IndexName", indexName);
+        Modal.OnClose += ModalClosed;
+        Modal.Show<ModalFilter>("Filtering data", parameters);
+    }
+
+    public void ShowSelect()
+    {
+        var indexName = QueryDataState.SelectedIndex.FirstOrDefault().Name;
+        var parameters = new ModalParameters();
+        parameters.Add("IndexName", indexName);
+        Modal.OnClose += ModalClosed;
+        Modal.Show<ModalSelect>("Selecting data", parameters);
+    }
+
+    public void ModalClosed(ModalResult modalResult)
+    {
+        if (modalResult.Cancelled)
+            return;
+
+
+        switch (modalResult.ModalType.Name)
+        {
+            case "ModalFilter":
+                UpdateFilterColumns(modalResult.Data as IList<Filter>);
+                break;
+            case "ModalSelect":
+                UpdateSelectColumns(modalResult.Data as IList<string>);
+                break;
+            default:
+                break;
+        }
+    }
+
+    public void UpdateFilterColumns(IList<Filter> filterColumns)
+    {
+        var index = QueryDataState.SelectedIndex.FirstOrDefault();
+        var indexMod = index.Clone() as SearchBase;
+        QueryDataState.SelectedIndex.Remove(index);
+
+        indexMod.FilterColumns = filterColumns;
+        QueryDataState.SelectedIndex.Add(indexMod);
+    }
+
+    public void UpdateSelectColumns(IList<string> selectColumns)
+    {
+        var index = QueryDataState.SelectedIndex.FirstOrDefault();
+        var indexMod = index.Clone() as SearchBase;
+        QueryDataState.SelectedIndex.Remove(index);
+
+        indexMod.SelectColumns = selectColumns;
+        QueryDataState.SelectedIndex.Add(indexMod);
+    }
+
+    public async Task QueryBases()
+    {
+        var searchBase = QueryDataState.SelectedIndex.FirstOrDefault();
+        var waitAuth = await authenticationStateTask;
+        var User = waitAuth.User;
+
+        var indexBase = searchBase.Name;
+        IList<string> selectFilter = null;
+        IEnumerable<Tuple<string, string, string>> filterFilter = null;
+
+        if (searchBase.SelectColumns != null)
+            if (searchBase.SelectColumns.Count() > 0)
+                selectFilter = searchBase.SelectColumns.Select(a => a).ToList();
+
+        if (searchBase.FilterColumns != null)
+            if (searchBase.FilterColumns.Count() > 0)
+                filterFilter = searchBase.FilterColumns.Select(a => new Tuple<string, string, string>(a.Name, a.Type, a.Value));
+
+        try
+        {
+            var fileName = string.Empty;
+            var numberEntries = QueryDataState.NumberEntries.GetValueOrDefault(0);
+
+            if (numberEntries == 0)
+                fileName = ArquivoBaseBusiness.ConsultaToCSV(User, indexBase, selectFilter, filterFilter, allEntries: QueryDataState.AllEntries);
+            else
+                fileName = ArquivoBaseBusiness.ConsultaToCSV(User, indexBase, selectFilter, filterFilter, numberEntries, QueryDataState.AllEntries);
+
+            var fileDownloadName = $"{indexBase}.csv";
+
+            NavigationManager.NavigateTo($"/DownloadCSV/?fileName={fileName}&fileDownloadName={fileDownloadName}", true);
+        }
+        catch (Exception erro)
+        {
+            throw erro;
+        }
+    }
+}

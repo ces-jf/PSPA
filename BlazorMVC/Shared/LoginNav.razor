@@ -8,6 +8,9 @@
                 <a class="nav-link text-dark" href="/ManageUser/@Auth.User.GetUserId()">Hello @Auth.User.Identity.Name!</a>
             </li>
 
+            <AuthorizeView Roles="Manager">
+                <NavLink class="nav-link text-dark" href="QueryData">Query Data</NavLink>
+            </AuthorizeView>
             @*@if (context.User.IsInRole("Queryable"))
                 {
                     <li class="nav-item">
@@ -20,11 +23,9 @@
                     System Data
                 </a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    @*@if (context.User.IsInRole("Manager"))
-                        {
-                            <a class="dropdown-item" asp-controller="Order" asp-action="Index">Import Orders</a>
-                        }*@
-
+                    <AuthorizeView Roles="Manager">
+                        <NavLink class="dropdown-item" href="RequestedOrders">Requested Orders</NavLink>
+                    </AuthorizeView>
                     <AuthorizeView Roles="Administrator">
                         <div class="dropdown-divider"></div>
                         <NavLink class="dropdown-item" href="SystemRoles">System Roles</NavLink>
