@@ -67,7 +67,7 @@
                     </li>
                     <li class="nav-item"><a class="nav-link"></a></li>
                     <li class="nav-item">
-                        <a class="nav-link btn btn-info" href="#" data-toggle="modal" data-target="#graphicsConfigModal" id="BtnGraphic">Generate Graphics</a>
+                        <button class="nav-link btn btn-info" @onclick="ShowGraphic">Generate Graphics</button>
                     </li>
                 </ul>
             </div>
@@ -83,16 +83,25 @@
         </div>
     </div>
 
-    <div class="col-md-12">
+    @*<div class="col-md-12">
         <div class="card">
             <div class="card-header">
                 <div class="float-left"> Graphics </div>
             </div>
             <div class="card-body">
-                <div id="chartDiv" style="border: 1px solid #ccc"></div>
+                @if (!string.IsNullOrEmpty(QueryDataState.GraphicType))
+                {
+                    <DxChart Data="@QueryDataState.GraphicValues">
+                        <DxChartTitle Text="Total Sales" />
+                        <DxChartLegend VerticalAlignment="@VerticalEdge.Bottom" Position="@RelativePosition.Outside" />
+                        <DxChartPieSeries ValueField="@((GraphicSearch i) => i.Value)" ArgumentField="@(i => i.Column)" AggregationMethod="@Enumerable.Sum">
+                            <DxChartSeriesLabel Visible="true" />
+                        </DxChartPieSeries>
+                    </DxChart>
+                }
             </div>
         </div>
-    </div>
+    </div>*@
 </div>
 
 @code {
@@ -192,6 +201,12 @@
         Modal.Show<ModalSelect>("Selecting data", parameters);
     }
 
+    public void ShowGraphic()
+    {
+        Modal.OnClose += ModalClosed;
+        Modal.Show<ModalGraphics>("Select graphic type");
+    }
+
     public void ModalClosed(ModalResult modalResult)
     {
         if (modalResult.Cancelled)
@@ -206,9 +221,66 @@
             case "ModalSelect":
                 UpdateSelectColumns(modalResult.Data as IList<string>);
                 break;
+            case "ModalGraphics":
+                RunDrawGraphics(modalResult.Data as string);
+                break;
             default:
                 break;
         }
+    }
+
+    public async Task RunDrawGraphics(string selectToGraphic)
+    {
+        var searchBase = QueryDataState.SelectedIndex.FirstOrDefault();
+
+        if (searchBase.SelectColumns.Count != 1)
+        {
+            ToastService.ShowToast("Only need ONE select field!", Enums.ToastLevel.Error);
+            return;
+        }
+
+        var waitAuth = await authenticationStateTask;
+        var User = waitAuth.User;
+
+        var indexBase = searchBase.Name;
+        IList<string> selectFilter = null;
+        IEnumerable<Tuple<string, string, string>> filterFilter = null;
+
+        if (searchBase.SelectColumns != null)
+            if (searchBase.SelectColumns.Count() > 0)
+                selectFilter = searchBase.SelectColumns.Select(a => a).ToList();
+
+        if (searchBase.FilterColumns != null)
+            if (searchBase.FilterColumns.Count() > 0)
+                filterFilter = searchBase.FilterColumns.Select(a => new Tuple<string, string, string>(a.Name, a.Type, a.Value));
+
+        try
+        {
+            var resultsDictionarys = new List<GraphicSearch>();
+            var numberEntries = QueryDataState.NumberEntries.GetValueOrDefault(0);
+
+            if (numberEntries == 0)
+                resultsDictionarys = ArquivoBaseBusiness.QueryGroupData(indexBase, selectFilter, filterFilter, allEntries: QueryDataState.AllEntries).Select(s => new GraphicSearch(s.FirstOrDefault())).ToList();
+            else
+                resultsDictionarys = ArquivoBaseBusiness.QueryGroupData(indexBase, selectFilter, filterFilter, numberEntries, QueryDataState.AllEntries).Select(s => new GraphicSearch(s.FirstOrDefault())).ToList();
+
+            QueryDataState.GraphicValues = resultsDictionarys.AsQueryable();
+            QueryDataState.GraphicType = selectToGraphic;
+
+            ShowGraphicPie(resultsDictionarys);
+        }
+        catch (Exception erro)
+        {
+            throw erro;
+        }
+    }
+
+    public void ShowGraphicPie(List<GraphicSearch> resultsDictionarys)
+    {
+        var parameters = new ModalParameters();
+        parameters.Add("resultsDictionarys", resultsDictionarys);
+        Modal.OnClose += ModalClosed;
+        Modal.Show<ModalPie>("Graphics", parameters);
     }
 
     public void UpdateFilterColumns(IList<Filter> filterColumns)

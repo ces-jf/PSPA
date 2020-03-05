@@ -1,6 +1,7 @@
 ﻿using Infra.Entidades;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Infra.States
@@ -10,7 +11,8 @@ namespace Infra.States
         public List<Tuple<SearchBase, string, string>> Input = new List<Tuple<SearchBase, string, string>>();
         public Dictionary<string, List<Cabecalho>> InputCabecalho = new Dictionary<string, List<Cabecalho>>();
         public List<SearchBase> SelectedIndex = new List<SearchBase>();
-        public IList<Dictionary<string, string>> GraphicValues = new List<Dictionary<string, string>>();
+        public IQueryable<GraphicSearch> GraphicValues;
+        public string GraphicType { get; set; }
         public long? NumberEntries { get; set; }
         public bool AllEntries { get; set; }
     }
@@ -26,5 +28,19 @@ namespace Infra.States
         {
             return this.MemberwiseClone();
         }
+    }
+
+    public class GraphicSearch
+    {
+        public GraphicSearch(string column, string value)
+        {
+            this.Column = column;
+            this.Value = float.Parse(value);
+        }
+
+        public GraphicSearch(KeyValuePair<string, string> keyValuePair): this(keyValuePair.Key, keyValuePair.Value) { }
+
+        public string Column { get; set; }
+        public float Value { get; set; }
     }
 }

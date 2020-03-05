@@ -1,0 +1,32 @@
+﻿@inject IModalService ModalService
+
+
+<DxChart Data="@resultsDictionarys">
+    <DxChartTitle Text="Total Sales" />
+    <DxChartLegend  AllowToggleSeries="true" VerticalAlignment="@VerticalEdge.Bottom" Position="@RelativePosition.Outside" />
+    <DxChartBarSeries ValueField="@((GraphicSearch i) => i.Value)" ArgumentField="@(i => i.Column)" AggregationMethod="@Enumerable.Sum">
+        <DxChartSeriesLabel Visible="true" />
+    </DxChartBarSeries>
+</DxChart>
+<hr />
+<button @onclick="Cancel" type="button" class="btn btn-secondary">Close</button>
+
+ 
+@code {
+    [CascadingParameter]
+    public ModalParameters Parameters { get; set; }
+    public List<GraphicSearch> resultsDictionarys { get; set; }
+
+
+    protected override void OnInitialized()
+    {
+        resultsDictionarys = Parameters.Get<List<GraphicSearch>>("resultsDictionarys");
+
+        base.OnInitialized();
+    }
+
+    public void Cancel()
+    {
+        ModalService.Cancel();
+    }
+}
