@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Infra.Enums;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -17,8 +18,7 @@ namespace Infra.Entidades
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long ID { get; set; }
         public DateTime? DataTermino { get; set; }
-        [MaxLength(1)]
-        public string Estado { get; set; }
+        public OrderState OrderState { get; set; }
         public string PastaTemp { get; set; }
 
 

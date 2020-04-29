@@ -31,7 +31,7 @@
                         @foreach (var cabecalho in QueryDataState.InputCabecalho.GetValueOrDefault(index.Item1.Name))
                         {
                             <tr>
-                                <td colspan="3">@cabecalho.Descricao</td>
+                                <td colspan="3">@cabecalho.Name</td>
                             </tr>
                         }
                     }
@@ -82,26 +82,6 @@
             </div>
         </div>
     </div>
-
-    @*<div class="col-md-12">
-        <div class="card">
-            <div class="card-header">
-                <div class="float-left"> Graphics </div>
-            </div>
-            <div class="card-body">
-                @if (!string.IsNullOrEmpty(QueryDataState.GraphicType))
-                {
-                    <DxChart Data="@QueryDataState.GraphicValues">
-                        <DxChartTitle Text="Total Sales" />
-                        <DxChartLegend VerticalAlignment="@VerticalEdge.Bottom" Position="@RelativePosition.Outside" />
-                        <DxChartPieSeries ValueField="@((GraphicSearch i) => i.Value)" ArgumentField="@(i => i.Column)" AggregationMethod="@Enumerable.Sum">
-                            <DxChartSeriesLabel Visible="true" />
-                        </DxChartPieSeries>
-                    </DxChart>
-                }
-            </div>
-        </div>
-    </div>*@
 </div>
 
 @code {
@@ -188,8 +168,9 @@
         var indexName = QueryDataState.SelectedIndex.FirstOrDefault().Name;
         var parameters = new ModalParameters();
         parameters.Add("IndexName", indexName);
-        Modal.OnClose += ModalClosed;
-        Modal.Show<ModalFilter>("Filtering data", parameters);
+        var modalFilter = Modal.Show<ModalFilter>("Filtering data", parameters);
+        var modalResult = modalFilter.Result;
+        modalResult.ContinueWith((result) => ModalClosed(result.Result));
     }
 
     public void ShowSelect()
@@ -197,14 +178,16 @@
         var indexName = QueryDataState.SelectedIndex.FirstOrDefault().Name;
         var parameters = new ModalParameters();
         parameters.Add("IndexName", indexName);
-        Modal.OnClose += ModalClosed;
-        Modal.Show<ModalSelect>("Selecting data", parameters);
+        var modalSelect = Modal.Show<ModalSelect>("Selecting data", parameters);
+        var modalResult = modalSelect.Result;
+        modalResult.ContinueWith((result) => ModalClosed(result.Result));
     }
 
     public void ShowGraphic()
     {
-        Modal.OnClose += ModalClosed;
-        Modal.Show<ModalGraphics>("Select graphic type");
+        var modalGraphic = Modal.Show<ModalGraphics>("Select graphic type");
+        var modalResult = modalGraphic.Result;
+        modalResult.ContinueWith((result) => ModalClosed(result.Result));
     }
 
     public void ModalClosed(ModalResult modalResult)
@@ -213,7 +196,7 @@
             return;
 
 
-        switch (modalResult.ModalType.Name)
+        switch (modalResult.DataType.Name)
         {
             case "ModalFilter":
                 UpdateFilterColumns(modalResult.Data as IList<Filter>);
@@ -222,14 +205,14 @@
                 UpdateSelectColumns(modalResult.Data as IList<string>);
                 break;
             case "ModalGraphics":
-                RunDrawGraphics(modalResult.Data as string);
+                Task.Factory.StartNew(async () => await RunDrawGraphics((GraphicType)modalResult.Data));
                 break;
             default:
                 break;
         }
     }
 
-    public async Task RunDrawGraphics(string selectToGraphic)
+    public async Task RunDrawGraphics(GraphicType selectToGraphic)
     {
         var searchBase = QueryDataState.SelectedIndex.FirstOrDefault();
 
@@ -238,6 +221,8 @@
             ToastService.ShowToast("Only need ONE select field!", Enums.ToastLevel.Error);
             return;
         }
+
+        var filterText = string.Empty;
 
         var waitAuth = await authenticationStateTask;
         var User = waitAuth.User;
@@ -254,6 +239,23 @@
             if (searchBase.FilterColumns.Count() > 0)
                 filterFilter = searchBase.FilterColumns.Select(a => new Tuple<string, string, string>(a.Name, a.Type, a.Value));
 
+        var filterList = searchBase.FilterColumns.ToList();
+        var selectTitle = searchBase.SelectColumns.FirstOrDefault();
+
+        filterList.ForEach( item => {
+            var index = filterList.IndexOf(item);
+
+            if (index == 0)
+                filterText = "and filtered by ";
+
+            if (index > 0)
+                filterText += " and ";
+
+            filterText += $"{item.Name} {item.Type} {item.Value}";
+        });
+
+        var filterTitle = $"Graphic based on {selectTitle} {filterText}";
+
         try
         {
             var resultsDictionarys = new List<GraphicSearch>();
@@ -265,9 +267,8 @@
                 resultsDictionarys = ArquivoBaseBusiness.QueryGroupData(indexBase, selectFilter, filterFilter, numberEntries, QueryDataState.AllEntries).Select(s => new GraphicSearch(s.FirstOrDefault())).ToList();
 
             QueryDataState.GraphicValues = resultsDictionarys.AsQueryable();
-            QueryDataState.GraphicType = selectToGraphic;
 
-            ShowGraphicPie(resultsDictionarys);
+            ShowGraphic(resultsDictionarys, selectToGraphic, filterTitle);
         }
         catch (Exception erro)
         {
@@ -275,12 +276,31 @@
         }
     }
 
-    public void ShowGraphicPie(List<GraphicSearch> resultsDictionarys)
+    public void ShowGraphic(List<GraphicSearch> resultsDictionarys, GraphicType selectToGraphic, string title)
     {
         var parameters = new ModalParameters();
         parameters.Add("resultsDictionarys", resultsDictionarys);
-        Modal.OnClose += ModalClosed;
-        Modal.Show<ModalPie>("Graphics", parameters);
+        parameters.Add("title", title);
+        var graphicComponent = GetGraphicComponent(selectToGraphic);
+
+        var modalShowGraphic = Modal.Show(graphicComponent, "Graphics", parameters);
+        var modalResult = modalShowGraphic.Result;
+        modalResult.ContinueWith((result) => ModalClosed(result.Result));
+    }
+
+    private Type GetGraphicComponent(GraphicType selectToGraphic)
+    {
+        switch(selectToGraphic)
+        {
+            case GraphicType.Column:
+                return typeof(ModalColumn);
+            case GraphicType.Pie:
+                return typeof(ModalPie);
+            case GraphicType.Table:
+                return typeof(ModalTable);
+            default:
+                throw new Exception("Tipo inexistente!");
+        }
     }
 
     public void UpdateFilterColumns(IList<Filter> filterColumns)

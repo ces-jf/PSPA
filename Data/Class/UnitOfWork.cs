@@ -9,6 +9,7 @@ using Infra.Entidades;
 using Data.ContextExtension;
 using SystemHelper.Configurations;
 using Elasticsearch.Net;
+using Index = Infra.Entidades.Index;
 
 namespace Data.Class
 {
@@ -65,7 +66,17 @@ namespace Data.Class
             return indicesName;
         }
 
-        public IEnumerable<Cabecalho> Colunas(string indexName)
+        public Index GetIndex(string index)
+        {
+            var allIndex = this.ListarIndices();
+
+            if (!allIndex.Any())
+                return null;
+            else
+                return allIndex.FirstOrDefault(a => a.Name == index);
+        }
+
+        public IEnumerable<Header> Colunas(string indexName)
         {
             var client = new ElasticClient(this.ConnectionSettings);
             var result = client.Search<dynamic>(a =>
@@ -79,11 +90,11 @@ namespace Data.Class
                 throw result.OriginalException;
 
             if (result.Documents.Count < 1)
-                return new List<Cabecalho> { new Cabecalho() };
+                return new List<Header> { new Header() };
 
-            var indicesName = (result.Documents.FirstOrDefault() as Dictionary<string, object>).Select(a => new Cabecalho
+            var indicesName = (result.Documents.FirstOrDefault() as Dictionary<string, object>).Select(a => new Header
             {
-                Descricao = a.Key
+                Name = a.Key
             });
 
             return indicesName;
@@ -106,7 +117,7 @@ namespace Data.Class
             var client = new ElasticClient(this.ConnectionSettings);
 
             if (selectFilter == null)
-                selectFilter = this.Colunas(indexName).Select(a => a.Descricao).ToList();
+                selectFilter = this.Colunas(indexName).Select(a => a.Name).ToList();
 
             var selectFilterArray = selectFilter.ToArray();
 

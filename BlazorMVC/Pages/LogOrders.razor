@@ -1,0 +1,39 @@
+﻿@page "/LogOrders/{Id:long}"
+@inject IPedidoImportacaoBusiness PedidoImportacaoBusiness
+@inject LogOrderState LogOrderState
+
+<h1>Log for Import Order @Id</h1>
+
+<div class="row">
+    <div class="col-md-12">
+        @if (LogOrderState.Input == null)
+        {
+            <Loader />
+        }
+        else
+        {
+            <DxDataGrid Data="@LogOrderState.Input" PageSize="10" ShowFilterRow="false">
+                <DxDataGridColumn Field="@nameof(LogPedidoImportacao.ID)" Caption="ID" SortOrder="DataGridColumnSortOrder.Descending" />
+                <DxDataGridColumn Field="@nameof(LogPedidoImportacao.Descricao)" Caption="Message" />
+                <DxDataGridColumn Field="@nameof(LogPedidoImportacao.IndicadorStatus)" Caption="State" />
+                <DxDataGridColumn Field="@nameof(LogPedidoImportacao.DataCriacao)" Caption="Creation Date" />
+            </DxDataGrid>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public long Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await UpdateOrderList();
+    }
+
+    private Task UpdateOrderList()
+    {
+        return Task.Factory.StartNew(() => LogOrderState.Input = PedidoImportacaoBusiness.GetLogPedidoImportacao(Id).ToList());
+    }
+
+}

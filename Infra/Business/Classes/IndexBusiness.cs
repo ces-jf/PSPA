@@ -5,6 +5,7 @@ using Infra.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Index = Infra.Entidades.Index;
 
 namespace Infra.Business.Classes
 {
@@ -27,9 +28,21 @@ namespace Infra.Business.Classes
             }
         }
 
-        public IEnumerable<Cabecalho> Colunas(string nomeIndex)
+        public Index GetIndex(string index)
         {
-            nomeIndex = nomeIndex ?? "";
+            try
+            {
+                return _unitOfWork.GetIndex(index);
+            }
+            catch(Exception erro)
+            {
+                throw erro;
+            }
+        }
+
+        public IEnumerable<Header> Colunas(string nomeIndex)
+        {
+            nomeIndex ??= "";
 
             var nomeIndexLower = nomeIndex.ToLowerInvariant();
             try

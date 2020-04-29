@@ -9,10 +9,9 @@ namespace Infra.States
     public class QueryDataState
     {
         public List<Tuple<SearchBase, string, string>> Input = new List<Tuple<SearchBase, string, string>>();
-        public Dictionary<string, List<Cabecalho>> InputCabecalho = new Dictionary<string, List<Cabecalho>>();
+        public Dictionary<string, List<Header>> InputCabecalho = new Dictionary<string, List<Header>>();
         public List<SearchBase> SelectedIndex = new List<SearchBase>();
         public IQueryable<GraphicSearch> GraphicValues;
-        public string GraphicType { get; set; }
         public long? NumberEntries { get; set; }
         public bool AllEntries { get; set; }
     }

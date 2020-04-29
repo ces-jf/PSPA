@@ -1,5 +1,4 @@
-﻿@inject IModalService ModalService
-@inject IIndexBusiness IndexBusiness
+﻿@inject IIndexBusiness IndexBusiness
 @inject ModalSelectState ModalSelectState
 
 <div class="simple-form">
@@ -12,7 +11,7 @@
                     <option>Select a column to filter...</option>
                     @foreach (var column in ModalSelectState.Columns)
                     {
-                        <option value="@column.Descricao">@column.Descricao</option>
+                        <option value="@column.Name">@column.Name</option>
                     }
                 </select>
             }
@@ -34,6 +33,8 @@
 </div>
 
 @code {
+    [CascadingParameter]
+    public BlazoredModalInstance ModalInstance { get; set; }
     [CascadingParameter]
     public ModalParameters Parameters { get; set; }
 
@@ -61,11 +62,11 @@
 
     public void Cancel()
     {
-        ModalService.Cancel();
+        ModalInstance.Cancel();
     }
 
     public void Save()
     {
-        ModalService.Close(ModalResult.Ok<IList<string>>(ModalSelectState.SelectColumns));
+        ModalInstance.Close(ModalResult.Ok<IList<string>>(ModalSelectState.SelectColumns));
     }
 }

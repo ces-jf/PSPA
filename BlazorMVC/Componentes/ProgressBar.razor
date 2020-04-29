@@ -1,0 +1,34 @@
+﻿@using System.ComponentModel
+
+<div class="progress" style="height: 20px;">
+    <div class="progress-bar @classType progress-bar-striped progress-bar-animated" role="progressbar" style="width: @(ActualValue)%;" aria-valuenow="@ActualValue" aria-valuemin="0" aria-valuemax="100">@(ActualValue)%</div>
+</div>
+
+@code {
+    [Parameter]
+    public double ActualValue { get; set; }
+    [Parameter]
+    public ProgressType ProgressTypeValue
+    {
+        set
+        {
+            classType = value.GetEnumDescription();
+        }
+    }
+
+    private string classType;
+
+    public enum ProgressType
+    {
+        [Description("bg-success")]
+        Success,
+        [Description("bg-info")]
+        Info,
+        [Description("")]
+        Primary,
+        [Description("bg-warning")]
+        Warning,
+        [Description("bg-danger")]
+        Danger
+    }
+}

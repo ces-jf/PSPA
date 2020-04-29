@@ -41,10 +41,31 @@ namespace WebApi.Migrations
                     b.ToTable("ArquivoBase","PSPABase");
                 });
 
+            modelBuilder.Entity("Infra.Entidades.Header", b =>
+                {
+                    b.Property<long>("ID")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<long?>("ArquivoBaseID");
+
+                    b.Property<int>("HeaderType");
+
+                    b.Property<string>("Name")
+                        .IsRequired();
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("ArquivoBaseID");
+
+                    b.ToTable("Header","PSPABase");
+                });
+
             modelBuilder.Entity("Infra.Entidades.Index", b =>
                 {
                     b.Property<long>("ID")
                         .ValueGeneratedOnAdd();
+
+                    b.Property<bool>("AlreadyMapped");
 
                     b.Property<string>("Name");
 
@@ -83,8 +104,7 @@ namespace WebApi.Migrations
 
                     b.Property<DateTime?>("DataTermino");
 
-                    b.Property<string>("Estado")
-                        .HasMaxLength(1);
+                    b.Property<int>("OrderState");
 
                     b.Property<string>("PastaTemp");
 
@@ -275,6 +295,13 @@ namespace WebApi.Migrations
                     b.HasOne("Infra.Entidades.PedidoImportacao", "PedidoImportacao")
                         .WithMany("Arquivos")
                         .HasForeignKey("PedidoImportacaoID");
+                });
+
+            modelBuilder.Entity("Infra.Entidades.Header", b =>
+                {
+                    b.HasOne("Infra.Entidades.ArquivoBase", "ArquivoBase")
+                        .WithMany("Headers")
+                        .HasForeignKey("ArquivoBaseID");
                 });
 
             modelBuilder.Entity("Infra.Entidades.LogPedidoImportacao", b =>

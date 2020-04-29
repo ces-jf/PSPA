@@ -4,6 +4,7 @@ using Infra.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Index = Infra.Entidades.Index;
 
 namespace Data.Context
 {
@@ -19,10 +20,16 @@ namespace Data.Context
         public DbSet<PedidoImportacao> PedidoImportacao { get; set; }
         public DbSet<LogPedidoImportacao> LogPedidoImportacao { get; set; }
         public DbSet<Usuario> Usuario { get; set; }
+        public DbSet<Header> Header { get; set; }
 
         public IIdentityContext Clone()
         {
             throw new NotImplementedException();
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.EnableSensitiveDataLogging();
         }
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -70,9 +77,13 @@ namespace Data.Context
 
                 b.ToTable("PedidoImportacao", "PSPABase");
             });
-            // Customize the ASP.NET Identity model and override the defaults if needed.
-            // For example, you can rename the ASP.NET Identity table names and more.
-            // Add your customizations after calling base.OnModelCreating(builder);
+
+            builder.Entity<Header>(b => {
+                b.HasKey(a => a.ID);
+                b.Property(a => a.ID).ValueGeneratedOnAdd();
+
+                b.ToTable("Header", "PSPABase");
+            });
         }
     }
 }

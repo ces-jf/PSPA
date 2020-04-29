@@ -1,10 +1,7 @@
 {
   "ExpandedNodes": [
-    "",
-    "\\WebMVCNET",
-    "\\WebMVCNET\\Views",
-    "\\WebMVCNET\\Views\\Query"
+    ""
   ],
-  "SelectedNode": "\\package.json",
+  "SelectedNode": "\\nuget.config",
   "PreviewInSolutionExplorer": false
 }

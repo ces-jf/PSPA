@@ -32,6 +32,8 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddScoped<QueryDataState>();
             services.AddScoped<ModalFilterState>();
             services.AddScoped<ModalSelectState>();
+            services.AddScoped<LogOrderState>();
+            services.AddScoped<RequestAdjustImport>();
 
             return services;
         }

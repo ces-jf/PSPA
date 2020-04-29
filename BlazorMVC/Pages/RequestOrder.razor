@@ -1,7 +1,17 @@
 ﻿@page "/RequestOrder"
+
 @inject RequestOrderState RequestOrderState
 @inject IArquivoBaseBusiness ArquivoBaseBusiness
 @inject IServiceProvider ServiceProvider
+@inject NavigationManager NavigationManager
+@inject IIndexBusiness IndexBusiness
+
+@using System.Net
+@using System.Security.Claims
+@using System.IO
+@using Ionic.Zip
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Mvc.Rendering;
 
 <div class="row">
     <div class="col-md-2"></div>
@@ -26,21 +36,58 @@
                     </ul>
                 </div>
             }
-            <EditForm Model="RequestOrderState.Input" OnSubmit="Submit">
-                <div class="form-group">
-                    <label>Index Name: </label>
-                    <InputText class="form-control" @bind-Value="RequestOrderState.Input.Index" />
-                    <ValidationMessage For="@(() => RequestOrderState.Input.Index)" />
-                </div>
-                <div class="form-group">
-                    <label>Url: </label>
-                    <InputText class="form-control" @bind-Value="RequestOrderState.Input.Url" />
-                    <ValidationMessage For="@(() => RequestOrderState.Input.Url)" />
-                </div>
-                <div class="form-group">
-                    <button type="submit" class="btn btn-primary">Request Import Order</button>
-                </div>
-            </EditForm>
+
+            @if (RequestOrderState.StatusRequest == StatusRequest.ToUpload)
+            {
+                <EditForm Model="RequestOrderState.Input">
+                    <div class="form-group">
+                        <InputRadio SelectedValue="(short)1" @bind-Value="RequestOrderState.ExistingValue" id="inputRadioIndex1" Text="Select existing Index Base" />
+                        <InputRadio SelectedValue="(short)0" @bind-Value="RequestOrderState.ExistingValue" id="inputRadioIndex2" Text="Write Index Base" />
+                    </div>
+
+                    @if (RequestOrderState.ExistingValue == 1)
+                    {
+                        <div class="form-group">
+                            <label>Index Name: </label>
+                            <select class="form-control form-control-sm" @bind="@RequestOrderState.Input.Index">
+                                <option>Select a existing index</option>
+                                @foreach (var index in RequestOrderState.ExistingIndex)
+                                {
+                                    <option value="@index">@index</option>
+                                }
+                            </select>
+                            <ValidationMessage For="@(() => RequestOrderState.Input.Index)" />
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="form-group">
+                            <label>Index Name: </label>
+                            <InputText class="form-control" @bind-Value="RequestOrderState.Input.Index" />
+                            <ValidationMessage For="@(() => RequestOrderState.Input.Index)" />
+                        </div>
+                    }
+                    <div class="form-group">
+                        <label>Url: </label>
+                        <InputText class="form-control" @bind-Value="RequestOrderState.Input.Url" />
+                        <ValidationMessage For="@(() => RequestOrderState.Input.Url)" />
+                    </div>
+                    <div class="form-group">
+                        <button @onclick="Submit" class="btn btn-primary">Request Import Order</button>
+                    </div>
+                </EditForm>
+            }
+            else if (RequestOrderState.StatusRequest == StatusRequest.Downloading)
+            {
+                <label>Downloading file...</label>
+                <ProgressBar ActualValue="RequestOrderState.DownloadValue" ProgressTypeValue="ProgressBar.ProgressType.Primary" />
+
+                if (RequestOrderState.StatusDownloading == StatusDownloading.Extracting)
+                {
+                    <label>Working on file...</label>
+                    <ProgressBar ActualValue="RequestOrderState.WorkingValue" ProgressTypeValue="ProgressBar.ProgressType.Warning" />
+                }
+            }
         </section>
     </div>
 </div>
@@ -50,42 +97,185 @@
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
 
+    protected override void OnInitialized()
+    {
+        var existingIndex = IndexBusiness.Listar().Select(a => a.Name).ToList();
+        RequestOrderState.ExistingIndex = existingIndex;
+
+        base.OnInitialized();
+    }
+
     private async Task Submit()
     {
         try
         {
             var authState = await authenticationStateTask;
             var user = authState.User;
-            var pedidoImportacao = await ArquivoBaseBusiness.CreateImportRequestAsync(RequestOrderState.Input.Url, RequestOrderState.Input.Index, user);
-            var arquivo = pedidoImportacao.Arquivos.FirstOrDefault();
-
-            if (arquivo != null)
-            {
-                _ = Task.Factory.StartNew(() =>
-                {
-                    Thread.CurrentThread.Name = $"Thread de Carga de Base Pedido {pedidoImportacao.ID}";
-
-                    var serviceScope = ServiceProvider.CreateScope();
-                    var context = serviceScope.ServiceProvider.GetRequiredService<IIdentityContext>();
-
-                    context.PedidoImportacao.Attach(pedidoImportacao);
-
-                    this.ArquivoBaseBusiness.DownloadOnDisk(arquivo, pedidoImportacao, context);
-                    this.ArquivoBaseBusiness.CheckFileList(arquivo.Index.Name, pedidoImportacao, context);
-                    this.ArquivoBaseBusiness.UpdateToRegisterData(pedidoImportacao, context);
-
-                    this.ArquivoBaseBusiness.InserirArquivo(pedidoImportacao, context);
-
-                    serviceScope.Dispose();
-                });
-            }
-
-            RequestOrderState.SuccessReturn = $"Order generated successfully in the number of {pedidoImportacao.ID} !";
+            var requestedOrder = await ArquivoBaseBusiness.CreateImportRequestAsync(RequestOrderState.Input.Url, RequestOrderState.Input.Index, user);
+            var fileBase = requestedOrder.Arquivos.FirstOrDefault();
+            RequestOrderState.StatusRequest = StatusRequest.Downloading;
+            this.StateHasChanged();
+            var downloadTask = DownloadFile(user, fileBase, requestedOrder.ID);
+            var workingFileTask = downloadTask.ContinueWith(antecedent => ExtractFiles(user, fileBase, requestedOrder.ID));
+            await workingFileTask.ContinueWith(antecedent => RedirectToConfigure(requestedOrder.ID));
         }
         catch (Exception erro)
         {
             RequestOrderState.ErrorReturn.Add(erro.Message);
         }
+    }
+
+    public Task DownloadFile(ClaimsPrincipal user, ArquivoBase fileBase, long requestOrder)
+    {
+        using (var serviceScope = ServiceProvider.CreateScope())
+        {
+            using (var scopedContext = serviceScope.ServiceProvider.GetRequiredService<IIdentityContext>())
+            {
+                var index = fileBase.Index;
+                var pathDownload = Path.Combine(Configuration.DefaultTempBaseFiles, user.Identity.Name, "download", index.Name);
+                var requestOrderEntity = scopedContext.PedidoImportacao.FirstOrDefault(a => a.ID == requestOrder);
+
+                requestOrderEntity.LogPedidoImportacao.Add(new LogPedidoImportacao
+                {
+                    Descricao = "Criando diretorio de extração...",
+                    IndicadorStatus = "I"
+                });
+
+                scopedContext.SaveChanges();
+
+                if (Directory.Exists(pathDownload))
+                    Directory.Delete(pathDownload, true);
+
+                Directory.CreateDirectory(pathDownload);
+                var fileBaseName = Path.Combine(pathDownload, fileBase.Nome);
+
+                var uri = new Uri(fileBase.UrlOrigem);
+
+                requestOrderEntity.LogPedidoImportacao.Add(new LogPedidoImportacao
+                {
+                    Descricao = $"Realizando download do arquivo {fileBase.Nome}...",
+                    IndicadorStatus = "I"
+                });
+
+                scopedContext.SaveChanges();
+
+                var webClient = new WebClient();
+                webClient.DownloadProgressChanged += WebClient_DownloadProgressChanged;
+
+                try
+                {
+                    return webClient.DownloadFileTaskAsync(uri, fileBaseName);
+                }
+                catch (Exception erro)
+                {
+                    requestOrderEntity.LogPedidoImportacao.Add(new LogPedidoImportacao
+                    {
+                        Descricao = $"Erro ao registrar a importação: {erro.Message}...",
+                        IndicadorStatus = "E"
+                    });
+                    requestOrderEntity.OrderState = OrderState.Error;
+                    scopedContext.SaveChanges();
+                    throw;
+                }
+
+
+            }
+        }
+    }
+
+    private void ExtractFiles(ClaimsPrincipal user, ArquivoBase fileBase, long requestOrder)
+    {
+        using (var serviceScope = ServiceProvider.CreateScope())
+        {
+            using (var scopedContext = serviceScope.ServiceProvider.GetRequiredService<IIdentityContext>())
+            {
+                RequestOrderState.WorkingValue = 0;
+                RequestOrderState.StatusDownloading = StatusDownloading.Extracting;
+                InvokeAsync(() => this.StateHasChanged());
+
+                var index = scopedContext.Indice.FirstOrDefault(filter => filter.ID == fileBase.Index.ID);
+                var requestOrderEntity = scopedContext.PedidoImportacao.Include(inc => inc.Arquivos).FirstOrDefault(a => a.ID == requestOrder);
+                var pathExtract = Path.Combine(Configuration.DefaultTempBaseFiles, user.Identity.Name, "extract", requestOrder.ToString(), index.Name);
+                var pathDownload = Path.Combine(Configuration.DefaultTempBaseFiles, user.Identity.Name, "download", index.Name);
+                var fileBaseName = Path.Combine(pathDownload, fileBase.Nome);
+
+                requestOrderEntity.LogPedidoImportacao.Add(new LogPedidoImportacao
+                {
+                    Descricao = $"Extraindo arquivo {fileBase.Nome}...",
+                    IndicadorStatus = "I"
+                });
+                scopedContext.SaveChanges();
+
+                Directory.CreateDirectory(pathExtract);
+
+                RequestOrderState.WorkingValue = 15;
+                InvokeAsync(() => this.StateHasChanged());
+
+                using (ZipFile zip1 = ZipFile.Read(fileBaseName))
+                {
+                    foreach (ZipEntry zip in zip1)
+                    {
+                        zip.Extract(pathExtract, ExtractExistingFileAction.OverwriteSilently);
+                    }
+                }
+
+                RequestOrderState.WorkingValue = 65;
+                InvokeAsync(() => this.StateHasChanged());
+
+                requestOrderEntity.LogPedidoImportacao.Add(new LogPedidoImportacao
+                {
+                    Descricao = $"Arquivos extraidos e sendo encaminhados para a fase de analise",
+                    IndicadorStatus = "I"
+                });
+                scopedContext.SaveChanges();
+
+                var files = Directory.GetFiles(pathExtract);
+
+                foreach (var file in files)
+                {
+                    var newFileBase = new ArquivoBase
+                    {
+                        Nome = Path.GetFileName(file),
+                        UrlOrigem = file
+                    };
+
+                    var headers = newFileBase.MakeHeader();
+                    newFileBase.Headers = new List<Header>(headers);
+
+                    index.ArquivoBases.Add(newFileBase);
+                    requestOrderEntity.Arquivos.Add(newFileBase);
+                    scopedContext.SaveChanges();
+                }
+
+                RequestOrderState.WorkingValue = 85;
+                InvokeAsync(() => this.StateHasChanged());
+
+                requestOrderEntity.LogPedidoImportacao.Add(new LogPedidoImportacao()
+                {
+                    Descricao = "Registrando novos arquivos para leitura...",
+                    IndicadorStatus = "I"
+                });
+                if (index.AlreadyMapped)
+                    requestOrderEntity.OrderState = OrderState.WaitingToConfiguredNotMapp;
+                else
+                    requestOrderEntity.OrderState = OrderState.ToConfigurate;
+                scopedContext.SaveChanges();
+
+                RequestOrderState.WorkingValue = 100;
+                InvokeAsync(() => this.StateHasChanged());
+            }
+        }
+    }
+
+    public void RedirectToConfigure(long requestOrder)
+    {
+        NavigationManager.NavigateTo($"/AdjustToImport/{requestOrder}", true);
+    }
+
+    public void WebClient_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
+    {
+        RequestOrderState.DownloadValue = e.ProgressPercentage;
+        this.StateHasChanged();
     }
 
 }

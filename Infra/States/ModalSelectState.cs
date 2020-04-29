@@ -9,7 +9,7 @@ namespace Infra.States
     {
         public string IndexName { get; set; }
         public string SelectToAddSelect { get; set; }
-        public IList<Cabecalho> Columns { get; set; } = new List<Cabecalho>();
+        public IList<Header> Columns { get; set; } = new List<Header>();
         public IList<string> SelectColumns { get; set; } = new List<string>();
     }
 }

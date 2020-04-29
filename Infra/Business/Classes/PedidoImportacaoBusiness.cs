@@ -2,7 +2,9 @@
 using Infra.Class;
 using Infra.Entidades;
 using Infra.EntityExtension;
+using Infra.Enums;
 using Infra.Interfaces;
+using Infra.States;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -16,9 +18,9 @@ namespace Infra.Business.Classes
     {
         public PedidoImportacaoBusiness(IUnitOfWork unitOfWork, IIdentityContext identityContext) : base(unitOfWork, identityContext) { }
 
-        public IEnumerable<PedidoImportacao> GetPedidosAguardando()
+        public IEnumerable<PedidoImportacao> GetPendingOrders()
         {
-            var pedidos = _systemContext.PedidoImportacao.Where(a => a.Estado == "A").Include(a => a.Usuario).Include(a => a.Arquivos).Include("Arquivos.Index").ToList();
+            var pedidos = _systemContext.PedidoImportacao.AsNoTracking().Where(a => a.OrderState == OrderState.WaitingToImport).Include(a => a.Usuario).Include(a => a.Arquivos).Include("Arquivos.Index").ToList();
 
             if (pedidos == null)
                 return new List<PedidoImportacao>();
@@ -28,13 +30,10 @@ namespace Infra.Business.Classes
 
         public IEnumerable<PedidoImportacao> GetPedidoByUser(Usuario usuario)
         {
-            var pedidos = _systemContext.PedidoImportacao.Where(a => a.Usuario.Id == usuario.Id).Include(a => a.Usuario).OrderByDescending(a => a.Estado).ToList();
+            var pedidos = _systemContext.PedidoImportacao.Where(a => a.Usuario.Id == usuario.Id).Include(a => a.Usuario).OrderByDescending(a => a.OrderState).ToList();
 
             if (pedidos == null)
                 return new List<PedidoImportacao>();
-
-            if(pedidos != null)
-                pedidos.ForEach(a => a.Estado = a.TraduzirEstado());
 
             return pedidos;
         }
@@ -43,7 +42,7 @@ namespace Infra.Business.Classes
         {
             var pedidos = _systemContext.PedidoImportacao.Where(a => a.ID == id).Include(a => a.LogPedidoImportacao).OrderByDescending(a => a.DataTermino).FirstOrDefault();
 
-            if (pedidos == null) 
+            if (pedidos == null)
                 pedidos = new PedidoImportacao { LogPedidoImportacao = new List<LogPedidoImportacao>() };
 
             var logs = pedidos.LogPedidoImportacao;
@@ -54,5 +53,43 @@ namespace Infra.Business.Classes
             return logs;
         }
 
+        public IEnumerable<HeaderViewModel> GetHeaders(long id)
+        {
+            var headers = _systemContext.Header.Include(a => a.ArquivoBase).AsNoTracking().Where(a => a.ArquivoBase.PedidoImportacao.ID == id).Select(a => new HeaderViewModel
+            {
+                ArquivoBase = a.ArquivoBase,
+                HeaderType = a.HeaderType,
+                ID = a.ID,
+                Name = a.Name                
+            }).ToList();
+            return headers;
+        }
+
+        public void UpdateHeader(Header header)
+        {
+            try
+            {
+                _systemContext.Header.Update(header);
+                _systemContext.SaveChanges();
+            }
+            catch (Exception erro)
+            {
+                throw erro;
+            }
+        }
+
+        public void SaveToImport(long id)
+        {
+            var order = _systemContext.PedidoImportacao.FirstOrDefault(a => a.ID == id);
+            order.OrderState = OrderState.WaitingToImport;
+            _systemContext.SaveChanges();
+        }
+
+        public void SetStatus(long id, OrderState orderState)
+        {
+            var order = _systemContext.PedidoImportacao.FirstOrDefault(a => a.ID == id);
+            order.OrderState = orderState;
+            _systemContext.SaveChanges();
+        }
     }
 }

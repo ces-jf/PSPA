@@ -2,9 +2,11 @@
 using Infra.Business.Interfaces;
 using Infra.Class;
 using Infra.Entidades;
+using Infra.Enums;
 using Infra.Interfaces;
 using Ionic.Zip;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -13,28 +15,29 @@ using System.Linq;
 using System.Net;
 using System.Security.Claims;
 using System.Security.Principal;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using SystemHelper;
-using Microsoft.Extensions.DependencyInjection;
-using System.Threading;
+using Index = Infra.Entidades.Index;
 
 namespace Infra.Business.Classes
 {
     public class ArquivoBaseBusiness : BusinessBase, IArquivoBaseBusiness
     {
-        public readonly IdentityBusiness identityBusiness;
+        private readonly IdentityBusiness identityBusiness;
+        private readonly IIndexBusiness indexBusiness;
         private PedidoImportacao _importacaoWebClient { get; set; }
         private IIdentityContext _identityWebClient { get; set; }
         private IList<int> _valorPercentual { get; set; }
 
         private IServiceProvider ServiceProvider { get; set; }
 
-        public ArquivoBaseBusiness(IUnitOfWork _unitOfWork, IIdentityContext _systemContext, IdentityBusiness _identityBusiness, IServiceProvider serviceProvider) : base(_unitOfWork, _systemContext)
+        public ArquivoBaseBusiness(IUnitOfWork _unitOfWork, IIdentityContext _systemContext, IdentityBusiness _identityBusiness, IServiceProvider serviceProvider, IIndexBusiness indexBusiness) : base(_unitOfWork, _systemContext)
         {
             this.identityBusiness = _identityBusiness;
             this.ServiceProvider = serviceProvider;
             this._valorPercentual = new List<int>();
+            this.indexBusiness = indexBusiness;
         }
 
         public async Task<PedidoImportacao> CreateImportRequestAsync(string _url, string _index, IPrincipal User)
@@ -50,21 +53,37 @@ namespace Infra.Business.Classes
             if (usuario == null)
                 throw new Exception("Usuario não encontrado.");
 
+            var index = indexBusiness.GetIndex(_index);
+
+            if (index != null)
+            {
+                index = _systemContext.Indice.Include(a => a.ArquivoBases).FirstOrDefault(a => a.Name == _index);
+            }
+
+            if(index == null)
+            {
+                index = new Index
+                {
+                    Name = _index,
+                    ArquivoBases = new List<ArquivoBase>()
+                };
+            }
+
+            var fileBase = new ArquivoBase 
+            {
+                Nome = "inicial.zip",
+                UrlOrigem = _url
+            };
+            index.ArquivoBases.Add(fileBase);
+            _systemContext.SaveChanges();
+
             var newPedidoEntity = new PedidoImportacao
             {
                 LogPedidoImportacao = new List<LogPedidoImportacao>(),
-                Estado = "A",
+                OrderState = OrderState.Waiting,
                 Arquivos = new List<ArquivoBase>()
                 {
-                    new ArquivoBase
-                    {
-                        Index = new Index
-                        {
-                            Name = _index
-                        },
-                        Nome = "inicial.zip",
-                        UrlOrigem = _url
-                    }
+                    fileBase
                 },
                 Usuario = usuario,
                 PastaTemp = $"{_index}Temp"
@@ -80,7 +99,9 @@ namespace Infra.Business.Classes
 
             _systemContext.SaveChanges();
 
-            return newPedidoEntity;
+            var orderGenerated = _systemContext.PedidoImportacao.Include(inc => inc.Arquivos).ThenInclude(then => then.Index).AsNoTracking().FirstOrDefault(a => a.ID == newPedidoEntity.ID);
+
+            return orderGenerated;
         }
 
         public string[] CheckFileList(string fileName, PedidoImportacao newPedidoEntity, IIdentityContext _systemContext)
@@ -131,7 +152,7 @@ namespace Infra.Business.Classes
                     IndicadorStatus = "E"
                 });
 
-                newPedidoEntity.Estado = "E";
+                newPedidoEntity.OrderState = OrderState.Error;
                 _systemContext.SaveChanges();
 
                 throw erro;
@@ -205,105 +226,89 @@ namespace Infra.Business.Classes
             return files.ToArray();
         }
 
-        public void InserirArquivo(PedidoImportacao pedido, IIdentityContext context)
+        public bool InsertFile(long order, long fileId)
         {
-            pedido.LogPedidoImportacao.Add(new LogPedidoImportacao()
+            using var serviceScope = ServiceProvider.CreateScope();
+            using var scopedContext = serviceScope.ServiceProvider.GetRequiredService<IIdentityContext>();
+            var orderEntity = scopedContext.PedidoImportacao.FirstOrDefault(a => a.ID == order);
+            var fileToImport = scopedContext.ArquivoBase.Include(a => a.Index).Include(z => z.Headers).FirstOrDefault(a => a.ID == fileId);
+            var index = fileToImport.Index;
+            var headers = fileToImport.Headers;
+
+            orderEntity.LogPedidoImportacao.Add(new LogPedidoImportacao()
             {
                 Descricao = "Iniciando conexão com ElasticSearch...",
                 IndicadorStatus = "I"
             });
+            scopedContext.SaveChanges();
 
-            var arquivo = pedido.Arquivos.FirstOrDefault();
-            var index = arquivo.Index;
-
-            context.SaveChanges();
-            
             var repository = this._unitOfWork.StartClient<Dictionary<string, string>>($"{index.Name}Repository", index.Name);
 
-            bool isMemoryFull = false;
+            var _file = fileToImport;
 
-            var _file = pedido.Arquivos.Where(a => a.Nome != arquivo.Nome).FirstOrDefault();
-
-            pedido.LogPedidoImportacao.Add(new LogPedidoImportacao()
+            orderEntity.LogPedidoImportacao.Add(new LogPedidoImportacao()
             {
                 Descricao = $"Iniciando leitura do arquivo {_file.Nome}...",
                 IndicadorStatus = "I"
             });
+            scopedContext.SaveChanges();
 
-            context.SaveChanges();
-
-            var filePath = Path.Combine(Configuration.DefaultTempBaseFiles, pedido.PastaTemp, _file.Nome);
-
-            var encoding = Functions.GetEncoding(filePath);
-            var file = File.ReadLines(filePath, encoding);
+            var encoding = Functions.GetEncoding(_file.UrlOrigem);
+            var file = File.ReadLines(_file.UrlOrigem, encoding);
 
             var cabecalho = file.FirstOrDefault().Split(';').Select(a => a.Replace("\"", "").Replace("\"", "")).ToArray();
-            var loadObjects = new List<Dictionary<string, string>>();
-            int valorTotal = 0;
-            int fileSize = file.Count();
-
-            int contador = 200000;
             int skip = 1;
 
-            var ramErrors = new Dictionary<int[], string>(); //skip, contador
+            var ramErrors = new Dictionary<Dictionary<string, string>, string>(); //skip, contador
 
-            pedido.LogPedidoImportacao.Add(new LogPedidoImportacao()
+            orderEntity.LogPedidoImportacao.Add(new LogPedidoImportacao()
             {
                 Descricao = $"Iniciando gravação do arquivo {_file.Nome}...",
                 IndicadorStatus = "I"
             });
+            scopedContext.SaveChanges();
 
-            context.SaveChanges();
+            var fileQuery = file.Skip(skip);
 
-            do
+            Parallel.ForEach(fileQuery, (item) =>
             {
+                var itemTemp = item.Split(';').Select(t => t.Replace("\"", "").Replace("\"", "")).ToArray().Zip(cabecalho, (value, key) => new { key, value }).ToDictionary(z => z.key, b => b.value);
                 try
                 {
-                    var listObject = new List<Dictionary<string, string>>();
-
-                    loadObjects.AddRange(file.Skip(skip).Take(contador).Select(a => a.Split(';').Select(t => t.Replace("\"", "").Replace("\"", "")).ToArray().Zip(cabecalho, (value, key) => new { key, value }).ToDictionary(z => z.key, b => b.value)));
-
-                    valorTotal += loadObjects.Count;
-
-                    this.WorkWithObjMemory(ref loadObjects, ref repository, ref isMemoryFull, cabecalho);
-
-                    skip += contador;
+                    repository.Insert(itemTemp);
                 }
                 catch (Exception erro)
                 {
-                    ramErrors.Add(new int[] { skip, contador }, $"[ERRO] - {erro.Message}");
+                    ramErrors.Add(itemTemp, $"[ERRO] - {erro.Message}");
                 }
-            }
-            while (valorTotal < fileSize - 1);
-
-            this.DeleteTempFiles(filePath);
+            });
 
             if (ramErrors.Count > 0)
             {
-                foreach (var error in ramErrors)
+                foreach (var ramError in ramErrors)
                 {
-                    pedido.LogPedidoImportacao.Add(new LogPedidoImportacao()
+                    string lineError = $"[{string.Join(";", ramError.Key.Select(a => $"({a.Key}) => {a.Value}"))}]";
+                    string errorMessage = $"Erro ao importar arquivo {_file.Nome} - {lineError} <=> {ramError.Value}";
+
+                    orderEntity.LogPedidoImportacao.Add(new LogPedidoImportacao
                     {
-                        Descricao = $"Erro ao gravar o arquivo {_file.Nome} - {error.Value}...",
+                        Descricao = errorMessage,
                         IndicadorStatus = "E"
                     });
+                    scopedContext.SaveChanges();
                 }
 
-                pedido.Estado = "E";
-
-                context.SaveChanges();
-                return;
+                return false;
             }
 
-            pedido.LogPedidoImportacao.Add(new LogPedidoImportacao()
+            orderEntity.LogPedidoImportacao.Add(new LogPedidoImportacao
             {
-                Descricao = $"Processo de leitura do arquivo finalizado sem erros",
-                IndicadorStatus = "C"
+                Descricao = $"Arquivo {_file.Nome} importado com sucesso!",
+                IndicadorStatus = "I"
             });
+            scopedContext.SaveChanges();
 
-            pedido.Estado = "C";
-
-            context.SaveChanges();
+            return true;
         }
 
         private void WorkWithObjMemory(ref List<Dictionary<string, string>> linha, ref IRepository<Dictionary<string, string>> repository, ref bool isMemoryFull, string[] cabecalho)
@@ -389,7 +394,7 @@ namespace Infra.Business.Classes
                     Descricao = $"Erro ao registrar a importação: {erro.Message}...",
                     IndicadorStatus = "E"
                 });
-                newPedidoEntity.Estado = "E";
+                newPedidoEntity.OrderState = OrderState.Error;
                 _context.SaveChanges();
 
                 throw erro;
@@ -415,7 +420,7 @@ namespace Infra.Business.Classes
                 }
             }
 
-           //     ZipFile.ExtractToDirectory(fileBaseName, destineExtract);
+            //     ZipFile.ExtractToDirectory(fileBaseName, destineExtract);
 
             newPedidoEntity.LogPedidoImportacao.Add(new LogPedidoImportacao
             {
@@ -481,12 +486,6 @@ namespace Infra.Business.Classes
             context.SaveChanges();
         }
 
-        public void UpdateToRegisterData(PedidoImportacao pedido, IIdentityContext context)
-        {
-            pedido.Estado = "AR";
-            context.SaveChanges();
-        }
-
         public IList<Dictionary<string, string>> QueryGroupData(string indexName, IList<string> selectFilter = null, IEnumerable<Tuple<string, string, string>> filterFilter = null, long numberEntries = 1000, bool allEntries = false)
         {
             try
@@ -517,7 +516,7 @@ namespace Infra.Business.Classes
 
                 return resultFinal;
             }
-            catch(Exception erro)
+            catch (Exception erro)
             {
                 throw erro;
             }
@@ -572,7 +571,7 @@ namespace Infra.Business.Classes
 
                 return fileName;
             }
-            catch(Exception erro)
+            catch (Exception erro)
             {
                 throw erro;
             }

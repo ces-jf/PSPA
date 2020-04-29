@@ -6,6 +6,7 @@ namespace Infra.Business.Interfaces
     public interface IIndexBusiness
     {
         IEnumerable<Index> Listar();
-        IEnumerable<Cabecalho> Colunas(string nomeIndex);
+        Index GetIndex(string index);
+        IEnumerable<Header> Colunas(string nomeIndex);
     }
 }

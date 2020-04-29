@@ -1,15 +1,12 @@
-﻿@inject IModalService ModalService
-
+﻿
 <div class="simple-form">
     <fieldset>
         <label for="graphicSelectTypeList">Graphic Type</label>
         <select @bind="SelectToGraphic" class="form-control">
             <option>Select a graphic to Draw...</option>
-            <option value="pie">Pie Chart</option>
-            <option value="bar">Bar Chart</option>
-            <option value="column">Column Chart</option>
-            <option value="histogram">Histogram</option>
-            <option value="table">Table</option>
+            <option value="@GraphicType.Pie">Pie Chart</option>
+            <option value="@GraphicType.Column">Column Chart</option>
+            <option value="@GraphicType.Table">Table</option>
         </select>
     </fieldset>
     <hr />
@@ -19,8 +16,10 @@
  
 @code {
     [CascadingParameter]
+    public BlazoredModalInstance ModalInstance { get; set; }
+    [CascadingParameter]
     public ModalParameters Parameters { get; set; }
-    public string SelectToGraphic { get; set; }
+    public GraphicType SelectToGraphic { get; set; }
 
 
     protected override void OnInitialized()
@@ -30,11 +29,11 @@
 
     public void Cancel()
     {
-        ModalService.Cancel();
+        ModalInstance.Cancel();
     }
 
     public void Save()
     {
-        ModalService.Close(ModalResult.Ok<string>(SelectToGraphic));
+        ModalInstance.Close(ModalResult.Ok<GraphicType>(SelectToGraphic));
     }
 }

@@ -8,20 +8,57 @@ services:
        - dbdata:/var/lib/mysql
        - ./_MySQL_Init_Script:/docker-entrypoint-initdb.d
     environment:
-      MYSQL_ROOT_PASSWORD: root
+      - MYSQL_ROOT_PASSWORD="root"
+      - MYSQL_DATABASE="PSPABase"
     ports:
       - 3306:3306
-  
-  webapi:
-    image: ${DOCKER_REGISTRY-}webmvcnet
+
+  elasticsearch:
+    container_name: elasticsearch
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.6.2
+    ports:
+      - 9200:9200
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    environment:
+      - xpack.monitoring.enabled=true
+      - xpack.watcher.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - discovery.type=single-node
+
+  kibana:
+    container_name: kibana
+    image: docker.elastic.co/kibana/kibana:7.6.2
+    ports:
+      - 5601:5601
+    depends_on:
+      - elasticsearch
+    environment:
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+
+  blazorsite:
+    image: ${DOCKER_REGISTRY-}blazorsite
     build:
       context: .
-      dockerfile: WebMVCNET/Dockerfile
+      dockerfile: BlazorMVC/Dockerfile
     depends_on:
-       - db
+      - db
+      - elasticsearch
     environment:
-       - DBHOST=db
+      - DBHOST=db
+
+  importservice:
+    image: ${DOCKER_REGISTRY-}importservice
+    build:
+      context: .
+      dockerfile: ImportService/Dockerfile
+    depends_on:
+      - db
+      - blazorsite
+      - elasticsearch
+    environment:
+      - DBHOST=db
 
 volumes:
   dbdata:
-
+  elasticsearch-data:

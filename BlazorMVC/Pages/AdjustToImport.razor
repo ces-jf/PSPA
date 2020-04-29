@@ -1,0 +1,123 @@
+﻿@page "/AdjustToImport/{Order:long}"
+
+@inject RequestAdjustImport RequestAdjustService
+@inject IPedidoImportacaoBusiness PedidoImportacaoBusiness
+@inject ToastService ToastService
+
+@using Microsoft.AspNetCore.Mvc.Rendering
+
+<h1>Adjust the columns type before import data</h1>
+
+<div class="row">
+    <div class="col-md-12">
+
+        @if (RequestAdjustService.Headers == null)
+        {
+            <Loader />
+        }
+        else
+        {
+            <DxDataGrid Data="@RequestAdjustService.Headers"
+                        PageSize="10"
+                        ShowFilterRow="false"
+                        RowEditStart="@(dataItem => OnRowEditStarting(dataItem))"
+                        RowUpdating="@((updatingDataItem, newValues) => UpdateColumn(updatingDataItem, newValues))">
+                <Columns>
+                    <DxDataGridCommandColumn NewButtonVisible="false" DeleteButtonVisible="false" EditButtonVisible="@RequestAdjustService.CanEdit" />
+                    <DxDataGridColumn Field="@nameof(HeaderViewModel.Name)" Caption="Column Name" EditorVisible="DefaultBoolean.False" />
+                    <DxDataGridComboBoxColumn Field=@nameof(HeaderViewModel.HeaderType) Caption="Column Type"
+                                              Data="@GetSelectList()"
+                                              ValueFieldName="@nameof(HeaderTypeViewModel.Type)"
+                                              TextFieldName="@nameof(HeaderTypeViewModel.DisplayText)" />
+                    <DxDataGridColumn Field="@nameof(HeaderViewModel.FileName)" Caption="File Name" EditorVisible="DefaultBoolean.False" />
+                </Columns>
+            </DxDataGrid>
+            <hr />
+            <div class="form-group">
+                <button @onclick="SaveToImport" class="btn btn-primary">Request Import Order</button>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public long Order { get; set; }
+
+    public HeaderViewModel EditViewModel = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        RequestAdjustService.CanEdit = true;
+        await GetHeaders();
+    }
+
+    public Task GetHeaders()
+    {
+        return Task.Factory.StartNew(() =>
+        {
+            RequestAdjustService.Headers = PedidoImportacaoBusiness.GetHeaders(Order).ToList();
+            var index = RequestAdjustService.Headers.Select(a => a.ArquivoBase.Index).FirstOrDefault();
+            RequestAdjustService.CanEdit = !index.AlreadyMapped;
+        });
+    }
+
+    public void OnRowEditStarting(HeaderViewModel headerViewModel)
+    {
+        EditViewModel = headerViewModel;
+        EditViewModel.StateHasChanged += () => { InvokeAsync(StateHasChanged); };
+    }
+
+    public void OnCancelButtonClick()
+    {
+        EditViewModel = null;
+    }
+
+    public void UpdateColumn(HeaderViewModel headerViewModel, Dictionary<string, object> newValues)
+    {
+        newValues.TryGetValue("HeaderType", out object headerType);
+
+        var entity = new Header
+        {
+            ID = headerViewModel.ID,
+            Name = headerViewModel.Name,
+            HeaderType = ((HeaderTypeViewModel)headerType).Type
+        };
+
+        try
+        {
+            PedidoImportacaoBusiness.UpdateHeader(entity);
+        }
+        catch
+        {
+            ToastService.ShowToast("There was an error processing your request, please try again later.", ToastLevel.Error);
+        }
+    }
+
+    public void SaveToImport()
+    {
+        try
+        {
+            PedidoImportacaoBusiness.SaveToImport(Order);
+            ToastService.ShowToast("Order ready to be imported in database!", ToastLevel.Success);
+            RequestAdjustService.CanEdit = false;
+        }
+        catch
+        {
+            ToastService.ShowToast("There was an error processing your request, please try again later.", ToastLevel.Error);
+        }
+    }
+
+    public IEnumerable<HeaderTypeViewModel> GetSelectList()
+    {
+        var items = Enum.GetValues(typeof(HeaderType))
+                    .OfType<HeaderType>()
+                    .Select(t => new HeaderTypeViewModel()
+                    {
+                        Type = t,
+                        DisplayText = t.GetEnumDescription()
+                    }).ToList();
+
+        return items;
+    }
+}

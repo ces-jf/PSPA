@@ -1,0 +1,31 @@
+﻿
+<DxDataGrid Data="@resultsDictionarys" PageSize="10" ShowFilterRow="false">
+    <DxDataGridColumn Field="@nameof(GraphicSearch.Column)" Caption="Column" />
+    <DxDataGridColumn Field="@nameof(GraphicSearch.Value)" Caption="Value" />
+</DxDataGrid>
+<hr />
+<button @onclick="Cancel" type="button" class="btn btn-secondary">Close</button>
+
+ 
+@code {
+    [CascadingParameter]
+    public BlazoredModalInstance ModalInstance { get; set; }
+    [CascadingParameter]
+    public ModalParameters Parameters { get; set; }
+    public List<GraphicSearch> resultsDictionarys { get; set; }
+    public string Title { get; set; }
+
+
+    protected override void OnInitialized()
+    {
+        resultsDictionarys = Parameters.Get<List<GraphicSearch>>("resultsDictionarys");
+        Title = Parameters.Get<string>("title");
+
+        base.OnInitialized();
+    }
+
+    public void Cancel()
+    {
+        ModalInstance.Cancel();
+    }
+}

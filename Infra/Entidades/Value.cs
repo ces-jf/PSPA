@@ -16,7 +16,7 @@ namespace Infra.Entidades
 
         // Relationships
         [NotMapped]
-        public Cabecalho Cabecalho { get; set; }
+        public Header Cabecalho { get; set; }
         public ArquivoBase ArquivoBase { get; set; }
     }
 }

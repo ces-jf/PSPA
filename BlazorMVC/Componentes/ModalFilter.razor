@@ -1,5 +1,4 @@
-﻿@inject IModalService ModalService
-@inject IIndexBusiness IndexBusiness
+﻿@inject IIndexBusiness IndexBusiness
 @inject ModalFilterState ModalFilterState
 
 <div class="simple-form">
@@ -12,7 +11,7 @@
                     <option>Select a column to filter...</option>
                     @foreach (var column in ModalFilterState.Columns)
                     {
-                        <option value="@column.Descricao">@column.Descricao</option>
+                        <option value="@column.Name">@column.Name</option>
                     }
                 </select>
             }
@@ -46,6 +45,8 @@
 @code {
     [CascadingParameter]
     public ModalParameters Parameters { get; set; }
+    [CascadingParameter]
+    public BlazoredModalInstance ModalInstance { get; set; }
 
     protected override void OnInitialized()
     {
@@ -71,11 +72,11 @@
 
     public void Cancel()
     {
-        ModalService.Cancel();
+        ModalInstance.Cancel();
     }
 
     public void Save()
     {
-        ModalService.Close(ModalResult.Ok<IList<Filter>>(ModalFilterState.FilterColumns));
+        ModalInstance.Close(ModalResult.Ok<IList<Filter>>(ModalFilterState.FilterColumns));
     }
 }

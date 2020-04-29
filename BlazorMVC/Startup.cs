@@ -148,7 +148,8 @@ namespace BlazorSite
                 SecondName = "Administrator"
             };
 
-            _userManager.CreateAsync(user, "administrator").GetAwaiter().GetResult();
+            _userManager.CreateAsync(user, "@Dm1nistrator").GetAwaiter().GetResult();
+            _userManager.AddToRoleAsync(user, "Administrator").Wait();
         }
     }
 }
